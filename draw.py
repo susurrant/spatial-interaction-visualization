@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-：
 
 from PIL import Image, ImageDraw, ImageFont
-import pysal
 from sklearn.cluster import KMeans
 import operator
 import numpy as np
@@ -12,19 +11,13 @@ import tkinter as tk
 
 # kmeans classifier
 def kmeans(dn, cNum):
-    n = sorted(dn, key = operator.itemgetter(0), reverse = False)
-    X = np.array(n)
+    X = np.sort(dn).reshape((-1,1))
     k = KMeans(n_clusters = cNum, random_state = 0).fit(X)
     labels = []
     for l in k.labels_:
         if l not in labels:
             labels.append(l)
     return k, labels
-
-# Fisher_Jenks breaks
-def jenks(dn, kNum):
-    jb = pysal.Natural_Breaks(dn, k = kNum)
-    return jb.bins
 
 def computeRC(gid, hexParm):
     if gid < hexParm[1]:
@@ -100,28 +93,25 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     # -------------------------------classify data----------------------------------
     mag = []
     dis = []
-    magkm = []
-    diskm = []
     for g in grids:
         grids[g].calcOutAggregation(flows)
         for tm in grids[g].wm:
             mag.append(tm)
-            magkm.append([tm, 0])
         for td in grids[g].wd:
             dis.append(td)
-            diskm.append([td, 0])
 
-    #mag_bins = jenks(sorted(mag), ia['mag_class_number'])
-    #dis_bins = jenks(sorted(dis), ia['dis_class_number'])
+    nk, nl = kmeans(mag, ia['mag_class_number'])
+    dk, dl = kmeans(dis, ia['dis_class_number'])
 
-    nk, nl = kmeans(magkm, ia['mag_class_number'])
-    dk, dl = kmeans(diskm, ia['dis_class_number'])
-
-    gridWidth = ia['gridWidth']
+    p = nk.predict(np.array(mag).reshape((-1, 1)))
+    r = np.column_stack((np.array(mag).reshape((-1, 1)), p.reshape((-1, 1))))
+    np.savetxt('unsort clss.csv',r,delimiter=',')
 
     # -----------------------------draw visual glyphs-------------------------------
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)
+
+    gridWidth = ia['gridWidth']
     xs, ys = computeCo(gridWidth, dnum//6)
     for gid in grids:
         if len(grids[gid].wm) == 0:
@@ -133,20 +123,8 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
         for i in range(dnum):
             border.append(cenx + xs[i])
             border.append(ceny + ys[i])
-            '''
-            j = 0
-            k = 0
-            while j < ia['mag_class_number']:
-                if grids[gid].wm[i] <= mag_bins[j]:
-                    break
-                j += 1
-            while k < ia['dis_class_number']:
-                if grids[gid].wd[i] <= dis_bins[k]:
-                    break
-                k += 1
-            '''
-            j = nl.index(nk.predict([[grids[gid].wm[i], 0]])[0])
-            k = dl.index(dk.predict([[grids[gid].wd[i], 0]])[0])
+            j = nl.index(nk.predict(grids[gid].wm[i]))
+            k = dl.index(dk.predict(grids[gid].wd[i]))
             nc = ia['color_scheme'][j][k]
             draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=nc, outline=nc)
         draw.polygon(border, outline = ia['border_color'])

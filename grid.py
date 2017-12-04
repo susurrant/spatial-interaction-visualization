@@ -3,7 +3,7 @@
 import numpy as np
 
 class Grid(object):
-    def __init__(self, gid, dnum):
+    def __init__(self, gid, dnum=6):
         # 格网ID
         self.gid = gid
         # 关联的流集合
