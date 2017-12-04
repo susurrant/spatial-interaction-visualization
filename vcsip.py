@@ -198,10 +198,10 @@ def readDrawingSetting(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
     #   hexparm: 网格参数(每行六边形数, 总六边形个数的一半)
-    #   网格：gridWidth：网格尺寸；gridBorderWidth：网格边线宽度（奇数较好）；margin：网格间隙宽，应大于gridBorderWidth
+    #   网格：gridWidth：网格尺寸；margin：网格间隙宽
     #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
-    #   图像尺寸：width：图像宽度；height：图像高度；frameMargin：图像边框据图像边缘偏移
-    #   图例：legendWidth：图例条基本宽度
+    #   图像尺寸：width：图像宽度；height：图像高度；
+    #   图例：legendWidth：图例条基本宽度；；legend_yoffset：图例相对右下角点的纵向偏移；legend_xoffset：图例相对右下角点的横向偏移
     #   聚类数：dis_class_number、dis_class_number、k_dif；颜色：color_scheme、c_dif
     if scale == '1km':
         ia = {'hexParm': (12, 240), 'gridWidth': 84, 'ox': 30, 'oy': 40, 'margin': 9,
