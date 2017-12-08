@@ -2,8 +2,6 @@
 
 from grid import *
 from draw import *
-import numpy as np
-from collections import Counter
 from LL2UTM import LL2UTM_USGS
 
 # 读取数据
@@ -42,81 +40,44 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 
     return grids, flows
 
-# 读取五环内的交互，供drawSIPattern使用
-def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
+# 读取五环内的交互
+def readData_Inside(filename, dnum, minSpeed = 2, maxSpeed = 150):
     flows_co = {}
-    flows_id = {}
     grids = {}
-    for gid in dgids:
-        grids[gid] = Grid(gid, dnum)
-    
+
     with open(filename, 'r') as f:
         f.readline()
         while True:
-            line = f.readline().strip()
-            if line:
-                sl = line.split(',')
-                if float(sl[-2]) < minSpeed or float(sl[-2]) > maxSpeed:
+            line1 = f.readline().strip()
+            if line1:
+                line2 = f.readline().strip()
+                sl1 = line1.split(',')
+                sl2 = line2.split(',')
+                if int(sl1[1]) == 0 or int(sl2[1]) == 0:
+                    continue
+                if float(sl1[-2]) < minSpeed or float(sl1[-2]) > maxSpeed:
                     continue
 
-                fid = int(sl[-4])
-                gid = int(sl[-1])
+                fid = int(sl1[-4])
+                ogid = int(sl1[-1])
+                dgid = int(sl2[-1])
 
-                if fid not in flows_co:
-                    flows_co[fid] = [(), ()]
-                    flows_id[fid] = [-1, -1]
+                ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
+                dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
 
-                x, y = LL2UTM_USGS(float(sl[-5]), float(sl[-6]))
-                if sl[-3] == '1':
-                    flows_co[fid][0] = (x, y)
-                    flows_id[fid][0] = gid
-                elif sl[-3] == '0':
-                    flows_co[fid][1] = (x, y)
-                    flows_id[fid][1] = gid
+                flows_co[fid] = [(ox, oy), (dx, dy)]
+
+                if ogid not in grids:
+                    grids[ogid] = Grid(ogid, dnum)
+                if dgid not in grids:
+                    grids[dgid] = Grid(dgid, dnum)
+
+                grids[ogid].addOutFlow(fid)
+                grids[dgid].addInFlow(fid)
             else:
                 break
-
-    for fid in flows_id:
-        if flows_id[fid][0] in dgids and flows_id[fid][1] in dgids:
-            grids[flows_id[fid][0]].addOutFlow(fid)
-            grids[flows_id[fid][1]].addInFlow(fid)
-        else:
-            flows_co.pop(fid)
 
     return grids, flows_co
-
-# 读取五环内的交互，供交互矩阵、流地图使用
-def readInnerFlows(filename, dgids, minSpeed = 2, maxSpeed = 150):
-    grids = {}
-    flows = {}
-
-    with open(filename, 'r') as f:
-        f.readline()
-        while True:
-            line = f.readline().strip()
-            if line:
-                sl = line.split(',')
-                if float(sl[-2]) < minSpeed or float(sl[-2]) > maxSpeed:
-                    continue
-
-                fid = int(sl[-4])
-                if fid not in flows:
-                    flows[fid] = [-1,-1]
-                gid = int(sl[-1])
-                if sl[-3] == '1':
-                    flows[fid][0] = gid
-                elif sl[-3] == '0':
-                    flows[fid][1] = gid
-            else:
-                break
-
-    for fid in flows:
-        if flows[fid][0] in dgids and flows[fid][1] in dgids:
-            if tuple(flows[fid]) not in grids:
-                grids[tuple(flows[fid])] = 0
-            grids[tuple(flows[fid])] += 1
-
-    return grids
 
 # 读取要绘制的网格编号
 def readGids(fileName):
@@ -128,31 +89,6 @@ def readGids(fileName):
             sl = line.strip().split(',')
             dgids.add(int(sl[-1]))
     return dgids
-
-# 特定网格方向、角度、流量统计分布
-def drawGridDistribution(gid, fileName, dgids, tag):
-    grids, flows = readData(fileName + '.csv', dgids)
-    a = [0]*360
-    d = [0]*30
-    for fid in grids[gid].outFlow:
-        td, ta = calcInteraction(flows[fid])
-        a[int(round(np.rad2deg(ta)))] += 1
-        d[int(td)] += 1
-
-    if tag == 'polar':
-        drawPolarDistribution(a, '#00e079')
-    else:
-        m = []
-        grids[gid].searchToGrids(flows)
-        for tm in grids[gid].toGrid.values():
-            m.append(tm)
-        mc = Counter(m)
-        x = []
-        y = []
-        for tx, ty in mc.items():
-            x.append(tx)
-            y.append(ty)
-        drawTwinDistribution(d, '#44cef6', x, y, '#ef7a82')
 
 # 交互模式可视化
 def drawSIPattern(fileName, dgids, dnum, ia, inside=False):
@@ -183,15 +119,6 @@ def drawDifVar(fs, dgids, gids, labels, colors, alpha, dnum):
         flows.append(f)
     gdif = cdif_multi(grids, flows, alpha)
     drawCdifDistribution(gids, gdif, colors, labels)
-
-def drawMatrix(fileName, dgids, ia):
-    grids = readInnerFlows(fileName + '.csv', dgids)
-    saveFileName = './figure/m_' + fileName[-15:] + '.jpg'
-    drawIMatrix(grids, dgids, ia, saveFileName)
-
-def drawFlowMap(fileName, dgids, ia):
-    grids = readInnerFlows(fileName + '.csv', dgids)
-    drawFMap(grids, dgids, ia)
 
 # 读取渲染设置
 def readDrawingSetting(scale):
@@ -272,8 +199,6 @@ if __name__ == '__main__':
 
     #drawDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
 
-    #drawGridDistribution(, fileName[4]+scale, dgids, 'polar') #input gid in the scale
-
     if False:
         labels = ['T', 'S', 'C', 'R']
         gids = [487, 563, 800, 1455]   #scale = 500m
@@ -281,6 +206,4 @@ if __name__ == '__main__':
         colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
         drawDifVar([fileNames[i]+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, dnum)
 
-    #drawMatrix(fileNames[4]+scale, dgids, ia)
-    #drawFlowMap(fileNames[4]+scale, dgids, ia)
     #userScore()

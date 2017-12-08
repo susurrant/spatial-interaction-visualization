@@ -110,5 +110,5 @@ def readDrawingSetting():
 if __name__ == '__main__':
     file_name = './data/sj_2kmsq_051316_1721.csv'
     ia = readDrawingSetting()
-    drawODMap(file_name, './figure/'+file_name[7:-3]+'jpg', ia)
+    drawODMap(file_name, './figure/odmap_2kmsq_051316_1721.jpg', ia)
 

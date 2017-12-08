@@ -6,7 +6,6 @@ import operator
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import tkinter as tk
 
 
 # kmeans classifier
@@ -103,10 +102,6 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     nk, nl = kmeans(mag, ia['mag_class_number'])
     dk, dl = kmeans(dis, ia['dis_class_number'])
 
-    p = nk.predict(np.array(mag).reshape((-1, 1)))
-    r = np.column_stack((np.array(mag).reshape((-1, 1)), p.reshape((-1, 1))))
-    np.savetxt('unsort clss.csv',r,delimiter=',')
-
     # -----------------------------draw visual glyphs-------------------------------
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)
@@ -114,10 +109,6 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     gridWidth = ia['gridWidth']
     xs, ys = computeCo(gridWidth, dnum//6)
     for gid in grids:
-        if len(grids[gid].wm) == 0:
-            print('grid %d is empty!' % gid)
-            continue
-
         cenx, ceny = computeCen(gid, ia)
         border = []
         for i in range(dnum):
@@ -365,64 +356,6 @@ def drawCdif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     idpi = ia['dpi']
     image.save(saveFileName, quality=iquality, dpi=idpi)
 
-def drawPolarDistribution(v, c):
-    sns.set_style("ticks")
-    sns.set_context("paper")
-
-    r = np.linspace(0, 2 * np.pi, len(v), endpoint=False)
-    rNum = 72
-    gridAngles = np.linspace(0, 2*np.pi, rNum, endpoint=False)
-    idx = [i for i in range(0, 360, 45)]
-    labels = ['']*rNum
-    for i in idx:
-        labels[i/5] = str(i)+u'\u00B0'
-
-    fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(8, 8))
-    for tr, tv in zip(r, v):
-        ax.plot((0, tr), (0, tv), linewidth = 2, color=c, zorder = 3)
-    ax.set_thetagrids(np.rad2deg(gridAngles), labels, fontname="Times New Roman", size=17)
-    #ax.set_rlim(0, 10)
-    ax.set_rlabel_position(90)
-    ax.set_rgrids([10, 20, 30, 40], size=15, color='#41555d', fontname='Times New Roman')
-    ax.grid(True)
-    plt.show()
-
-def drawTwinDistribution(d, c1, x, y, c2):
-    sns.set_style("whitegrid")
-    sns.set_context("paper")
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax2 = ax.twiny()
-
-    ax.set_ylabel('Number', fontname="Times New Roman", fontsize=17)
-    ax.set_xlabel('Distance (km)', fontname="Times New Roman", fontsize=17)
-    ax2.set_xlabel('Magnitude', fontname="Times New Roman", fontsize=17)
-
-    l1 = ax.bar([i for i in range(len(d))], d, facecolor = c1, label = 'distance')
-    l2, = ax2.plot(x, y, 'o--', linewidth = 2, color = c2, label = 'magnitude')
-
-    ax.set_ylim(0, 200)
-    ys = [i for i in range(0, 201, 40)]
-    ax.set_yticks(ys)
-    ylabels = [str(abs(item)) for item in ys]
-    ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=15)
-
-    ax.set_xlim(0, 30)
-    xs = [i for i in range(0, 31, 5)]
-    ax.set_xticks(xs)
-    xlabels = [str(abs(item)) for item in xs]
-    ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=15)
-
-    ax2.set_xlim(0, 30)
-    ax2.set_xticks(xs)
-    ax2.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=15)
-
-    leg = plt.legend(handles=[l1, l2], loc=1)
-    for l in leg.get_texts():
-        l.set_fontsize(14)
-        l.set_fontname("Times New Roman")
-
-    plt.show()
-
 def drawCdifDistribution(gids, gdif, c, labels):
     sns.set(style="whitegrid")
     sns.set_context("paper")
@@ -457,149 +390,6 @@ def drawCdifDistribution(gids, gdif, c, labels):
         l.set_fontname("Times New Roman")
 
     plt.show()
-
-def drawIMatrix(grids, dgids, ia, saveFileName):
-    hexParm = ia['hexParm']
-    rcg = []
-    for gid in dgids:
-        y, x = computeRC(gid, hexParm)
-        rcg.append([y,x,gid])
-    srcg = sorted(rcg, key=lambda x:(x[0],x[1]))
-    gids = [item[2] for item in srcg]
-
-    gnum = len(gids)
-    cnum = 15
-    num = []
-    for w in grids.values():
-        num.append([w, 0])
-    dnv = gnum**2 - len(num)
-    #print(gnum, len(num), dnv)
-    for i in range(dnv):
-        num.append([0, 0])
-    nk, nl = kmeans(num, cnum)
-
-    image = Image.new('RGB', (3000, 3000), '#ffffff')
-    draw = ImageDraw.Draw(image)
-
-    gridSize = 10
-    #cs = 'fef4f3#fee4e4#fdd5d5#fbc6c6#f9b7b7#f5a8a8#f29a9a#ed8b8b#e87c7c#e36c6c#dc5d5d#d64c4c#cf3b3b#c72525#be0000'
-    #colors = ['#'+c for c in cs.split('#')]
-    # cs = 'ffffff#fee4e4#fdd5d5#fbc6c6#f9b7b7#f5a8a8#f29a9a#ed8b8b#e87c7c#e36c6c#dc5d5d#d64c4c#cf3b3b#c72525#be0000'
-    # colors = ['#' + c for c in cs.split('#')]
-    colors = []
-    rgbcolor = [(156, 204, 255), (156, 217, 255), (153, 243, 255), (153, 255, 255), (184, 255, 229),
-                (199, 255, 216), (212, 255, 204), (223, 255, 191), (245, 255, 166), (255, 243, 153),
-                (255, 230, 153), (255, 216, 153), (255, 202, 153), (255, 190, 153), (255, 153, 153)]
-    for c in rgbcolor:
-        colors.append('#%02X%02X%02X' % c)
-
-    offX = 45
-    offY = 40
-    for i in range(gnum):
-        top = offY + i * gridSize
-        for j in range(gnum):
-            w = 0
-            if (gids[i], gids[j]) in grids:
-                w = grids[(gids[i], gids[j])]
-            c = colors[nl.index(nk.predict([[w, 0]])[0])]
-            left = offX + j * gridSize
-            draw.polygon([left, top, left+gridSize, top, left+gridSize, top+gridSize, left, top+gridSize], fill=c)
-
-    labelfont = ImageFont.truetype('./font/times.ttf', 45)
-    oy = offY + gids.index(128) * gridSize
-    draw.text((5, oy), 'B', font=labelfont, fill='#000000')
-    oy = offY + gids.index(100) * gridSize
-    draw.text((5, oy), 'A', font=labelfont, fill='#000000')
-    ox = offX + gids.index(128) * gridSize
-    draw.text((ox, 1), 'B', font=labelfont, fill='#000000')
-    ox = offX + gids.index(100) * gridSize
-    draw.text((ox, 1), 'A', font=labelfont, fill='#000000')
-
-    print((gnum+6)*gridSize, (gnum+7)*gridSize)
-    draw.text((2400, (gnum+4)*gridSize), 'Low', font=labelfont, fill='#000000')
-    for i in range(cnum):
-        co = [2500+i*20, 2967, 2500+(i+1)*20, 2967, 2500+(i+1)*20, 2983, 2500+i*20, 2983]
-        draw.polygon(co, fill=colors[i])
-    draw.text((2840, (gnum+4)*gridSize), 'High', font=labelfont, fill='#000000')
-
-    iquality = ia['quality']
-    idpi = ia['dpi']
-    image.save(saveFileName, quality=iquality, dpi=idpi)
-
-def drawFMap(grids, dgids, ia):
-    gnum = len(dgids)
-    cnum = 15
-    num = []
-    for w in grids.values():
-        num.append([w, 0])
-    dnv = gnum ** 2 - len(num)
-    for i in range(dnv):
-        num.append([0, 0])
-    nk, nl = kmeans(num, cnum)
-
-    ia['width'] = 1000
-    ia['height'] = 1000
-    ia['gridWidth'] = 30
-    ia['xoffset'] = 3
-    ia['yoffset'] = 3
-    ia['margin'] = 2
-    ia['ox'] = 0
-    ia['oy'] = 2
-
-    #cs = 'ffffff#fee4e4#fdd5d5#fbc6c6#f9b7b7#f5a8a8#f29a9a#ed8b8b#e87c7c#e36c6c#dc5d5d#d64c4c#cf3b3b#c72525#be0000'
-    #colors = ['#' + c for c in cs.split('#')]
-    colors = []
-    #rgbcolor = [(156,204,255),(156,217,255),(171,255,241),(184,255,229),(199,255,216),(212,255,204),(223,255,191),
-    #           (245,255,166),(255,255,153),(255,243,153),(255,216,153),(255,202,153),(255,190,153), (255,165,153), (255,153,153)]
-    rgbcolor = [(156, 204, 255), (156, 217, 255), (153, 243, 255), (153, 255, 255), (184, 255, 229),
-                (199, 255, 216), (212, 255, 204), (223, 255, 191), (245, 255, 166), (255, 243, 153),
-                (255, 230, 153), (255, 216, 153), (255, 202, 153), (255, 190, 153), (255, 153, 153)]
-    for c in rgbcolor:
-        colors.append('#%02X%02X%02X' % c)
-
-    gridWidth = ia['gridWidth']
-
-    master = tk.Tk()
-    w = tk.Canvas(master, width=ia['width'], height=ia['height'], bg='#ffffff')
-    w.pack()
-
-    cenco = {}
-
-    for gid in dgids:
-        cenx, ceny = computeCen(gid, ia)
-        cenco[gid] = (cenx, ceny)
-        hex_co = computeCo_hexagon(cenx, ceny, gridWidth)
-        co = []
-        for item in hex_co:
-            co.append(item[2])
-            co.append(item[3])
-        co.append(co[0])
-        co.append(co[1])
-        w.create_polygon(co, fill='#ffffff', outline='#065279')
-
-    tup = []
-    for k,v in grids.items():
-        tup.append([k[0], k[1], v])
-    stup = sorted(tup, key=lambda x:x[2])
-    for item in stup:
-        if item[2]:
-            c = colors[nl.index(nk.predict([[item[2], 0]])[0])]
-            w.create_line(cenco[item[0]][0], cenco[item[0]][1], cenco[item[1]][0], cenco[item[1]][1], width=3, fill=c, arrow=tk.LAST)
-
-    cenx, ceny = computeCen(128, ia)
-    w.create_line(cenx, ceny, 955, 240, width=1, fill='#000000')
-    w.create_text(970, 240, text='B', font=('Times New Roman', 18), fill='#000000')
-    cenx, ceny = computeCen(100, ia)
-    w.create_line(cenx, ceny, 100, 850, width=1, fill='#000000')
-    w.create_text(90, 860, text='A', font=('Times New Roman', 18), fill='#000000')
-
-    w.create_text(945, 980, text='Low', font=('Times New Roman', 14), fill='#000000')
-    w.create_text(945, 860, text='High', font=('Times New Roman', 14), fill='#000000')
-    for i in range(cnum):
-        co = [900, 980-i*8, 920, 980-i*8, 920, 980-(i+1)*8, 900, 980-(i+1)*8]
-        w.create_polygon(co, fill=colors[i])
-
-    tk.mainloop()
 
 def userScore():
     sns.set(style="whitegrid")
