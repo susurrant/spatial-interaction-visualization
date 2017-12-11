@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-：
 
-from grid import *
 from PIL import Image, ImageDraw, ImageFont
 from LL2UTM import LL2UTM_USGS
 from draw import kmeans, computeCen
+
 
 # 读取五环内的交互，供drawSIPattern使用
 def readData_Inside(filename, dnum, minSpeed=2, maxSpeed=150):
@@ -48,7 +48,7 @@ def  drawDiagramMap(grids, flows, dnum, ia):
     dis = []
     maxmag = 0
     for g in grids:
-        grids[g].calcOutAggregation(flows)
+        grids[g].calcOutList(flows)
         for td in grids[g].wd:
             dis.append(td)
         for tm in grids[g].wm:
@@ -58,7 +58,7 @@ def  drawDiagramMap(grids, flows, dnum, ia):
 
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)
-
+    angle = [(300, 0), (240, 300), (180, 240), (120, 180), (60, 120), (0, 60)]
     for gid in grids:
         cenx, ceny = computeCen(gid, ia)
         for i in range(dnum):
