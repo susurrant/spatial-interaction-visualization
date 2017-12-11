@@ -10,13 +10,14 @@ import seaborn as sns
 
 # kmeans classifier
 def kmeans(dn, cNum):
-    X = np.sort(dn).reshape((-1,1))
-    k = KMeans(n_clusters = cNum, random_state = 0).fit(X)
+    X = np.sort(dn).reshape((-1, 1))
+    k = KMeans(n_clusters=cNum, random_state=0).fit(X)
     labels = []
     for l in k.labels_:
         if l not in labels:
             labels.append(l)
     return k, labels
+
 
 def computeRC(gid, hexParm):
     if gid < hexParm[1]:
@@ -26,6 +27,7 @@ def computeRC(gid, hexParm):
         y = int((gid-hexParm[1])/hexParm[0])*2 + 1
         x = ((gid-hexParm[1]) % hexParm[0])*2
     return y, x
+
 
 # compute central point coordinates
 def computeCen(gid, ia):
@@ -39,6 +41,7 @@ def computeCen(gid, ia):
     ceny = ia['oy'] + (totalY - y - ia['yoffset'] + 1) * b
     return cenx, ceny
 
+
 # compute edge point coordinates of a regular octagon
 def computeCo_hexagon(cenx, ceny, gridWidth):
     dx = gridWidth*np.cos(np.pi/3)
@@ -50,6 +53,7 @@ def computeCo_hexagon(cenx, ceny, gridWidth):
     for i in range(6):
         co.append([cenx, ceny, p[i][0], p[i][1], p[i+1][0], p[i+1][1]])
     return co
+
 
 def computeCo(gridWidth, n):
     dx = gridWidth * np.cos(np.pi / 3)
@@ -66,6 +70,7 @@ def computeCo(gridWidth, n):
     xs.append(xs[0])
     ys.append(ys[0])
     return xs, ys
+
 
 def drawGridSymbol_hexagon(cs):
     iwidth = iheight = 670*2
@@ -85,8 +90,8 @@ def drawGridSymbol_hexagon(cs):
         draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=c, outline=c)
         draw.line([cenx + xs[i], ceny + ys[i], cenx + xs[i + 1], ceny + ys[i + 1]], width=gridBorderWidth, fill=cs[i])
 
-
     image.save('./figure/grid symbol.jpg', quality=1000, dpi=(1200,1200))
+
 
 def drawPattern(grids, flows, dnum, ia, saveFileName):
     # -------------------------------classify data----------------------------------
@@ -174,7 +179,6 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     '''
 
     # -----------------------------draw legends-------------------------------
-
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 52)
     imageMeasureFont = ImageFont.truetype('./font/times.ttf', 48)
     ls = ia['legend_size']
@@ -194,9 +198,8 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     draw.text((left + ia['dis_class_number'] * ls - 40, bottom + 20), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     # -----------------------------save figure-------------------------------
-    iquality = ia['quality']
-    idpi = ia['dpi']
-    image.save(saveFileName, quality=iquality, dpi=idpi)
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
 
 # magnitude difference
 def mdif(m1, m2):
@@ -206,6 +209,7 @@ def mdif(m1, m2):
     for n1, n2 in zip(m1, m2):
         n += abs(n2-n1)
     return n
+
 
 # distance difference
 def ddif(d1, d2, m1, m2):
@@ -223,6 +227,7 @@ def ddif(d1, d2, m1, m2):
         for i, tw in enumerate(w):
             s += tw*n[i]
         return float(s)/sum(w)
+
 
 # comprehensive difference between two patterns
 def cdif(grids1, grids2, flows1, flows2, alpha):
@@ -250,6 +255,7 @@ def cdif(grids1, grids2, flows1, flows2, alpha):
         dif[gid] = alpha*(d_difN[gid]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid]-minD)/(maxD-minD)
 
     return dif
+
 
 # comprehensive difference between several patterns and a specific pattern
 def cdif_multi(lgrids, lflows, alpha):
@@ -286,6 +292,7 @@ def cdif_multi(lgrids, lflows, alpha):
             dif[gid][i] = alpha*(d_difN[gid][i]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid][i]-minD)/(maxD-minD)
 
     return dif
+
 
 def drawCdif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     k_dif = ia['k_dif']
@@ -356,6 +363,7 @@ def drawCdif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     idpi = ia['dpi']
     image.save(saveFileName, quality=iquality, dpi=idpi)
 
+
 def drawCdifDistribution(gids, gdif, c, labels):
     sns.set(style="whitegrid")
     sns.set_context("paper")
@@ -390,6 +398,7 @@ def drawCdifDistribution(gids, gdif, c, labels):
         l.set_fontname("Times New Roman")
 
     plt.show()
+
 
 def userScore():
     sns.set(style="whitegrid")

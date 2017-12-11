@@ -13,7 +13,9 @@ class Grid(object):
         self.wm = [0] * dnum
         self.wd = [0] * dnum
 
-        self.ld = [[]] * dnum
+        self.ld = []
+        for i in range(dnum):
+            self.ld.append([])
 
     def addOutFlow(self, fid):
         self.outFlow.append(fid)
@@ -44,7 +46,7 @@ class Grid(object):
     def calcMD(a, n):
         d = np.array([i*2*np.pi/n for i in range(n)]) + np.pi/n
         w = np.cos(d-a)
-        idx = np.where(w==np.max(w))[0][0]
+        idx = np.where(w == np.max(w))[0][0]
         return idx, w[idx]
 
     @staticmethod
@@ -53,22 +55,22 @@ class Grid(object):
         dy = flow[1][1]-flow[0][1]
         d = np.sqrt(dy**2+dx**2)
         a = abs(np.arcsin(dy/d))
-        if dx>0:
-            if dy<0:
+        if dx > 0:
+            if dy < 0:
                 a = 2*np.pi - a
-            elif dy==0:
+            elif dy == 0:
                 a = 0
-        elif dx<0:
-            if dy>0:
+        elif dx < 0:
+            if dy > 0:
                 a = np.pi - a
-            elif dy<0:
+            elif dy < 0:
                 a += np.pi
             else:
                 a = np.pi
         else:
-            if dy>0:
+            if dy > 0:
                 a = 0.5*np.pi
-            elif dy<0:
+            elif dy < 0:
                 a = 1.5*np.pi
             else:
                 a = -1

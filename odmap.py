@@ -84,17 +84,17 @@ def drawODMap(file_name, save_file_name, ia):
 def readDrawingSetting():
     # -----------------------------配置----------------------------------
     # 参数说明：
-    #   rows, colummns: 网格行数、列数; gridWidth：网格尺寸
+    #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
     #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
     #   图像尺寸：width：图像宽度；height：图像高度
-    #   图例：legendWidth：图例条基本宽度；legend_yoffset：图例相对右下角点的纵向偏移；legend_xoffset：图例相对右下角点的横向偏移
+    #   图例：legendWidth：图例条基本宽度
     #   聚类数：class_number；颜色梯度：color_scheme
     ia = dict()
     ia.update({'rows': 15, 'columns':15,
                'gridWidth': 15, 'ox': 20, 'oy': 20,
                'width': 3415, 'height': 3500, 'xoffset': 0, 'yoffset': 0,
                'legend_height': 80, 'legend_width': 60,
-               'quality': 1000, 'dpi': (1200, 1200)})
+               'quality': 95, 'dpi': (1200, 1200)})
 
     # color setting
     ia['border_color'] = '#000000'

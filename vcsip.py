@@ -135,7 +135,7 @@ def readDrawingSetting(scale):
               'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3,
               'legend_size': 63, 'legend_yoffset': 130, 'legend_xoffset': 150,
               'mag_class_number': 6, 'dis_class_number': 4, 'k_dif': 10, 'c_dif': [],
-              'quality': 1000, 'dpi': (1200, 1200)}
+              'quality': 95, 'dpi': (1200, 1200)}
     elif scale == '500m':
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000,
