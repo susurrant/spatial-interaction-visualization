@@ -134,8 +134,7 @@ def readDrawingSetting(scale):
         ia = {'hexParm': (12, 240), 'gridWidth': 84, 'ox': 30, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3,
               'legend_size': 63, 'legend_yoffset': 130, 'legend_xoffset': 150,
-              'mag_class_number': 6, 'dis_class_number': 4, 'k_dif': 10, 'c_dif': [],
-              'quality': 95, 'dpi': (1200, 1200)}
+              'c_dif': [], 'quality': 95, 'dpi': (1200, 1200)}
     elif scale == '500m':
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000,
@@ -146,38 +145,42 @@ def readDrawingSetting(scale):
     # color setting
     ia['border_color'] = '#000000'
     # green-pink
-    ia['color_scheme0'] = [['#ffffff', '#d7eadf', '#b2d8c3', '#8dc6ab', '#69b995'],
+    ia['color_scheme'] = [['#ffffff', '#d7eadf', '#b2d8c3', '#8dc6ab', '#69b995'],
                            ['#f4cbdc', '#d4bdc5', '#b6b3b2', '#95a69a', '#779b87'],
                            ['#e29abb', '#cb91a8', '#b18a99', '#97858a', '#7d7e7b'],
                            ['#d2699c', '#c4658e', '#ad6383', '#965e77', '#7f5c6b'],
                            ['#c73984', '#be3c7b', '#a93d70', '#933c67', '#7e3d5d']]
     # blue-orange
-    ia['color_scheme2'] = [['#ffffff', '#d3e2f1', '#a7c7e4', '#78abd7', '#3192c8'],
+    ia['color_scheme0'] = [['#ffffff', '#d3e2f1', '#a7c7e4', '#78abd7', '#3192c8'],
                           ['#f9dacc', '#d4cccb', '#aabcc6', '#7caac0', '#3a93b4'],
                           ['#f1b69b', '#cfab9b', '#aea19a', '#849599', '#4c8695'],
                           ['#e99567', '#cc8d69', '#ac856a', '#897d6d', '#59726d'],
                           ['#e47920', '#c7722a', '#aa6d2f', '#8b6736', '#5f613c']]
 
     # blue-red
-    ia['color_scheme1'] = [['#ffffff', '#c7c5df', '#8f90c0', '#535a9f', '#253f8e'],
+    ia['color_scheme2'] = [['#ffffff', '#c7c5df', '#8f90c0', '#535a9f', '#253f8e'],
                            ['#f4c5c6', '#c7b5c3', '#9191b2', '#555c95', '#264285'],
                            ['#e88f91', '#c18690', '#947b91', '#565f86', '#284478'],
                            ['#de5d5c', '#bb595f', '#945361', '#5e4e65', '#294663'],
                            ['#d8211c', '#b72825', '#932c2c', '#633233', '#383336']]
 
     # blue-orange
-    ia['color_scheme'] = [['#ffffff', '#c4d9ed', '#8ab6dc', '#3192c8'],
+    ia['color_scheme1'] = [['#ffffff', '#c4d9ed', '#8ab6dc', '#3192c8'],
                            ['#fae0d7', '#c7cdd4', '#8cb5cb', '#3993ba'],
                            ['#f3c3ae', '#c6b3af', '#91a3ab', '#438da4'],
                            ['#eea787', '#c39c88', '#97908a', '#527d86'],
                            ['#e88f5b', '#c1855f', '#987b62', '#5b6f65'],
                            ['#e47920', '#be712b', '#966933', '#5f613c']]
 
+    ia['mag_class_number'] = len(ia['color_scheme'])
+    ia['dis_class_number'] = len(ia['color_scheme'][0])
+
     # blue to red
     rgbcolor = [(153, 153, 255), (156, 187, 255), (156, 222, 255), (153, 255, 255), (194, 255, 220),
                 (227, 255, 186), (255, 255, 153), (255, 221, 153), (255, 187, 153), (255, 153, 153)]
     for color in rgbcolor:
         ia['c_dif'].append('#%02X%02X%02X' % color)
+    ia['k_dif'] = len(ia['c_dif'])
 
     return ia
 

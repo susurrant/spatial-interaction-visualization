@@ -16,6 +16,7 @@ class Grid(object):
         self.ld = []
         for i in range(dnum):
             self.ld.append([])
+        self.round_flow_num = 0
 
     def addOutFlow(self, fid):
         self.outFlow.append(fid)
@@ -38,7 +39,7 @@ class Grid(object):
     def calcOutList(self, flows):
         for fid in self.outFlow:
             td, ta = self.calcInteraction(flows[fid])
-            idx, tw = self.calcMD(ta, len(self.wm))
+            idx, tw = self.calcMD(ta, len(self.ld))
             self.ld[idx].append(td)
 
     # compute main interaction direction
