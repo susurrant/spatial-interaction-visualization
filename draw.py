@@ -93,7 +93,7 @@ def drawGridSymbol_hexagon(cs):
     image.save('./figure/grid symbol.jpg', quality=1000, dpi=(1200,1200))
 
 
-def drawPattern(grids, flows, dnum, ia, saveFileName):
+def drawPattern_bicolor(grids, flows, dnum, ia, saveFileName):
     # -------------------------------classify data----------------------------------
     mag = []
     dis = []
@@ -198,6 +198,128 @@ def drawPattern(grids, flows, dnum, ia, saveFileName):
     draw.text((left + ia['dis_class_number'] * ls - 40, bottom + 20), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     # -----------------------------save figure-------------------------------
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
+
+def drawSIP_bisymbol(grids, flows, dnum, ia, saveFileName):
+    mag = []
+    dis = []
+    for g in grids:
+        grids[g].calcOutAggregation(flows)
+        for tm in grids[g].wm:
+            mag.append(tm)
+        for td in grids[g].wd:
+            dis.append(td)
+    k_m = ia['k_m']
+    k_d = ia['k_d']
+
+    nk, nl = kmeans(mag, k_m)
+    dk, dl = kmeans(dis, k_d)
+
+    gridWidth = ia['gridWidth']
+    iwidth = ia['width']
+    iheight = ia['height']
+    gridBorderWidth = ia['gridBorderWidth']
+    c_m = ia['c_m']
+    c_d = ia['c_d']
+
+    # RGB
+    image = Image.new('RGB', (iwidth, iheight), '#ffffff')
+    draw = ImageDraw.Draw(image)
+    xs, ys = computeCo(gridWidth, int(dnum/6))
+
+    for gid in grids:
+        if len(grids[gid].wm) == 0:
+            print('grid %d is empty!' % gid)
+            continue
+
+        cenx, ceny = computeCen(gid, ia)
+        for i in range(dnum):
+            nc = c_m[nl.index(nk.predict(grids[gid].wm[i]))]
+            draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=nc, outline=nc)
+
+        for i in range(dnum):
+            dc = c_d[dl.index(dk.predict(grids[gid].wd[i]))]
+            draw.line([cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], width=gridBorderWidth, fill=dc)
+
+    indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
+
+    if True:
+        cenx, ceny = computeCen(128, ia)
+        draw.line([cenx, ceny, 2850, 750], width=2, fill='#000000')
+        draw.text((2870, 700), 'B', font=indicatorfont, fill='#000000')
+        cenx, ceny = computeCen(100, ia)
+        draw.line([cenx, ceny, 300, 2500], width=2, fill='#000000')
+        draw.text((230, 2460), 'A', font=indicatorfont, fill='#000000')
+
+    labelfont = ImageFont.truetype('./font/times.ttf', 50)
+    labelColor = '#0000ff'#'#003371'
+    textColor = '#871F78'
+
+    if '1km' in saveFileName:
+        if '0105' in saveFileName:
+            cenx, ceny = computeCen(150, ia)
+            draw.text((cenx-24, ceny+30), 'A', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(164, ia)
+            draw.text((cenx-87, ceny+10), 'B', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(437, ia)
+            draw.text((cenx-20, ceny+45), 'C', font=indicatorfont, fill=labelColor)
+
+            draw.text((30, ia['height']-180), 'A: The Forbidden City', font=labelfont, fill=textColor)
+            draw.text((30, ia['height']-120), 'B: Sanlitun', font=labelfont, fill=textColor)
+            draw.text((30, ia['height']-60), 'C: Wudaokou', font=labelfont, fill=textColor)
+        elif '0509' in saveFileName:
+            cenx, ceny = computeCen(150, ia)
+            draw.text((cenx - 24, ceny + 30), 'A', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(176, ia)
+            draw.text((cenx - 105, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(124, ia)
+            draw.text((cenx + 10, ceny - 115), 'C', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(356, ia)
+            draw.text((cenx + 50, ceny - 85), 'D', font=indicatorfont, fill=labelColor)
+
+            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
+            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao (A transfer station)', font=labelfont, fill=textColor)
+            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
+            draw.text((800, ia['height'] - 60), 'D: Shuangjin', font=labelfont, fill=textColor)
+    elif '500m' in saveFileName:
+        if '0509' in saveFileName:
+            cenx, ceny = computeCen(563, ia)
+            draw.text((cenx - 24, ceny), 'A', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(1647, ia)
+            draw.text((cenx - 65, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
+            cenx, ceny = computeCen(487, ia)
+            draw.text((cenx + 5, ceny - 70), 'C', font=indicatorfont, fill=labelColor)
+
+            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
+            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao', font=labelfont, fill=textColor)
+            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
+
+    # ----draw legend----
+    imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
+    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
+    sy = iheight - 50
+    lw = ia['legendWidth']
+    if '500m' in saveFileName:
+        gridWidth *= 2
+
+    # magnitude
+    mx = iwidth - 480
+    for i, c in enumerate(c_m):
+        draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
+    draw.text((mx-gridWidth, sy-(k_m+5)*lw), 'Magnitude', font=imageTitlefont, fill=(0,0,0))
+    draw.text((mx-1.5*gridWidth, sy-lw), 'Low', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((mx-1.5*gridWidth, sy-lw*(k_m+1)), 'High', font=imageMeasureFont, fill=(0,0,0))
+
+    # distance
+    disx = iwidth - 230
+    scale = k_m / k_d
+    for i, n in enumerate(c_d):
+        draw.line([disx, sy-(i+0.35)*lw*scale, disx+gridWidth, sy-(i+0.35)*lw*scale], width=int(round(lw*scale)), fill=n)
+    draw.text((disx-gridWidth/2-15, sy-(k_m+5)*lw), 'Distance', font=imageTitlefont, fill=(0,0,0))
+    draw.text((disx+20+gridWidth, sy-lw), 'Short', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((disx+20+gridWidth, sy-lw*k_m-lw), 'Long', font=imageMeasureFont, fill=(0,0,0))
+
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 

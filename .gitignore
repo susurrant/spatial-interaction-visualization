@@ -5,6 +5,7 @@ __pycache__/
 
 data/
 figure/
+font/
 
 # C extensions
 *.so
