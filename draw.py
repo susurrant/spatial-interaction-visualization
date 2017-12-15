@@ -93,7 +93,7 @@ def drawGridSymbol_hexagon(cs):
     image.save('./figure/grid symbol.jpg', quality=1000, dpi=(1200,1200))
 
 
-def drawPattern_bicolor(grids, flows, dnum, ia, saveFileName):
+def drawPattern_bc(grids, flows, dnum, ia, saveFileName):
     # -------------------------------classify data----------------------------------
     mag = []
     dis = []
@@ -201,7 +201,7 @@ def drawPattern_bicolor(grids, flows, dnum, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-def drawSIP_bisymbol(grids, flows, dnum, ia, saveFileName):
+def drawPattern_bs(grids, flows, dnum, ia, saveFileName):
     mag = []
     dis = []
     for g in grids:
