@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-：
 
 # 读取渲染设置
 def bivarite_color(scale):
@@ -114,10 +114,30 @@ def diff(scale):
     return ia
 
 
-def readDrawingSetting(mode, scale):
+def diagram_map():
+    #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
+    #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
+    #   图像尺寸：width：图像宽度；height：图像高度
+    #   legendWidth：图例条基本宽度; radius：扇形符号最大半径
+    #   class_number： 聚类数；color_scheme： 颜色
+    ia = dict()
+    ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
+               'xoffset': 3, 'yoffset': 3, 'legend_size': 63, 'radius': 100, 'quality': 95, 'dpi': (1200, 1200),
+               'radii': [30, 60, 90]})
+
+    # color setting
+    ia['border_color'] = '#000000'
+    ia['color_scheme'] = ['#fed998', '#ffaa63', '#fe7b00']
+    ia['class_num'] = len(ia['color_scheme'])
+    return ia
+
+
+def readDrawingSetting(mode, scale='1km'):
     if mode == 'bc':
         return bivarite_color(scale)
     elif mode == 'bs':
         return bivariate_symbol(scale)
     elif mode == 'diff':
         return diff(scale)
+    elif mode == 'dm':
+        return diagram_map()

@@ -87,9 +87,9 @@ def readDrawingSetting():
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：class_number；颜色梯度：color_scheme
     ia = dict()
-    ia.update({'rows': 15, 'columns':15,
-               'gridWidth': 15, 'ox': 20, 'oy': 20,
-               'width': 3415, 'height': 3500, 'xoffset': 0, 'yoffset': 0,
+    ia.update({'rows': 19, 'columns':19,
+               'gridWidth': 10, 'ox': 40, 'oy': 20,
+               'width': 3700, 'height': 3750, 'xoffset': 0, 'yoffset': 0,
                'legend_height': 80, 'legend_width': 60,
                'quality': 95, 'dpi': (1200, 1200)})
 
@@ -105,7 +105,7 @@ def readDrawingSetting():
 
 
 if __name__ == '__main__':
-    file_name = './data/sj_2kmsq_051316_1721.csv'
+    file_name = './data/sj_1600msq_051316_1721.csv'
     ia = readDrawingSetting()
-    drawODMap(file_name, './figure/odmap_2kmsq_051316_1721.jpg', ia)
+    drawODMap(file_name, './figure/odmap_1600msq_051316_1721.jpg', ia)
 
