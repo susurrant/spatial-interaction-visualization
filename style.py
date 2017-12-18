@@ -49,6 +49,7 @@ def bivarite_color(scale):
 
     return ia
 
+
 def bivariate_symbol(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
@@ -59,7 +60,7 @@ def bivariate_symbol(scale):
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 74, 'gridBorderWidth': 18, 'ox': 20, 'oy': 40, 'margin': 20,
+        ia = {'hexParm': (12, 240), 'gridWidth': 82, 'border_scale': 0.72, 'ox': 15, 'oy': 15, 'margin': 13,
               'width': 3000, 'height': 3000,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
               'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
@@ -68,7 +69,6 @@ def bivariate_symbol(scale):
               'width': 3000, 'height': 3000,
               'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
               'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
-
 
     # color setting
     nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
@@ -79,7 +79,7 @@ def bivariate_symbol(scale):
 
     ccstr = 'd9ffcd#bcffaf#9cff8e#76ff63#3fff00'
     ia['c_d'] = list(map(lambda x: '#'+x, ccstr.split('#')))
-    #ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # optimum
+    ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # optimum
 
     return ia
 
@@ -133,6 +133,30 @@ def diagram_map():
     return ia
 
 
+def od_map():
+    #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
+    #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
+    #   图像尺寸：width：图像宽度；height：图像高度
+    #   图例：legendWidth：图例条基本宽度
+    #   聚类数：class_number；颜色梯度：color_scheme
+    ia = dict()
+    ia.update({'rows': 19, 'columns':19,
+               'gridWidth': 10, 'ox': 40, 'oy': 20,
+               'width': 3700, 'height': 3750, 'xoffset': 0, 'yoffset': 0,
+               'legend_height': 80, 'legend_width': 60,
+               'quality': 95, 'dpi': (1200, 1200)})
+
+    # color setting
+    ia['border_color'] = '#000000'
+    cstr = 'ffffff#ffff80#fff771#ffee61#ffe452#ffd743#ffc933#ffb924#ffa815#ff9505#f58000#e66c00#d65900#c74900#b83900#a82c00#991f00#8a1500#7a0c00#6b0500'
+    #cstr = 'ffffff#f5f500#f5e700#f5da00#f5cc00#f5bf00#f5b100#f5a300#f59600#f58800#f57a00#f56d00#f55f00#f55200#f54400#f53600#f52900#f51b00#f50e00#f50000'
+    ia['color_scheme'] = []
+    for color in cstr.split('#'):
+        ia['color_scheme'].append('#'+color)
+    ia['class_number'] = len(ia['color_scheme'])
+    return ia
+
+
 def readDrawingSetting(mode, scale='1km'):
     if mode == 'bc':
         return bivarite_color(scale)
@@ -142,3 +166,5 @@ def readDrawingSetting(mode, scale='1km'):
         return diff(scale)
     elif mode == 'dm':
         return diagram_map()
+    elif mode == 'om':
+        return od_map()

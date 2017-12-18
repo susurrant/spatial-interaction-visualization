@@ -3,7 +3,7 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from sklearn.cluster import KMeans
-
+from style import readDrawingSetting
 
 # 读取五环内的交互
 def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
@@ -78,30 +78,6 @@ def drawODMap(file_name, save_file_name, ia):
     draw.text((left + ia['legend_width']*ia['class_number'] + 20, bottom - ia['legend_height']), 'max magnitude', font=imageTitlefont, fill=(0, 0, 0))
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
-
-# 读取渲染设置
-def readDrawingSetting():
-    #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
-    #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
-    #   图像尺寸：width：图像宽度；height：图像高度
-    #   图例：legendWidth：图例条基本宽度
-    #   聚类数：class_number；颜色梯度：color_scheme
-    ia = dict()
-    ia.update({'rows': 19, 'columns':19,
-               'gridWidth': 10, 'ox': 40, 'oy': 20,
-               'width': 3700, 'height': 3750, 'xoffset': 0, 'yoffset': 0,
-               'legend_height': 80, 'legend_width': 60,
-               'quality': 95, 'dpi': (1200, 1200)})
-
-    # color setting
-    ia['border_color'] = '#000000'
-    cstr = 'ffffff#ffff80#fff771#ffee61#ffe452#ffd743#ffc933#ffb924#ffa815#ff9505#f58000#e66c00#d65900#c74900#b83900#a82c00#991f00#8a1500#7a0c00#6b0500'
-    #cstr = 'ffffff#f5f500#f5e700#f5da00#f5cc00#f5bf00#f5b100#f5a300#f59600#f58800#f57a00#f56d00#f55f00#f55200#f54400#f53600#f52900#f51b00#f50e00#f50000'
-    ia['color_scheme'] = []
-    for color in cstr.split('#'):
-        ia['color_scheme'].append('#'+color)
-    ia['class_number'] = len(ia['color_scheme'])
-    return ia
 
 
 if __name__ == '__main__':
