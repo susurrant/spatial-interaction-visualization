@@ -59,7 +59,7 @@ def bivariate_symbol(scale):
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 76, 'gridBorderWidth': 18, 'ox': 20, 'oy': 40, 'margin': 18,
+        ia = {'hexParm': (12, 240), 'gridWidth': 74, 'gridBorderWidth': 18, 'ox': 20, 'oy': 40, 'margin': 20,
               'width': 3000, 'height': 3000,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
               'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
@@ -77,8 +77,9 @@ def bivariate_symbol(scale):
         ia['c_m'].append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
     ia['c_m'][0] = '#ffffff'
 
-    ia['c_d'] = ['#bee6fe', '#abdda4', '#ffffbf', '#fdae61', '#f46d43']
-    ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f']
+    ccstr = 'd9ffcd#bcffaf#9cff8e#76ff63#3fff00'
+    ia['c_d'] = list(map(lambda x: '#'+x, ccstr.split('#')))
+    #ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # optimum
 
     return ia
 

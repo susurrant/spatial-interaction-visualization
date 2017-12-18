@@ -10,17 +10,10 @@ from LL2UTM import *
 
 
 class Point(object):
-    def __init__(self, x, y, pid):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.pid = pid
         self.rid = -1
-
-
-class Grid(object):
-    def __init__(self, gid):
-        self.gid = gid
-        self.groups = []
 
 
 class Group(object):
@@ -61,7 +54,7 @@ def timer(func):
     def wrapper(*args, **kw):
         startTime = time.clock()
         callback =  func(*args, **kw)
-        print('Func: %s: %.3f mins' % (func.__name__, (time.clock() - startTime) / 60.0))
+        print('Func- %s: %.3f mins' % (func.__name__, (time.clock() - startTime) / 60.0))
         return callback
     return wrapper
 
@@ -72,17 +65,17 @@ def redistribute_points(P, R):
     for g in R:
         g.pts = []
 
-    for p in P:
-        c = get_closest_centroid(p, R, float('inf'))
+    for pid in P:
+        c = get_closest_centroid(P[pid], R, float('inf'))
         assert c != -1
-        R[c].addPt((p.x, p.y), False)
-        p.rid = c
+        R[c].addPt((P[pid].x, P[pid].y), False)
+        P[pid].rid = c
 
 
 def processData(sl, P, R, max_radius):
     x, y = LL2UTM_USGS(float(sl[5]), float(sl[4]))
-    p = Point(x, y, int(sl[3]))
-    P.append(p)
+    p = Point(x, y)
+    P[int(sl[3])] = p
     put_in_proper_group(p, R, max_radius)
 
 
@@ -90,7 +83,7 @@ def processData(sl, P, R, max_radius):
 def pointGroup(data_file, max_radius):
     print('group points...')
     R = []
-    P = []
+    P = {}
     with open(data_file, 'r') as f:
         f.readline()
         count = 0
@@ -114,12 +107,12 @@ def pointGroup(data_file, max_radius):
                 break
 
     redistribute_points(P, R)
-    return R
-    #return optimize(P, R, max_radius)
+
+    return optimize(P, R, max_radius)
 
 @timer
 def optimize(P, R, max_radius):
-    print('Optimize groups...')
+    print('optimize groups...')
     glist = []
     mDens = 0
     for i, g in enumerate(R):
@@ -141,25 +134,48 @@ def optimize(P, R, max_radius):
 
     for _, _, i in glist:
         for p in R[i].pts:
-            put_in_proper_group(Point(p[0], p[1], -1), newR, max_radius)
+            put_in_proper_group(Point(p[0], p[1]), newR, max_radius)
 
     redistribute_points(P, newR)
 
-    return newR
+    return P, newR
 
 
-def outPut(R, save_fname):
+@timer
+def outPut(P, R, data_file, save_zone_file, save_data_file):
     print('output results...')
-    with open(save_fname, 'w', newline='') as f:
+    with open(save_zone_file, 'w', newline='') as f:
         sheet = csv.writer(f)
         sheet.writerow(['rid', 'x', 'y'])
         for i, g in enumerate(R):
-            lat, lon = UTM2LL_USGS(g.cenx, g.ceny)
-            sheet.writerow([i, lon, lat])
+            sheet.writerow([i, g.cenx, g.ceny])
+
+    with open(save_data_file, 'w', newline='') as f:
+        sheet = csv.writer(f)
+        with open(data_file, 'r') as rf:
+            header = rf.readline().strip().split(',')
+            sheet.writerow(header)
+            while True:
+                line1 = rf.readline().strip()
+                line2 = rf.readline().strip()
+                if line1 and line2:
+                    sl1 = line1.split(',')
+                    sl2 = line2.split(',')
+
+                    if sl1[1] != '0' and sl2[1] != '0':
+                        sl1[-1] = P[int(sl1[3])].rid
+                        sl2[-1] = P[int(sl2[3])].rid
+                    else:
+                        sl1[-1] = -1
+                        sl2[-1] = -1
+                    sheet.writerow(sl1)
+                    sheet.writerow(sl2)
+                else:
+                    break
 
 
 if __name__ == '__main__':
-    data_file = './data/sj_2kmsq_051316_1721.csv'
-    max_radius = 2000
-    R = pointGroup(data_file, max_radius)
-    outPut(R, './data/group_2kmsq_051316_1721_r2km.csv')
+    data_file = './data/sj_051316_1721_5rr.csv'
+    max_radius = 3000
+    P, R = pointGroup(data_file, max_radius)
+    outPut(P, R, data_file, './data/group_051316_1721_r3km.csv', data_file[:-4]+'_gp.csv')

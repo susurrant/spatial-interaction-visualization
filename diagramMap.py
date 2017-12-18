@@ -33,12 +33,12 @@ def readData_Inside(filename, dnum, minSpeed=2, maxSpeed=150):
                 if dgid not in grids:
                     grids[dgid] = Grid(dgid, dnum)
 
-                if ogid == dgid:
+                ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
+                dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
+                if np.sqrt((dx-ox)**2+(dy-oy)**2) <= 500:
                     grids[ogid].round_flow_num += 1
                     continue
 
-                ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
-                dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
                 fid = int(sl1[-4])
                 flows_co[fid] = [(ox, oy), (dx, dy)]
 
@@ -80,7 +80,7 @@ def statistic(data_file, dis_class_num, dnum):
 
     return grid_sta, round_flow, maxmag
 
-def drawDiagramMap_RO1(data_file, ia, save_file, dnum=6):
+def drawDiagramMap_RO1_old(data_file, ia, save_file, dnum=6):
     grid_sta, round_flow, maxmag = statistic(data_file, ia['class_num'], dnum)
 
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
@@ -155,35 +155,65 @@ def drawDiagramMap_AJ1(data_file, ia, save_file, dnum=6):
 
     image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
 
-def drawDiagramMap_RO1_new(data_file, ia, save_file, dnum=6):
+def readZones(file_name):
+    zones = {}
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+        for line in lines[1:]:
+            sl = line.strip().split(',')
+            zones[int(sl[0])] = (float(sl[1]), float(sl[2]))
+    return zones
+
+def drawRingRoad(draw, file_name, xoff, yoff):
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+        tag = 0
+        pts = []
+        for line in lines[1:]:
+            sl = line.strip().split(',')
+            x, y = LL2UTM_USGS(float(sl[3]), float(sl[2]))
+            x = (x - xoff) / 10
+            y = ia['height'] - (y - yoff) / 10
+            if int(sl[1]) == tag:
+                pts.append((x, y))
+            else:
+                draw.line(pts, fill='#000000', width=2)
+                tag = int(sl[1])
+                pts = [(x, y)]
+        draw.line(pts, fill='#000000', width=2)
+
+def drawRoundTrip(draw, cenx, ceny, r):
+    a = np.arange(0, 360, 10) * 2 * np.pi / 360
+    xs = cenx + r * np.cos(a)
+    ys = ceny + r * np.sin(a)
+    for x, y in zip(xs, ys):
+        draw.ellipse([x-1,y-1,x+1,y+1], fill='#323232')
+
+def drawDiagramMap_RO1(data_file, zone_file, ia, save_file, dnum=6):
     grid_sta, round_flow, maxmag = statistic(data_file, ia['class_num'], dnum)
+    zones = readZones(zone_file)
 
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)
     if dnum == 6:
         angle = [(300, 0), (240, 300), (180, 240), (120, 180), (60, 120), (0, 60)]
     radius = ia['radius']
+    xoff = 431500
+    yoff = 4400700
 
-    '''
-    xs, ys = computeCo(ia['gridWidth'], dnum//6)
-    for gid in grid_sta:
-        cenx, ceny = computeCen(gid, ia)
-        border = []
-        for i in range(dnum):
-            border.append(cenx + xs[i])
-            border.append(ceny + ys[i])
-        draw.polygon(border, outline = ia['border_color'])
-    '''
+    drawRingRoad(draw, './data/ringroad_pt.csv', xoff, yoff)
 
     for gid in grid_sta:
-        cenx, ceny = computeCen(gid, ia)
+        cenx, ceny = zones[gid]
+        cenx = (cenx - xoff) / 10
+        ceny = ia['height'] - (ceny - yoff) / 10
         for i in range(dnum):
             r = np.cumsum(np.array(grid_sta[gid][i])*radius/maxmag)
             for j in range(ia['class_num']-1, -1, -1):
                 draw.pieslice([cenx-r[j], ceny-r[j], cenx+r[j], ceny+r[j]], angle[i][0], angle[i][1],
                               fill=ia['color_scheme'][j], outline='#fe0000')
         r = round_flow[gid]*radius/maxmag
-        draw.arc([cenx-r, ceny-r, cenx+r, ceny+r], 0, 360, fill='#323232')
+        drawRoundTrip(draw, cenx, ceny, r)
 
     x = ia['width'] - 700
     y = ia['height'] - 200
@@ -192,6 +222,8 @@ def drawDiagramMap_RO1_new(data_file, ia, save_file, dnum=6):
         r = (j+1)*legend_size/ia['class_num']
         draw.pieslice([x - r, y - r, x + r, y + r], 300, 0, fill=ia['color_scheme'][j], outline='#fe0000')
     draw.pieslice([x - legend_size + 400, y - legend_size, x + legend_size + 400, y + legend_size], 300, 0, fill=None, outline='#fe0000')
+    #draw.arc([x + 500 - legend_size/3, y - 400 - legend_size/3, x + 500 + legend_size/3, y - 400 + legend_size/3], 0, 360, fill='#323232')
+    drawRoundTrip(draw, x + 500, y - 400, legend_size/3)
     px = x + 400
     draw.line([px, y, px + np.sqrt(3)*legend_size/2, y - legend_size/2], width=1, fill='#000000')
     draw.line([px + np.sqrt(3)*legend_size/2, y-legend_size/2, px + np.sqrt(3)*legend_size/2-20, y-legend_size/2], width=1, fill='#000000')
@@ -207,14 +239,18 @@ def drawDiagramMap_RO1_new(data_file, ia, save_file, dnum=6):
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 50)
     draw.text((x, y + 60), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
     draw.text((px, y + 60), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((x + 380, y - 310), 'Round trips', font=imageTitlefont, fill=(0, 0, 0))
 
     image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
 
 
+
 if __name__ == '__main__':
-    data_file = './data/sj_051316_1721_1km.csv'
+    data_file = './data/sj_051316_1721_5rr_gp.csv'
     save_file = './figure/dm_051316_1721_1km_5rr_RO1.jpg'
     ia = style.readDrawingSetting('dm')
 
-    drawDiagramMap_RO1(data_file, ia, save_file)
+    #drawDiagramMap_RO1(data_file, ia, save_file)
+
+    drawDiagramMap_RO1(data_file, './data/group_051316_1721_r3km.csv', ia, save_file)
 

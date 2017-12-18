@@ -76,4 +76,4 @@ class Grid(object):
             else:
                 a = -1
 
-        return d/1000.0, a  # unit of distance: km
+        return d/1000.0, a  # return distance (km) and azimuth
