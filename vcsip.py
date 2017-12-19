@@ -141,7 +141,7 @@ if __name__ == '__main__':
     # -----------------------------drawing--------------------------------
     #drawGridSymbol_hexagon(ia['c_d'])False
 
-    drawSIPattern(fileNames[1]+scale, dgids, dnum, ia, mode,  False) #True 表示只显示五环内的数据
+    drawSIPattern(fileNames[1]+scale, dgids, dnum, ia, mode, False) #True 表示只显示五环内的数据
 
     #drawDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
 

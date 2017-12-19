@@ -349,13 +349,14 @@ def drawPattern_bs(grids, flows, dnum, ia, saveFileName):
 
     oxs, oys = computeCo(gridWidth, int(dnum/6))
     ixs, iys = computeCo(gridWidth*ia['border_scale'], int(dnum / 6))
-
+    fxs, fys = computeCo(gridWidth+ia['margin'], int(dnum / 6))
     for gid in grids:
         if len(grids[gid].wm) == 0:
             print('grid %d is empty!' % gid)
             continue
 
         cenx, ceny = computeCen(gid, ia)
+        fco = []
         for i in range(dnum):
             nc = c_m[nl.index(nk.predict(grids[gid].wm[i]))]
             draw.polygon([cenx, ceny,cenx+ixs[i], ceny+iys[i], cenx+ixs[i+1], ceny+iys[i+1]], fill=nc, outline=nc)
@@ -363,10 +364,13 @@ def drawPattern_bs(grids, flows, dnum, ia, saveFileName):
             dc = c_d[dl.index(dk.predict(grids[gid].wd[i]))]
             draw.polygon([cenx+ixs[i], ceny+iys[i], cenx+oxs[i], ceny+oys[i], cenx+oxs[i+1], ceny+oys[i+1],
                           cenx+ixs[i+1], ceny+iys[i+1]], outline=dc, fill=dc)
+            fco.append(cenx+fxs[i])
+            fco.append(ceny+fys[i])
+        #draw.polygon(fco, outline='#000000', fill=None)
 
     indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
 
-    if True:
+    if False:
         cenx, ceny = computeCen(128, ia)
         draw.line([cenx, ceny, 2850, 750], width=2, fill='#000000')
         draw.text((2870, 700), 'B', font=indicatorfont, fill='#000000')

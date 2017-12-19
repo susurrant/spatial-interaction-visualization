@@ -77,10 +77,14 @@ def bivariate_symbol(scale):
         ia['c_m'].append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
     ia['c_m'][0] = '#ffffff'
 
-    ccstr = 'd9ffcd#bcffaf#9cff8e#76ff63#3fff00'
-    ia['c_d'] = list(map(lambda x: '#'+x, ccstr.split('#')))
-    ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # optimum
+    ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # 1optimum
+    ia['c_d'] = ['#9fd4ff', '#90ee90', '#ffd700', '#ff4500', '#c70000'] # 3
+    ia['c_d'] = ['#9fd4ff', '#7FFFAA', '#ffd700', '#ff4500', '#c70000']  # 5
 
+    ccstr = 'fefffe#f4f9ff#e8f4ff#ddeeff#d2e9ff#c6e3ff#b9deff#add9ff#9fd4ff#91ceff#81c9ff#70c4ff#5bbfff#40baff#00b6ff'
+    ia['c_m'] = list(map(lambda x: '#'+ x, ccstr.split('#')))
+
+    ia['c_d'] = ['#00dd99', '#7FFFAA', '#ffd700', '#ff4500', '#c70000']
     return ia
 
 
