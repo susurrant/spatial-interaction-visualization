@@ -44,6 +44,16 @@ def bivarite_color(scale):
                            ['#e88f5b', '#c1855f', '#987b62', '#5b6f65'],
                            ['#e47920', '#be712b', '#966933', '#5f613c']]
 
+
+    # navi blue(hue 202)- red(hue 0)
+    ia['color_scheme'] = [['#ffffff', '#c7dcf2', '#8cbce5', '#359bd7'],
+                          ['#f9d3d4', '#c7c1d0', '#91afcc', '#3b9bc8'],
+                          ['#f3a8aa', '#c69ba8', '#968da6', '#537ea4'],
+                          ['#ee7e7f', '#c47580', '#986c80', '#5f6280'],
+                          ['#ea5554', '#c25257', '#994e5a', '#654a5d'],
+                          ['#e71f18', '#c12824', '#992d2c', '#693233']]
+
+
     ia['mag_class_number'] = len(ia['color_scheme'])
     ia['dis_class_number'] = len(ia['color_scheme'][0])
 
