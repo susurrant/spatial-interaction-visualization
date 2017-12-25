@@ -4,6 +4,7 @@ from grid import *
 from draw import *
 from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
+from func import readGids
 
 # 读取数据
 def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
@@ -80,16 +81,6 @@ def readData_Inside(filename, dnum, minSpeed = 2, maxSpeed = 150):
 
     return grids, flows_co
 
-# 读取要绘制的网格编号
-def readGids(fileName):
-    dgids = set()
-    with open(fileName, 'r') as f:
-        lines = f.readlines()
-        del lines[0]
-        for line in lines:
-            sl = line.strip().split(',')
-            dgids.add(int(sl[-1]))
-    return dgids
 
 # 交互模式可视化
 def drawSIPattern(fileName, dgids, dnum, ia, mode='bs', inside=False):

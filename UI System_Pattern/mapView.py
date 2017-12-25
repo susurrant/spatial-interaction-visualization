@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding:  utf-8 -*-
 
-' map view '
+"""map view
+"""
 
+import sys
+sys.path.append('../')
 from tkinter import *
 from tkinter import ttk
-from mapFile import relate2data, computeCo, computeCo_hexagon
-from numpy import sqrt
+from mapFile import relate2data
+from func import computeCo
+from LL2UTM import LL2UTM_USGS
+import numpy as np
 
 class MapGUI(Frame):
     def __init__(self, master):
         Frame.__init__(self, master, bg='#e9e7ef', height=870, width=1600)
 
-        # 图层栏-lFrm
-        self.pFrm = PFrm(self)
-        # 地图栏-cv
+        # layer
+        self.pFrm = ParameterFrm(self)
+        # pattern map
         self.cv = MapCanvas(self)
-        #
+        # flow map
         self.fc = FlowCanvas(self)
 
         self.cv.place(x=0, y=0)
@@ -28,12 +33,17 @@ class MapGUI(Frame):
 
         self.fileNames = ['../data/sj_051316_0105', '../data/sj_051316_0509', '../data/sj_051316_0913',
                           '../data/sj_051316_1317', '../data/sj_051316_1721', '../data/sj_051316_2101']
-        self.cv.generateGrids(self.fileNames[0])
+        self.cv.grids, self.fc.flows = relate2data(self.fileNames[1], self.ia)
+        self.fc.init()
+        self.show()
 
     def init_ia(self):
-        self.ia = {'hexParm': (12, 240), 'width': 1000, 'height': 1000, 'gridWidth': 19, 'gridBorderWidth': 5,
-              'xoffset': 3, 'yoffset': 3, 'ox': 7, 'oy': 7, 'margin': 6, 'scale': '_1km', 'dnum': 6, 'legendWidth': 6,
-              'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
+        # 'xoff': 431300, 'yoff': 4400700, 'trans_scale': 38
+        self.ia = {'hexParm': (12, 240), 'width': 800, 'height': 800, 'gridWidth': 22, 'gridBorderWidth': 5,
+                   'xoffset': 3, 'yoffset': 3, 'ox': 7, 'oy': 7, 'margin': 3, 'scale': '_1km', 'dnum': 6, 'legendWidth': 4,
+                   'xoff': 425000, 'yoff': 4396000, 'trans_scale': 55, 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': [],
+                   'p': 0.1}
+
         nscale = [(i + 1) / float(self.ia['k_m'] + 1) for i in range(self.ia['k_m'])]
         for i, n in enumerate(nscale):
             self.ia['c_m'].append(
@@ -41,7 +51,11 @@ class MapGUI(Frame):
         self.ia['c_m'][0] = '#ffffff'
         self.ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f']
 
-class PFrm(Frame):
+    def show(self):
+        self.cv.invalidate()
+        self.fc.invalidate()
+
+class ParameterFrm(Frame):
     def __init__(self, master):
         bgc = '#e9e7ef'
         Frame.__init__(self, master, bg=bgc, height=70, width=1600)
@@ -55,7 +69,7 @@ class PFrm(Frame):
 
         Label(self, text='SI type', bg=bgc).place(x=360, y=5)
         self.sit1 = Radiobutton(self, bg=bgc, text='Outgoing', value=1)
-        self.sit1.place(x=390, y=25)
+        self.sit1.place(x=390, y=23)
         self.sit2 = Radiobutton(self, bg=bgc, text='Incoming', value=2)
         self.sit2.place(x=390, y=45)
 
@@ -85,66 +99,34 @@ class MapCanvas(Canvas):
         self.grids = None
         
         def mouseLeftClick(event):
-            self.delete(ALL)
-            self.drawGridFlows(event.x, event.y)
+            mgid = -1
+            mdis = float('inf')
+            for gid in self.grids:
+                dis = np.sqrt((self.grids[gid].cenx - event.x) ** 2 + (self.grids[gid].ceny - event.y) ** 2)
+                if dis < mdis:
+                    mgid = gid
+                    mdis = dis
+            if mdis > (self.master.ia['gridWidth'] + self.master.ia['margin']):
+                self.master.show()
+                return
+            self.master.fc.draw_target_flows(mgid)
 
         self.bind("<Button>", mouseLeftClick)
 
-    def generateGrids(self, fileName):
-        self.grids = relate2data(fileName, self.master.ia)
-        self.invalidate()
-        
-    def drawEmptyGrids(self):
-        for gid in self.grids:
-            hex_co = computeCo_hexagon(self.grids[gid].cenx, self.grids[gid].ceny, self.master.ia['gridWidth'])
-            co = []
-            for item in hex_co:
-                co.append(item[2])
-                co.append(item[3])
-            co.append(co[0])
-            co.append(co[1])
-            self.create_polygon(co, fill='#ffffff', outline='#000000')
-
-    def drawGridFlows(self, x, y):
-        mgid = -1
-        mdis = float('inf')
-        for gid in self.grids:
-            dis = sqrt((self.grids[gid].cenx-x)**2+(self.grids[gid].ceny-y)**2)
-            if dis < mdis:
-                mgid = gid
-                mdis = dis
-        if mdis > (self.master.ia['gridWidth'] + self.master.ia['margin']):
-            self.invalidate()
-            return
-
-        self.drawEmptyGrids()
-        cenx = self.grids[mgid].cenx
-        ceny = self.grids[mgid].ceny
-        for gid in self.grids[mgid].toGrid:
-            if gid:
-                #print(self.grids[mgid].width[gid])
-                self.create_line(cenx, ceny, self.grids[gid].cenx, self.grids[gid].ceny, width=self.grids[mgid].width[gid], fill='#00bc12', arrow=LAST)
-                if cenx <= self.grids[gid].cenx:
-                    self.create_text(self.grids[gid].cenx + 8, self.grids[gid].ceny, text=str(self.grids[mgid].toGrid[gid]), font=('Times New Roman', 9), fill='#000000')
-                else:
-                    self.create_text(self.grids[gid].cenx - 8, self.grids[gid].ceny,
-                                     text=str(self.grids[mgid].toGrid[gid]), font=('Times New Roman', 8),
-                                     fill='#000000')
-        for co in self.grids[mgid].toOutFlowCo:
-            self.create_line(cenx, ceny, co[0], co[1], width=0.2, fill='#00bc12', arrow=LAST)
-
-    #重绘
     def invalidate(self):
         self.delete(ALL)
-        xs, ys = computeCo(self.master.ia['gridWidth'], int(self.master.ia['dnum'] / 6))
+        oxs, oys = computeCo(self.master.ia['gridWidth'], self.master.ia['dnum'] // 6)
+        ixs, iys = computeCo(self.master.ia['gridWidth'] * 0.7, self.master.ia['dnum'] // 6)
+
         for gid in self.grids:
             cx = self.grids[gid].cenx
             cy = self.grids[gid].ceny
             for i in range(self.master.ia['dnum']):
-                self.create_polygon(cx, cy, cx + xs[i], cy + ys[i], cx + xs[i + 1], cy + ys[i + 1],
+                self.create_polygon(cx, cy, cx + ixs[i], cy + iys[i], cx + ixs[i + 1], cy + iys[i + 1],
                                     fill=self.grids[gid].mcolor[i], outline=self.grids[gid].mcolor[i])
-                self.create_line(cx + xs[i], cy + ys[i], cx + xs[i + 1], cy + ys[i + 1],
-                                 width=self.master.ia['gridBorderWidth'], fill=self.grids[gid].dcolor[i])
+                self.create_polygon(cx + ixs[i], cy + iys[i], cx + oxs[i], cy + oys[i], cx + oxs[i+1], cy + oys[i+1],
+                                    cx + ixs[i+1], cy + iys[i+1], width=self.master.ia['gridBorderWidth'],
+                                    fill=self.grids[gid].dcolor[i])
         self.drawLegend()
 
     #绘制图例
@@ -153,14 +135,15 @@ class MapCanvas(Canvas):
         sy = ia['height'] - 14
         lw = ia['legendWidth']
         gridWidth = ia['gridWidth']
+
         # magnitude
         mx = ia['width'] - 180
         for i, c in enumerate(ia['c_m']):
             self.create_line(mx, sy - i * lw, mx + gridWidth, sy - i * lw, width=lw, fill=c)
-        self.create_text(mx + 12, sy - (ia['k_m'] + 5) * lw, text='Magnitude', font=('Times New Roman', 14),
+        self.create_text(mx + 12, sy - (ia['k_m'] + 5) * lw, text='Magnitude', font=('Times New Roman', 12),
                          fill='#000000')
-        self.create_text(mx - gridWidth, sy - lw, text='Low', font=('Times New Roman', 12), fill='#000000')
-        self.create_text(mx - gridWidth, sy - lw * (ia['k_m'] + 1), text='High', font=('Times New Roman', 12),
+        self.create_text(mx - gridWidth, sy - lw, text='Low', font=('Times New Roman', 10), fill='#000000')
+        self.create_text(mx - gridWidth, sy - lw * (ia['k_m'] + 1), text='High', font=('Times New Roman', 10),
                          fill='#000000')
 
         # distance
@@ -169,61 +152,59 @@ class MapCanvas(Canvas):
         for i, n in enumerate(ia['c_d']):
             self.create_line(disx, sy - (i + 0.35) * lw * scale, disx + gridWidth, sy - (i + 0.35) * lw * scale,
                              width=int(round(lw * scale)), fill=n)
-        self.create_text(disx + 12, sy - (ia['k_m'] + 5) * lw, text='Distance', font=('Times New Roman', 14),
+        self.create_text(disx + 12, sy - (ia['k_m'] + 5) * lw, text='Distance', font=('Times New Roman', 12),
                          fill='#000000')
-        self.create_text(disx + 25 + gridWidth, sy - lw, text='Short', font=('Times New Roman', 12), fill='#000000')
-        self.create_text(disx + 25 + gridWidth, sy - lw * ia['k_m'] - lw, text='Long', font=('Times New Roman', 12),
+        self.create_text(disx + 25 + gridWidth, sy - lw, text='Short', font=('Times New Roman', 10), fill='#000000')
+        self.create_text(disx + 25 + gridWidth, sy - lw * ia['k_m'] - lw, text='Long', font=('Times New Roman', 10),
                          fill='#000000')
 
 class FlowCanvas(Canvas):
     def __init__(self, master):
         Canvas.__init__(self, master, height=800, width=800, bg='white')
-        self.grids = None
+        self.flows = None
 
-        def mouseLeftClick(event):
-            #self.delete(ALL)
-            #self.drawGridFlows(event.x, event.y)
-            pass
+    def init(self):
+        for fid in self.flows:
+            if np.random.random() < self.master.ia['p']:
+                self.flows[fid].select_tag = True
+            co = self.flows[fid].co
+            ox = (co[0][0] - self.master.ia['xoff']) / self.master.ia['trans_scale']
+            oy = 800 - (co[0][1] - self.master.ia['yoff']) / self.master.ia['trans_scale']
+            dx = (co[1][0] - self.master.ia['xoff']) / self.master.ia['trans_scale']
+            dy = 800 - (co[1][1] - self.master.ia['yoff']) / self.master.ia['trans_scale']
+            self.flows[fid].co = [(ox, oy), (dx, dy)]
 
-        self.bind("<Button>", mouseLeftClick)
-
-
-class ColorCanvas(Canvas):
-    def __init__(self, master, lFrm):
-        Canvas.__init__(self, master, height=700, width=250, bg='#ffffff')
-        self.pMap = ''
-        self.lFrm = lFrm
-
-        self.mouseDownX = 0
-        self.mouseDownY = 0
-
-        # self.affiCV.calcScale(self.disExt, self.winExt)
-
-        def mouseMove(event):
-            if self.pMap == '':
-                return
-
-            if self.mouseMode == 'VIEW' and self.mousePressed == True:
-                pass
-
-        def doubleLeft(event):
-            if self.pMap == '':
-                return
-
-            if self.mouseMode == 'DRAW':
-                if self.obj.pNum > 0:
-                    if self.layerEditing.lType == 'POLYGON':
-                        self.obj.appendXY(self.obj.x[0], self.obj.y[0])
-
-                    self.objs.append(self.obj)
-                    self.obj = Obj(0, 'null')
-
-        self.bind("<Motion>", mouseMove)
-        self.bind("<Double-Button-1>", doubleLeft)
-
-    # 重绘
     def invalidate(self):
-        pass
+        self.delete(ALL)
+        self.draw_flows()
+        self.draw_ring_roads()
 
-    def invalidateLFrm(self):
-        self.lFrm.flash()
+    def draw_ring_roads(self):
+        with open('../data/ringroad_pt.csv', 'r') as f:
+            lines = f.readlines()
+            tag = 0
+            pts = []
+            for line in lines[1:]:
+                sl = line.strip().split(',')
+                x, y = LL2UTM_USGS(float(sl[3]), float(sl[2]))
+                x = (x - self.master.ia['xoff']) / self.master.ia['trans_scale']
+                y = 800 - (y - self.master.ia['yoff']) / self.master.ia['trans_scale']
+
+                if int(sl[1]) == tag:
+                    pts.append((x, y))
+                else:
+                    self.create_line(pts, fill='#000000', width=2)
+                    tag = int(sl[1])
+                    pts = [(x, y)]
+            self.create_line(pts, fill='#000000', width=2)
+
+    def draw_flows(self):
+        for fid in self.flows:
+            if self.flows[fid].select_tag:
+                self.create_line(self.flows[fid].co, width=1, fill='#C0C0C0', arrow=LAST)
+
+    def draw_target_flows(self, gid):
+        self.invalidate()
+        for fid in self.flows:
+            if self.flows[fid].ogid == gid:
+                self.create_line(self.flows[fid].co, width=1, fill='#0000FF', arrow=LAST)

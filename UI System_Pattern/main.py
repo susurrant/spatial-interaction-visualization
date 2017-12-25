@@ -5,7 +5,6 @@ import tkinter as tk
 from mapView import *
 
 
-
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Spatial Interaction Pattern")
