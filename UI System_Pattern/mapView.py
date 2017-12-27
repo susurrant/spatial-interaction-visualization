@@ -63,7 +63,7 @@ class ParameterFrm(Frame):
         Label(self, text='Time period', bg=bgc).place(x=110, y=5)
         self.time = ttk.Combobox(self, textvariable=StringVar(), state='readonly')
         self.time['values'] = ('Early morning (1-5 a.m.)', 'Morning (5-9 a.m.)', 'Noon (9 a.m.-1 p.m.)', 'Afternoon (1-5 p.m.)', 'Evening (5-9 p.m.)', 'Night (9 p.m.-1 a.m.)')
-        self.time.current(0)
+        self.time.current(1)
         self.time.place(x=140, y=35)
 
 
@@ -109,6 +109,7 @@ class MapCanvas(Canvas):
             if mdis > (self.master.ia['gridWidth'] + self.master.ia['margin']):
                 self.master.show()
                 return
+            self.highlight(mgid)
             self.master.fc.draw_target_flows(mgid)
 
         self.bind("<Button>", mouseLeftClick)
@@ -125,8 +126,7 @@ class MapCanvas(Canvas):
                 self.create_polygon(cx, cy, cx + ixs[i], cy + iys[i], cx + ixs[i + 1], cy + iys[i + 1],
                                     fill=self.grids[gid].mcolor[i], outline=self.grids[gid].mcolor[i])
                 self.create_polygon(cx + ixs[i], cy + iys[i], cx + oxs[i], cy + oys[i], cx + oxs[i+1], cy + oys[i+1],
-                                    cx + ixs[i+1], cy + iys[i+1], width=self.master.ia['gridBorderWidth'],
-                                    fill=self.grids[gid].dcolor[i])
+                                    cx + ixs[i+1], cy + iys[i+1], fill=self.grids[gid].dcolor[i])
         self.drawLegend()
 
     #绘制图例
@@ -157,6 +157,19 @@ class MapCanvas(Canvas):
         self.create_text(disx + 25 + gridWidth, sy - lw, text='Short', font=('Times New Roman', 10), fill='#000000')
         self.create_text(disx + 25 + gridWidth, sy - lw * ia['k_m'] - lw, text='Long', font=('Times New Roman', 10),
                          fill='#000000')
+
+    def highlight(self, mgid):
+        self.invalidate()
+        fxs, fys = computeCo(self.master.ia['gridWidth'] + self.master.ia['margin'], self.master.ia['dnum'] // 6)
+        cenx, ceny = self.grids[mgid].cenx, self.grids[mgid].ceny
+        fco = []
+        for i in range(self.master.ia['dnum']):
+            fco.append(cenx + fxs[i])
+            fco.append(ceny + fys[i])
+        fco.append(cenx + fxs[0])
+        fco.append(ceny + fys[0])
+        self.create_line(fco)
+
 
 class FlowCanvas(Canvas):
     def __init__(self, master):
