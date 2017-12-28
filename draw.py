@@ -26,7 +26,7 @@ def drawGridSymbol_hexagon(cs):
     image.save('./figure/grid symbol.jpg', quality=1000, dpi=(1200,1200))
 
 
-def drawPattern_bc(grids, flows, dnum, ia, saveFileName):
+def drawPattern_bc(grids, flows, ia, saveFileName):
     # -------------------------------classify data----------------------------------
     mag = []
     dis = []
@@ -45,11 +45,11 @@ def drawPattern_bc(grids, flows, dnum, ia, saveFileName):
     draw = ImageDraw.Draw(image)
 
     gridWidth = ia['gridWidth']
-    xs, ys = computeCo(gridWidth, dnum//6)
+    xs, ys = computeCo(gridWidth, ia['dnum']//6)
     for gid in grids:
         cenx, ceny = computeCen(gid, ia)
         border = []
-        for i in range(dnum):
+        for i in range(ia['dnum']):
             border.append(cenx + xs[i])
             border.append(ceny + ys[i])
             j = nl.index(nk.predict(grids[gid].wm[i]))
@@ -134,173 +134,40 @@ def drawPattern_bc(grids, flows, dnum, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-def drawPattern_bs_old(grids, flows, dnum, ia, saveFileName):
-    mag = []
-    dis = []
-    for g in grids:
-        grids[g].calcOutAggregation(flows)
-        for tm in grids[g].wm:
-            mag.append(tm)
-        for td in grids[g].wd:
-            dis.append(td)
-    k_m = ia['k_m']
-    k_d = ia['k_d']
-
-    nk, nl = kmeans(mag, k_m)
-    dk, dl = kmeans(dis, k_d)
-
-    gridWidth = ia['gridWidth']
-    iwidth = ia['width']
-    iheight = ia['height']
-    gridBorderWidth = ia['gridBorderWidth']
-    c_m = ia['c_m']
-    c_d = ia['c_d']
-
-    # RGB
-    image = Image.new('RGB', (iwidth, iheight), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    xs, ys = computeCo(gridWidth, int(dnum/6))
-
+def drawHexagons_bs(draw, grids, gridWidth, area_scale, dnum):
+    oxs, oys = computeCo(gridWidth, dnum // 6)
+    ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
+    fxs, fys = computeCo(gridWidth + 13, dnum // 6)
     for gid in grids:
         if len(grids[gid].wm) == 0:
             print('grid %d is empty!' % gid)
             continue
 
-        cenx, ceny = computeCen(gid, ia)
-        for i in range(dnum):
-            nc = c_m[nl.index(nk.predict(grids[gid].wm[i]))]
-            draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=nc, outline=nc)
-
-        for i in range(dnum):
-            dc = c_d[dl.index(dk.predict(grids[gid].wd[i]))]
-            draw.line([cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], width=gridBorderWidth, fill=dc)
-
-    indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
-
-    if True:
-        cenx, ceny = computeCen(128, ia)
-        draw.line([cenx, ceny, 2850, 750], width=2, fill='#000000')
-        draw.text((2870, 700), 'B', font=indicatorfont, fill='#000000')
-        cenx, ceny = computeCen(100, ia)
-        draw.line([cenx, ceny, 300, 2500], width=2, fill='#000000')
-        draw.text((230, 2460), 'A', font=indicatorfont, fill='#000000')
-
-    labelfont = ImageFont.truetype('./font/times.ttf', 50)
-    labelColor = '#0000ff'#'#003371'
-    textColor = '#871F78'
-
-    if '1km' in saveFileName:
-        if '0105' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx-24, ceny+30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(164, ia)
-            draw.text((cenx-87, ceny+10), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(437, ia)
-            draw.text((cenx-20, ceny+45), 'C', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height']-180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-120), 'B: Sanlitun', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-60), 'C: Wudaokou', font=labelfont, fill=textColor)
-        elif '0509' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx - 24, ceny + 30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(176, ia)
-            draw.text((cenx - 105, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(124, ia)
-            draw.text((cenx + 10, ceny - 115), 'C', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(356, ia)
-            draw.text((cenx + 50, ceny - 85), 'D', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao (A transfer station)', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
-            draw.text((800, ia['height'] - 60), 'D: Shuangjin', font=labelfont, fill=textColor)
-    elif '500m' in saveFileName:
-        if '0509' in saveFileName:
-            cenx, ceny = computeCen(563, ia)
-            draw.text((cenx - 24, ceny), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(1647, ia)
-            draw.text((cenx - 65, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(487, ia)
-            draw.text((cenx + 5, ceny - 70), 'C', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
-
-    # ----draw legend----
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
-    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
-    sy = iheight - 50
-    lw = ia['legendWidth']
-    if '500m' in saveFileName:
-        gridWidth *= 2
-
-    # magnitude
-    mx = iwidth - 480
-    for i, c in enumerate(c_m):
-        draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
-    draw.text((mx-gridWidth, sy-(k_m+5)*lw), 'Magnitude', font=imageTitlefont, fill=(0,0,0))
-    draw.text((mx-1.5*gridWidth, sy-lw), 'Low', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((mx-1.5*gridWidth, sy-lw*(k_m+1)), 'High', font=imageMeasureFont, fill=(0,0,0))
-
-    # distance
-    disx = iwidth - 230
-    scale = k_m / k_d
-    for i, n in enumerate(c_d):
-        draw.line([disx, sy-(i+0.35)*lw*scale, disx+gridWidth, sy-(i+0.35)*lw*scale], width=int(round(lw*scale)), fill=n)
-    draw.text((disx-gridWidth/2-15, sy-(k_m+5)*lw), 'Distance', font=imageTitlefont, fill=(0,0,0))
-    draw.text((disx+20+gridWidth, sy-lw), 'Short', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((disx+20+gridWidth, sy-lw*k_m-lw), 'Long', font=imageMeasureFont, fill=(0,0,0))
-
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-def drawPattern_bs(grids, flows, dnum, ia, saveFileName):
-    mag = []
-    dis = []
-    for g in grids:
-        grids[g].calcOutAggregation(flows)
-        for tm in grids[g].wm:
-            mag.append(tm)
-        for td in grids[g].wd:
-            dis.append(td)
-    k_m = ia['k_m']
-    k_d = ia['k_d']
-
-    nk, nl = kmeans(mag, k_m)
-    dk, dl = kmeans(dis, k_d)
-
-    gridWidth = ia['gridWidth']
-    iwidth = ia['width']
-    iheight = ia['height']
-    c_m = ia['c_m']
-    c_d = ia['c_d']
-
-    # RGB
-    image = Image.new('RGB', (iwidth, iheight), '#ffffff')
-    draw = ImageDraw.Draw(image)
-
-    oxs, oys = computeCo(gridWidth, int(dnum/6))
-    ixs, iys = computeCo(gridWidth * ia['border_scale'], int(dnum / 6))
-    fxs, fys = computeCo(gridWidth + ia['margin'], int(dnum / 6))
-    for gid in grids:
-        if len(grids[gid].wm) == 0:
-            print('grid %d is empty!' % gid)
-            continue
-
-        cenx, ceny = computeCen(gid, ia)
+        cenx, ceny = grids[gid].cenx, grids[gid].ceny
         fco = []
         for i in range(dnum):
-            nc = c_m[nl.index(nk.predict(grids[gid].wm[i]))]
-            draw.polygon([cenx, ceny,cenx+ixs[i], ceny+iys[i], cenx+ixs[i+1], ceny+iys[i+1]], fill=nc, outline=nc)
+            draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
+                         fill=grids[gid].mcolor[i], outline=grids[gid].mcolor[i])
+            draw.polygon(
+                [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
+                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grids[gid].dcolor[i], fill=grids[gid].dcolor[i])
+            fco.append(cenx + fxs[i])
+            fco.append(ceny + fys[i])
+        #draw.polygon(fco, fill=None, outline='#000000')
 
-            dc = c_d[dl.index(dk.predict(grids[gid].wd[i]))]
-            draw.polygon([cenx+ixs[i], ceny+iys[i], cenx+oxs[i], ceny+oys[i], cenx+oxs[i+1], ceny+oys[i+1],
-                          cenx+ixs[i+1], ceny+iys[i+1]], outline=dc, fill=dc)
-            fco.append(cenx+fxs[i])
-            fco.append(ceny+fys[i])
-        #draw.polygon(fco, outline='#000000', fill=None)
+
+def drawPattern_bs(grids, flows, ia, saveFileName):
+    processGrids(grids, flows, ia)
+
+    gridWidth = ia['gridWidth']
+    iwidth = ia['width']
+    iheight = ia['height']
+
+    # RGB
+    image = Image.new('RGB', (iwidth, iheight), '#ffffff')
+    draw = ImageDraw.Draw(image)
+
+    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['dnum'])
 
     indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
 
@@ -365,20 +232,117 @@ def drawPattern_bs(grids, flows, dnum, ia, saveFileName):
 
     # magnitude
     mx = iwidth - 480
-    for i, c in enumerate(c_m):
+    for i, c in enumerate(ia['c_m']):
         draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
-    draw.text((mx-gridWidth, sy-(k_m+5)*lw), 'Magnitude', font=imageTitlefont, fill=(0,0,0))
+    draw.text((mx-gridWidth, sy-(ia['k_m']+5)*lw), 'Magnitude', font=imageTitlefont, fill=(0,0,0))
     draw.text((mx-1.5*gridWidth, sy-lw), 'Low', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((mx-1.5*gridWidth, sy-lw*(k_m+1)), 'High', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((mx-1.5*gridWidth, sy-lw*(ia['k_m']+1)), 'High', font=imageMeasureFont, fill=(0,0,0))
 
     # distance
     disx = iwidth - 230
-    scale = k_m / k_d
-    for i, n in enumerate(c_d):
+    scale = ia['k_m'] / ia['k_d']
+    for i, n in enumerate(ia['c_d']):
         draw.line([disx, sy-(i+0.35)*lw*scale, disx+gridWidth, sy-(i+0.35)*lw*scale], width=int(round(lw*scale)), fill=n)
-    draw.text((disx-gridWidth/2-15, sy-(k_m+5)*lw), 'Distance', font=imageTitlefont, fill=(0,0,0))
+    draw.text((disx-gridWidth/2-15, sy-(ia['k_m']+5)*lw), 'Distance', font=imageTitlefont, fill=(0,0,0))
     draw.text((disx+20+gridWidth, sy-lw), 'Short', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((disx+20+gridWidth, sy-lw*k_m-lw), 'Long', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((disx+20+gridWidth, sy-lw*ia['k_m']-lw), 'Long', font=imageMeasureFont, fill=(0,0,0))
+
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
+
+def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, ceny=None):
+    oxs, oys = computeCo(gridWidth, dnum // 6)
+    ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
+
+    if not cenx:
+        cenx = grid.cenx
+    if not ceny:
+        ceny = grid.ceny
+
+    for i in range(dnum):
+        draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
+                      fill=grid.mcolor[i], outline=grid.mcolor[i])
+        draw.polygon(
+            [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
+                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
+
+
+def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
+    processGrids(grids, flows, ia)
+    gridWidth = 240
+
+    # RGB
+    image = Image.new('RGB', (500, 450), '#ffffff')
+    draw = ImageDraw.Draw(image)
+    drawSingleHexagon_bs(draw, grids[gid], gridWidth, 0.85, ia['dnum'], 250, 225)
+
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
+
+def drawPattern_bs_earlymorning(grids, flows, ia, saveFileName):
+    processGrids(grids, flows, ia)
+
+    gridWidth = ia['gridWidth']
+    iwidth = ia['width']
+    iheight = ia['height']
+
+    # RGB
+    image = Image.new('RGB', (iwidth, iheight+530), '#ffffff')
+    draw = ImageDraw.Draw(image)
+    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['dnum'])
+
+    drawSingleHexagon_bs(draw, grids[124], 220, 0.8, ia['dnum'], 375, 3250)
+    drawSingleHexagon_bs(draw, grids[437], 220, 0.8, ia['dnum'], 1125, 3250)
+    drawSingleHexagon_bs(draw, grids[150], 220, 0.8, ia['dnum'], 1875, 3250)
+    drawSingleHexagon_bs(draw, grids[392], 220, 0.8, ia['dnum'], 2625, 3250)
+
+    indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
+    labelfont = ImageFont.truetype('./font/times.ttf', 50)
+    labelColor = '#0000ff'  # '#003371'
+    textColor = '#871F78'
+
+    #draw.line([grids[124].cenx, grids[124].ceny, 375, 3030], width=2, fill='#000000')
+    draw.text((grids[124].cenx + 10, grids[124].ceny - 115), 'A', font=indicatorfont, fill=labelColor)
+
+    #draw.line([grids[437].cenx, grids[437].ceny, 1125, 3030], width=2, fill='#000000')
+    draw.text((grids[437].cenx - 20, grids[437].ceny + 45), 'B', font=indicatorfont, fill=labelColor)
+
+    #draw.line([grids[150].cenx, grids[150].ceny, 1875, 3030], width=2, fill='#000000')
+    draw.text((grids[150].cenx - 24, grids[150].ceny + 30), 'C', font=indicatorfont, fill=labelColor)
+
+    #draw.line([grids[164].cenx, grids[164].ceny, 2625, 3030], width=2, fill='#000000')
+    draw.text((grids[164].cenx - 87, grids[164].ceny + 10), 'D', font=indicatorfont, fill=labelColor)
+
+    draw.text((60, ia['height'] + 530 - 70), 'A: Beijing West Railway Station', font=labelfont, fill=textColor)
+    draw.text((980, ia['height'] + 530 - 70), 'B: Wudaokou', font=labelfont, fill=textColor)
+    draw.text((1650, ia['height'] + 530 - 70), 'C: The Forbidden City', font=labelfont, fill=textColor)
+    draw.text((2510, ia['height'] + 530 - 70), 'D: Sanlitun', font=labelfont, fill=textColor)
+
+    # ----draw legend----
+    imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
+    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
+    sy = iheight - 50
+    lw = ia['legendWidth']
+    if '500m' in saveFileName:
+        gridWidth *= 2
+
+    # magnitude
+    mx = iwidth - 480
+    for i, c in enumerate(ia['c_m']):
+        draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
+    draw.text((mx - gridWidth, sy - (ia['k_m'] + 5) * lw), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx - 1.5 * gridWidth, sy - lw), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - 1.5 * gridWidth, sy - lw * (ia['k_m'] + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
+
+    # distance
+    disx = iwidth - 230
+    scale = ia['k_m'] / ia['k_d']
+    for i, n in enumerate(ia['c_d']):
+        draw.line([disx, sy - (i + 0.35) * lw * scale, disx + gridWidth, sy - (i + 0.35) * lw * scale],
+                  width=int(round(lw * scale)), fill=n)
+    draw.text((disx - gridWidth / 2 - 15, sy - (ia['k_m'] + 5) * lw), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((disx + 20 + gridWidth, sy - lw), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((disx + 20 + gridWidth, sy - lw * ia['k_m'] - lw), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 

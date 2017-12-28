@@ -138,3 +138,23 @@ def readGids(fileName):
             sl = line.strip().split(',')
             dgids.add(int(sl[-1]))
     return dgids
+
+
+def processGrids(grids, flows, ia):
+    mag = []
+    dis = []
+    for g in grids:
+        grids[g].calcOutAggregation(flows)
+        for tm in grids[g].wm:
+            mag.append(tm)
+        for td in grids[g].wd:
+            dis.append(td)
+
+    nk, nl = kmeans(mag, ia['k_m'])
+    dk, dl = kmeans(dis, ia['k_d'])
+
+    for gid in grids:
+        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
+        for i in range(ia['dnum']):
+            grids[gid].mcolor.append(ia['c_m'][nl.index(nk.predict(grids[gid].wm[i]))])
+            grids[gid].dcolor.append(ia['c_d'][dl.index(dk.predict(grids[gid].wd[i]))])

@@ -13,6 +13,11 @@ class Grid(object):
         self.wm = [0] * dnum
         self.wd = [0] * dnum
 
+        self.mcolor = []
+        self.dcolor = []
+        self.cenx = -1
+        self.ceny = -1
+
         self.ld = []
         for i in range(dnum):
             self.ld.append([])

@@ -83,22 +83,37 @@ def readData_Inside(filename, dnum, minSpeed = 2, maxSpeed = 150):
 
 
 # 交互模式可视化
-def drawSIPattern(fileName, dgids, dnum, ia, mode='bs', inside=False):
+def SIPattern(fileName, dgids, ia, mode='bs', inside=False):
     if inside:
-        grids, flows = readData_Inside(fileName+'.csv', dgids, dnum)
+        grids, flows = readData_Inside(fileName+'.csv', dgids, ia['dnum'])
         saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_in.jpg'
     else:
-        grids, flows = readData(fileName + '.csv', dgids, dnum)
+        grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
         saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
 
     if mode == 'bs':
-        drawPattern_bs(grids, flows, dnum, ia, saveFileName)
+        drawPattern_bs(grids, flows, ia, saveFileName)
     elif mode == 'bc':
-        drawPattern_bc(grids, flows, dnum, ia, saveFileName)
+        drawPattern_bc(grids, flows, ia, saveFileName)
 
+def SIPattern_earlymorning(fileName, dgids, ia, mode='bs'):
+    grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
+    saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
+
+    if mode == 'bs':
+        drawPattern_bs_earlymorning(grids, flows, ia, saveFileName)
+
+
+def singlePattern(gid, fileName, dgids, ia, mode='bs'):
+    grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
+    saveFileName = './figure/p_' + fileName[-15:] + '_' + str(gid) + '_' + mode + '.jpg'
+    if mode == 'bs':
+        drawSinglePattern_bs(gid, grids, flows, ia, saveFileName)
+    #elif mode == 'bc':
+        #drawSinglePattern_bc(gid, grids, flows, ia, saveFileName)
 
 # 模式差异可视化
-def drawDifference(fileName1, fileName2, dgids, dnum, ia, alpha):
+def patternDifference(fileName1, fileName2, dgids, dnum, ia, alpha):
     ia['legendWidth'] = 15
     grids1, flows1 = readData(fileName1 + '.csv', dgids, dnum)
     grids2, flows2 = readData(fileName2 + '.csv', dgids, dnum)
@@ -106,7 +121,7 @@ def drawDifference(fileName1, fileName2, dgids, dnum, ia, alpha):
     drawCdif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName)
 
 # 差异时变
-def drawDifVar(fs, dgids, gids, labels, colors, alpha, dnum):
+def difVar(fs, dgids, gids, labels, colors, alpha, dnum):
     grids = []
     flows = []
     for fn in fs:
@@ -132,13 +147,15 @@ if __name__ == '__main__':
     # -----------------------------drawing--------------------------------
     #drawGridSymbol_hexagon(ia['c_d'])False
 
-    drawSIPattern(fileNames[1]+scale, dgids, dnum, ia, mode, False) #True 表示只显示五环内的数据
+    #SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
+    #singlePattern(124, fileNames[1] + scale, dgids, ia, mode)
+    SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode) #True 表示只显示五环内的数据
 
-    #drawDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
+    #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
 
     if False:
         labels = ['T', 'S', 'C', 'R']
         gids = [487, 563, 800, 1455]   #scale = 500m
         gids = [124, 150, 437, 356]    #scale = 1km
         colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
-        drawDifVar([fileNames[i]+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, dnum)
+        difVar([fileNames[i]+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, dnum)

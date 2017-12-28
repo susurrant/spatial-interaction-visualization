@@ -5,7 +5,7 @@ import sys
 sys.path.append('../')
 from grid import *
 from LL2UTM import LL2UTM_USGS
-from func import kmeans, computeCen, readGids
+from func import kmeans, computeCen, readGids, processGrids
 
 def readData(filename, dgids, dnum, minSpeed=2, maxSpeed=150):
     grids = {}
@@ -46,26 +46,6 @@ def readData(filename, dgids, dnum, minSpeed=2, maxSpeed=150):
                 break
 
     return grids, flows
-
-def processGrids(grids, flows, ia):
-    mag = []
-    dis = []
-    for g in grids:
-        grids[g].calcOutAggregation(flows)
-        for tm in grids[g].wm:
-            mag.append(tm)
-        for td in grids[g].wd:
-            dis.append(td)
-
-    nk, nl = kmeans(mag, ia['k_m'])
-    dk, dl = kmeans(dis, ia['k_d'])
-
-    for gid in grids:
-        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
-        for i in range(ia['dnum']):
-            grids[gid].mcolor.append(ia['c_m'][nl.index(nk.predict(grids[gid].wm[i]))])
-            grids[gid].dcolor.append(ia['c_d'][dl.index(dk.predict(grids[gid].wd[i]))])
-
 
 def relate2data(fileName, ia):
     dgids = readGids('../data/5th_rr_gid' + ia['scale'] + '.csv')
