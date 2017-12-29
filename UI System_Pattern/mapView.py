@@ -118,7 +118,8 @@ class MapCanvas(Canvas):
         self.delete(ALL)
         oxs, oys = computeCo(self.master.ia['gridWidth'], self.master.ia['dnum'] // 6)
         ixs, iys = computeCo(self.master.ia['gridWidth'] * 0.7, self.master.ia['dnum'] // 6)
-
+        fxs, fys = computeCo(self.master.ia['gridWidth'] + self.master.ia['margin'], self.master.ia['dnum'] // 6)
+        borders = []
         for gid in self.grids:
             cx = self.grids[gid].cenx
             cy = self.grids[gid].ceny
@@ -127,6 +128,23 @@ class MapCanvas(Canvas):
                                     fill=self.grids[gid].mcolor[i], outline=self.grids[gid].mcolor[i])
                 self.create_polygon(cx + ixs[i], cy + iys[i], cx + oxs[i], cy + oys[i], cx + oxs[i+1], cy + oys[i+1],
                                     cx + ixs[i+1], cy + iys[i+1], fill=self.grids[gid].dcolor[i])
+
+                lineco1 = [cx + fxs[i], cy + fys[i], cx + fxs[(i+1)%6], cy + fys[(i+1)%6]]
+                lineco2 = [cx + fxs[(i+1)%6], cy + fys[(i+1)%6], cx + fxs[i], cy + fys[i]]
+                tag = True
+                for lc in borders:
+                    dis = (np.array(lineco1) - np.array(lc)) ** 2
+                    if np.sqrt(dis[0]+dis[1])<20 and np.sqrt(dis[2]+dis[3])<20:
+                        tag = False
+                        break
+                    dis = (np.array(lineco2) - np.array(lc)) ** 2
+                    if np.sqrt(dis[0]+dis[1])<20 and np.sqrt(dis[2]+dis[3])<20:
+                        tag = False
+                        break
+                if tag:
+                    borders.append(lineco1)
+        for lc in borders:
+            self.create_line(lc, width=1, fill='#000000')
         self.drawLegend()
 
     #绘制图例

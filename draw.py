@@ -134,10 +134,10 @@ def drawPattern_bc(grids, flows, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-def drawHexagons_bs(draw, grids, gridWidth, area_scale, dnum):
+def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
-    fxs, fys = computeCo(gridWidth + 13, dnum // 6)
+    fxs, fys = computeCo(gridWidth + margin, dnum // 6)
     for gid in grids:
         if len(grids[gid].wm) == 0:
             print('grid %d is empty!' % gid)
@@ -153,7 +153,7 @@ def drawHexagons_bs(draw, grids, gridWidth, area_scale, dnum):
                  cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grids[gid].dcolor[i], fill=grids[gid].dcolor[i])
             fco.append(cenx + fxs[i])
             fco.append(ceny + fys[i])
-        #draw.polygon(fco, fill=None, outline='#000000')
+        draw.polygon(fco, fill=None, outline='#000000')
 
 
 def drawPattern_bs(grids, flows, ia, saveFileName):
@@ -167,7 +167,7 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
     image = Image.new('RGB', (iwidth, iheight), '#ffffff')
     draw = ImageDraw.Draw(image)
 
-    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['dnum'])
+    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
 
     indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
 
@@ -184,39 +184,39 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
     textColor = '#871F78'
 
     if '1km' in saveFileName:
-        if '0105' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx-24, ceny+30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(164, ia)
-            draw.text((cenx-87, ceny+10), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(437, ia)
-            draw.text((cenx-20, ceny+45), 'C', font=indicatorfont, fill=labelColor)
+        indicatorfont = ImageFont.truetype('./font/calibril.ttf', 80)
+        dx = 20
+        dy = 40
+        if '0509' in saveFileName:
+            draw.text((grids[150].cenx - dx - 4, grids[150].ceny - dy - 6), 'A',
+                      font=ImageFont.truetype('./font/calibril.ttf', 95), fill='#ffffff')
+            draw.text((grids[150].cenx - dx, grids[150].ceny - dy), 'A', font=indicatorfont, fill=labelColor)
 
-            draw.text((30, ia['height']-180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-120), 'B: Sanlitun', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-60), 'C: Wudaokou', font=labelfont, fill=textColor)
-        elif '0509' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx - 24, ceny + 30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(176, ia)
-            draw.text((cenx - 105, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(124, ia)
-            draw.text((cenx + 10, ceny - 115), 'C', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(356, ia)
-            draw.text((cenx + 50, ceny - 85), 'D', font=indicatorfont, fill=labelColor)
+            draw.text((grids[176].cenx - dx - 4, grids[176].ceny - dy - 6), 'B',
+                      font=ImageFont.truetype('./font/calibril.ttf', 95), fill='#ffffff')
+            #draw.text((grids[176].cenx - dx, grids[176].ceny - dy), 'B', font=indicatorfont, fill=labelColor)
+
+            draw.text((grids[124].cenx - dx - 4, grids[124].ceny - dy - 6), 'C',
+                      font=ImageFont.truetype('./font/calibril.ttf', 95), fill='#ffffff')
+            #draw.text((grids[124].cenx - dx, grids[124].ceny - dy), 'C', font=indicatorfont, fill=labelColor)
+
+            draw.text((grids[356].cenx - dx - 4, grids[356].ceny - dy - 6), 'D',
+                      font=ImageFont.truetype('./font/calibril.ttf', 95), fill='#ffffff')
+            draw.text((grids[356].cenx - dx, grids[356].ceny - dy), 'D', font=indicatorfont, fill=labelColor)
 
             draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao (A transfer station)', font=labelfont, fill=textColor)
+            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao (A transfer hub)', font=labelfont, fill=textColor)
             draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
             draw.text((800, ia['height'] - 60), 'D: Shuangjin', font=labelfont, fill=textColor)
     elif '500m' in saveFileName:
+        indicatorfont = ImageFont.truetype('./font/calibril.ttf', 50)
+        dx = 13
+        dy = 20
         if '0509' in saveFileName:
-            cenx, ceny = computeCen(563, ia)
-            draw.text((cenx - 24, ceny), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(1647, ia)
-            draw.text((cenx - 65, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(487, ia)
-            draw.text((cenx + 5, ceny - 70), 'C', font=indicatorfont, fill=labelColor)
+            draw.text((grids[563].cenx - dx, grids[563].ceny - dy), 'A', font=indicatorfont, fill=labelColor)
+
+            draw.text((grids[1647].cenx - dx, grids[1647].ceny - dy), 'B', font=indicatorfont, fill='#ffffff')
+            draw.text((grids[487].cenx - dx, grids[487].ceny - dy), 'C', font=indicatorfont, fill='#ffffff')
 
             draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
             draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao', font=labelfont, fill=textColor)
@@ -289,34 +289,26 @@ def drawPattern_bs_earlymorning(grids, flows, ia, saveFileName):
     # RGB
     image = Image.new('RGB', (iwidth, iheight+530), '#ffffff')
     draw = ImageDraw.Draw(image)
-    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['dnum'])
+    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
 
     drawSingleHexagon_bs(draw, grids[124], 220, 0.8, ia['dnum'], 375, 3250)
     drawSingleHexagon_bs(draw, grids[437], 220, 0.8, ia['dnum'], 1125, 3250)
     drawSingleHexagon_bs(draw, grids[150], 220, 0.8, ia['dnum'], 1875, 3250)
     drawSingleHexagon_bs(draw, grids[392], 220, 0.8, ia['dnum'], 2625, 3250)
 
-    indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
-    labelfont = ImageFont.truetype('./font/times.ttf', 50)
-    labelColor = '#0000ff'  # '#003371'
+    labelfont = ImageFont.truetype('./font/times.ttf', 58)
+    lineColor = '#5566ff'#'#0000ff'
     textColor = '#871F78'
 
-    #draw.line([grids[124].cenx, grids[124].ceny, 375, 3030], width=2, fill='#000000')
-    draw.text((grids[124].cenx + 10, grids[124].ceny - 115), 'A', font=indicatorfont, fill=labelColor)
+    draw.line([grids[124].cenx, grids[124].ceny, 375, 3030], width=4, fill=lineColor)
+    draw.line([grids[437].cenx, grids[437].ceny, 1125, 3030], width=4, fill=lineColor)
+    draw.line([grids[150].cenx, grids[150].ceny, 1875, 3030], width=4, fill=lineColor)
+    draw.line([grids[164].cenx, grids[164].ceny, 2625, 3030], width=4, fill=lineColor)
 
-    #draw.line([grids[437].cenx, grids[437].ceny, 1125, 3030], width=2, fill='#000000')
-    draw.text((grids[437].cenx - 20, grids[437].ceny + 45), 'B', font=indicatorfont, fill=labelColor)
-
-    #draw.line([grids[150].cenx, grids[150].ceny, 1875, 3030], width=2, fill='#000000')
-    draw.text((grids[150].cenx - 24, grids[150].ceny + 30), 'C', font=indicatorfont, fill=labelColor)
-
-    #draw.line([grids[164].cenx, grids[164].ceny, 2625, 3030], width=2, fill='#000000')
-    draw.text((grids[164].cenx - 87, grids[164].ceny + 10), 'D', font=indicatorfont, fill=labelColor)
-
-    draw.text((60, ia['height'] + 530 - 70), 'A: Beijing West Railway Station', font=labelfont, fill=textColor)
-    draw.text((980, ia['height'] + 530 - 70), 'B: Wudaokou', font=labelfont, fill=textColor)
-    draw.text((1650, ia['height'] + 530 - 70), 'C: The Forbidden City', font=labelfont, fill=textColor)
-    draw.text((2510, ia['height'] + 530 - 70), 'D: Sanlitun', font=labelfont, fill=textColor)
+    draw.text((50, ia['height'] + 530 - 73), 'A: Beijing West Railway Station', font=labelfont, fill=textColor)
+    draw.text((960, ia['height'] + 530 - 73), 'B: Wudaokou', font=labelfont, fill=textColor)
+    draw.text((1650, ia['height'] + 530 - 73), 'C: The Forbidden City', font=labelfont, fill=textColor)
+    draw.text((2500, ia['height'] + 530 - 73), 'D: Sanlitun', font=labelfont, fill=textColor)
 
     # ----draw legend----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)

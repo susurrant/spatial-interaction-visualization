@@ -69,14 +69,14 @@ def bivariate_symbol(scale):
     #   图像尺寸：width：图像宽度；height：图像高度；frameMargin：图像边框据图像边缘偏移
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
-    if scale == '1km': #'gridWidth': 82, 'border_scale': 0.72, 'ox': 15, 'oy': 15, 'margin': 13,
+    if scale == '1km':
         ia = {'hexParm': (12, 240), 'gridWidth': 82, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 13,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
               'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
-        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
-              'width': 3000, 'height': 3000,
+        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
+              'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
               'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
 
@@ -89,8 +89,10 @@ def bivariate_symbol(scale):
 
     ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f'] # 1optimum
     ia['c_d'] = ['#9fd4ff', '#90ee90', '#ffd700', '#ff4500', '#c70000'] # 3
-    ia['c_d'] = ['#9fd4ff', '#7FFFAA', '#ffd700', '#ff8000', '#c70000']  # 5
-    ia['c_d'] = ['#9fd4ff', '#22ff55', '#ffee66', '#ff8000', '#c70000']  # 6
+    ia['c_d'] = ['#9fd4ff', '#7fffaa', '#ffd700', '#ff8000', '#c70000']  # 5
+    #ia['c_d'] = ['#9fd4ff', '#22ff55', '#ffee66', '#ff8000', '#c70000']  # 6
+
+    ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000']  # 5
 
     #ccstr = 'fefffe#f4f9ff#e8f4ff#ddeeff#d2e9ff#c6e3ff#b9deff#add9ff#9fd4ff#91ceff#81c9ff#70c4ff#5bbfff#40baff#00b6ff'
     #ia['c_m'] = list(map(lambda x: '#'+ x, ccstr.split('#')))
