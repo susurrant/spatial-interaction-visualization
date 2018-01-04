@@ -19,13 +19,6 @@ class MapGUI(Frame):
 
         # layer
         self.pFrm = ParameterFrm(self)
-        # pattern map
-        self.cv = MapCanvas(self)
-        # flow map
-        self.fc = FlowCanvas(self)
-
-        self.cv.place(x=0, y=0)
-        self.fc.place(x=800, y=0)
         self.pFrm.place(x=0, y=800)
 
         self.ia = {}
@@ -33,8 +26,15 @@ class MapGUI(Frame):
 
         self.fileNames = ['../data/sj_051316_0105', '../data/sj_051316_0509', '../data/sj_051316_0913',
                           '../data/sj_051316_1317', '../data/sj_051316_1721', '../data/sj_051316_2101']
-        self.cv.grids, self.fc.flows = relate2data(self.fileNames[1], self.ia)
-        self.fc.init()
+        grids, flows = relate2data(self.fileNames[1], self.ia)
+        # pattern map
+        self.cv = MapCanvas(self, grids)
+        # flow map
+        self.fc = FlowCanvas(self, flows)
+
+        self.cv.place(x=0, y=0)
+        self.fc.place(x=800, y=0)
+
         self.show()
 
     def init_ia(self):
@@ -49,7 +49,7 @@ class MapGUI(Frame):
             self.ia['c_m'].append(
                 '#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
         self.ia['c_m'][0] = '#ffffff'
-        self.ia['c_d'] = ['#bee6fe', '#abdda4', '#fee08b', '#f46d43', '#d53e4f']
+        self.ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000']
 
     def show(self):
         self.cv.invalidate()
@@ -94,9 +94,30 @@ class ParameterFrm(Frame):
 
 
 class MapCanvas(Canvas):
-    def __init__(self, master):
+    def __init__(self, master, grids):
         Canvas.__init__(self, master, height = 800, width = 800, bg = 'white')
-        self.grids = None
+        self.grids = grids
+        self.borders = []
+
+        fxs, fys = computeCo(master.ia['gridWidth'] + master.ia['margin'], master.ia['dnum'] // 6)
+        for gid in self.grids:
+            cx = self.grids[gid].cenx
+            cy = self.grids[gid].ceny
+            for i in range(self.master.ia['dnum']):
+                lineco1 = [cx + fxs[i], cy + fys[i], cx + fxs[(i + 1) % 6], cy + fys[(i + 1) % 6]]
+                lineco2 = [cx + fxs[(i + 1) % 6], cy + fys[(i + 1) % 6], cx + fxs[i], cy + fys[i]]
+                tag = True
+                for lc in self.borders:
+                    dis = (np.array(lineco1) - np.array(lc)) ** 2
+                    if np.sqrt(dis[0] + dis[1]) < 20 and np.sqrt(dis[2] + dis[3]) < 20:
+                        tag = False
+                        break
+                    dis = (np.array(lineco2) - np.array(lc)) ** 2
+                    if np.sqrt(dis[0] + dis[1]) < 20 and np.sqrt(dis[2] + dis[3]) < 20:
+                        tag = False
+                        break
+                if tag:
+                    self.borders.append(lineco1)
         
         def mouseLeftClick(event):
             mgid = -1
@@ -118,8 +139,7 @@ class MapCanvas(Canvas):
         self.delete(ALL)
         oxs, oys = computeCo(self.master.ia['gridWidth'], self.master.ia['dnum'] // 6)
         ixs, iys = computeCo(self.master.ia['gridWidth'] * 0.7, self.master.ia['dnum'] // 6)
-        fxs, fys = computeCo(self.master.ia['gridWidth'] + self.master.ia['margin'], self.master.ia['dnum'] // 6)
-        borders = []
+
         for gid in self.grids:
             cx = self.grids[gid].cenx
             cy = self.grids[gid].ceny
@@ -129,22 +149,9 @@ class MapCanvas(Canvas):
                 self.create_polygon(cx + ixs[i], cy + iys[i], cx + oxs[i], cy + oys[i], cx + oxs[i+1], cy + oys[i+1],
                                     cx + ixs[i+1], cy + iys[i+1], fill=self.grids[gid].dcolor[i])
 
-                lineco1 = [cx + fxs[i], cy + fys[i], cx + fxs[(i+1)%6], cy + fys[(i+1)%6]]
-                lineco2 = [cx + fxs[(i+1)%6], cy + fys[(i+1)%6], cx + fxs[i], cy + fys[i]]
-                tag = True
-                for lc in borders:
-                    dis = (np.array(lineco1) - np.array(lc)) ** 2
-                    if np.sqrt(dis[0]+dis[1])<20 and np.sqrt(dis[2]+dis[3])<20:
-                        tag = False
-                        break
-                    dis = (np.array(lineco2) - np.array(lc)) ** 2
-                    if np.sqrt(dis[0]+dis[1])<20 and np.sqrt(dis[2]+dis[3])<20:
-                        tag = False
-                        break
-                if tag:
-                    borders.append(lineco1)
-        for lc in borders:
+        for lc in self.borders:
             self.create_line(lc, width=1, fill='#000000')
+
         self.drawLegend()
 
     #绘制图例
@@ -190,11 +197,9 @@ class MapCanvas(Canvas):
 
 
 class FlowCanvas(Canvas):
-    def __init__(self, master):
+    def __init__(self, master, flows):
         Canvas.__init__(self, master, height=800, width=800, bg='white')
-        self.flows = None
-
-    def init(self):
+        self.flows = flows
         for fid in self.flows:
             if np.random.random() < self.master.ia['p']:
                 self.flows[fid].select_tag = True

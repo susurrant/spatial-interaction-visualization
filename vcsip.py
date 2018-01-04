@@ -138,7 +138,7 @@ if __name__ == '__main__':
     fileNames = ['./data/sj_051316_0105','./data/sj_051316_0509', './data/sj_051316_0913',
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
-    scale = '_500m'
+    scale = '_1km'
     mode = 'bs'
     dnum = 6
     dgids = readGids('./data/5th_rr_gid'+scale+'.csv')
