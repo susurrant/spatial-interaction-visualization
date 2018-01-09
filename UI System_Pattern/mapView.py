@@ -26,7 +26,7 @@ class MapGUI(Frame):
 
         self.fileNames = ['../data/sj_051316_0105', '../data/sj_051316_0509', '../data/sj_051316_0913',
                           '../data/sj_051316_1317', '../data/sj_051316_1721', '../data/sj_051316_2101']
-        grids, flows = relate2data(self.fileNames[1], self.ia)
+        grids, flows = relate2data(self.fileNames[4], self.ia)
         # pattern map
         self.cv = MapCanvas(self, grids)
         # flow map

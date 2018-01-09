@@ -215,6 +215,17 @@ def drawDiagramMap_RO1(data_file, zone_file, ia, save_file, dnum=6):
         r = round_flow[gid]*radius/maxmag
         drawRoundTrip(draw, cenx, ceny, r)
 
+    labelfont = ImageFont.truetype('./font/calibril.ttf', 110)
+    draw.text((930, 1480), 'A', font=labelfont, fill=(0, 0, 0))
+    draw.text((2310, 1560), 'B', font=labelfont, fill=(0, 0, 0))
+    draw.text((1570, 550), 'C', font=labelfont, fill=(0, 0, 0))
+    left = 650
+    right = 1230
+    top = 380
+    bottom = 920
+    draw.line([left, top, right, top, right, bottom, left, bottom, left, top], fill='#0000ff', width=4)
+    draw.text((left+20, top+20), 'D', font=labelfont, fill=(0, 0, 0))
+
     x = ia['width'] - 700
     y = ia['height'] - 200
     legend_size = 200
@@ -249,8 +260,6 @@ if __name__ == '__main__':
     data_file = './data/sj_051316_1721_5rr_gp.csv'
     save_file = './figure/dm_051316_1721_1km_5rr_RO1.jpg'
     ia = style.readDrawingSetting('dm')
-
-    #drawDiagramMap_RO1(data_file, ia, save_file)
 
     drawDiagramMap_RO1(data_file, './data/group_051316_1721_r3km.csv', ia, save_file)
 

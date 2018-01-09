@@ -5,25 +5,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from func import *
 
-def drawGridSymbol_hexagon(cs):
-    iwidth = iheight = 670*2
-    gridWidth = 300*2
-    gridBorderWidth = 20*2
+def drawGridSymbol_hexagon(dnum=6):
+    mc = []
+    nscale = [(i + 1) / float(dnum + 1) for i in range(dnum)]
+    for n in nscale:
+        mc.append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
+    dc = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000', '#ffd700']
 
-    image = Image.new("RGB", (iwidth, iheight), (255, 255, 255))
+    gridWidth = 240
+    oxs, oys = computeCo(gridWidth, dnum // 6)
+    ixs, iys = computeCo(gridWidth * 0.9, dnum // 6)
+
+    image = Image.new('RGB', (500, 450), '#ffffff')
     draw = ImageDraw.Draw(image)
+    cenx = 250
+    ceny = 225
+    for i in range(dnum):
+        draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
+                      fill=mc[i%dnum], outline=mc[i])
+        draw.polygon(
+            [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
+                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=dc[i%dnum], fill=dc[i%dnum])
 
-    cenx = iwidth/2
-    ceny = iheight/2
-
-    xs, ys = computeCo(gridWidth, 1)
-    cs.append(cs[2])
-    for i in range(6):
-        c = '#%02X%02X%02X' % (int(float(i+1)/7 * 255), int(float(i+1)/7 * 255), int(float(i+1)/7 * 255))
-        draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=c, outline=c)
-        draw.line([cenx + xs[i], ceny + ys[i], cenx + xs[i + 1], ceny + ys[i + 1]], width=gridBorderWidth, fill=cs[i])
-
-    image.save('./figure/grid symbol.jpg', quality=1000, dpi=(1200,1200))
+    image.save('./figure/glyph.jpg', quality=95, dpi=(1200, 1200))
 
 
 def drawPattern_bc(grids, flows, ia, saveFileName):
@@ -222,6 +226,25 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
             draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao', font=labelfont, fill=textColor)
             draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
 
+    if '1721' in saveFileName:
+        labelfont = ImageFont.truetype('./font/calibril.ttf', 80)
+        left = 650
+        right = 1230
+        top = 380
+        bottom = 920
+        draw.line([left, top, right, top, right, bottom, left, bottom, left, top], fill='#0000ff', width=4)
+        draw.line([left, top, 200, 200], fill='#0000ff', width=3)
+        draw.text((130, 150), 'D', font=labelfont, fill=(0, 0, 0))
+
+        draw.line([grids[124].cenx, grids[124].ceny, 200, 2300], fill='#0000ff', width=3)
+        draw.text((140, 2300), 'A', font=labelfont, fill=(0, 0, 0))
+
+        draw.line([grids[116].cenx, grids[116].ceny, 2850, 2300], fill='#0000ff', width=3)
+        draw.text((2880, 2300), 'B', font=labelfont, fill=(0, 0, 0))
+
+        draw.line([grids[186].cenx, grids[186].ceny, 2850, 200], fill='#0000ff', width=3)
+        draw.text((2880, 150), 'C', font=labelfont, fill=(0, 0, 0))
+
     # ----draw legend----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
     imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
@@ -337,43 +360,6 @@ def drawPattern_bs_earlymorning(grids, flows, ia, saveFileName):
     draw.text((disx + 20 + gridWidth, sy - lw * ia['k_m'] - lw), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# comprehensive difference between several patterns and a specific pattern
-def cdif_multi(lgrids, lflows, alpha):
-    d_difN = {}
-    d_difD = {}
-    tNum = (len(lgrids) - 1)
-    for gid in lgrids[0]:
-        d_difN[gid] = [0] * tNum
-        d_difD[gid] = [0] * tNum
-    maxD = 0
-    maxN = 0
-    minD = float('inf')
-    minN = float('inf')
-
-    for i in range(tNum+1):
-        for g in lgrids[i]:
-            lgrids[i][g].calcOutAggregation(lflows[i])
-
-    for gid in lgrids[0]:
-        for i in range(1, tNum+1):
-            difN = mdif(lgrids[0][gid].wm, lgrids[i][gid].wm)
-            difD = ddif(lgrids[0][gid].wd, lgrids[i][gid].wd, lgrids[0][gid].wm, lgrids[i][gid].wm)
-            d_difN[gid][i-1] = difN
-            d_difD[gid][i-1] = difD
-            minN = min(minN, difN)
-            maxN = max(maxN, difN)
-            minD = min(minD, difD)
-            maxD = max(maxD, difD)
-
-    dif = {}
-    for gid in lgrids[0]:
-        dif[gid] = [0] * tNum
-        for i in range(tNum):
-            dif[gid][i] = alpha*(d_difN[gid][i]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid][i]-minD)/(maxD-minD)
-
-    return dif
 
 
 def drawCdif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):

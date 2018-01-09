@@ -77,11 +77,26 @@ def drawODMap(file_name, save_file_name, ia):
     draw.text((left - 50, bottom - ia['legend_height']), '0', font=imageTitlefont, fill=(0, 0, 0))
     draw.text((left + ia['legend_width']*ia['class_number'] + 20, bottom - ia['legend_height']), 'max magnitude', font=imageTitlefont, fill=(0, 0, 0))
 
+    labelfont = ImageFont.truetype('./font/calibril.ttf', 90)
+    left = ia['ox'] + (4*ia['columns'] - ia['xoffset']) * gridWidth
+    right = ia['ox'] + (8*ia['columns'] - ia['xoffset']) * gridWidth
+    top = ia['oy'] + (2*ia['rows'] - ia['yoffset']) * gridWidth
+    bottom = ia['oy'] + (6*ia['rows'] - ia['yoffset']) * gridWidth
+    draw.line([left, top, right, top, right, bottom, left, bottom, left, top], fill='#0000ff', width=4)
+    draw.text((left + 20, top + 110), 'D', font=labelfont, fill=(0, 0, 0))
+
+    draw.text((ia['ox'] + (6*ia['columns'] - ia['xoffset']) * gridWidth,
+               ia['oy'] + (9*ia['rows'] - ia['yoffset']) * gridWidth), 'A', font=labelfont, fill=(0, 0, 0))
+    draw.text((ia['ox'] + (13*ia['columns'] - ia['xoffset']) * gridWidth,
+               ia['oy'] + (10*ia['rows'] - ia['yoffset']) * gridWidth), 'B', font=labelfont, fill=(0, 0, 0))
+    draw.text((ia['ox'] + (10*ia['columns'] - ia['xoffset']) * gridWidth,
+               ia['oy'] + (4*ia['rows'] - ia['yoffset']) * gridWidth), 'C', font=labelfont, fill=(0, 0, 0))
+
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
 
 
 if __name__ == '__main__':
     file_name = './data/sj_1600msq_051316_1721.csv'
-    ia = readDrawingSetting()
+    ia = readDrawingSetting('om')
     drawODMap(file_name, './figure/odmap_1600msq_051316_1721.jpg', ia)
 

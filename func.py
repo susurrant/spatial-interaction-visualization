@@ -128,6 +128,43 @@ def cdif(grids1, grids2, flows1, flows2, alpha):
     return dif
 
 
+# comprehensive difference between several patterns and a specific pattern
+def cdif_multi(lgrids, lflows, alpha):
+    d_difN = {}
+    d_difD = {}
+    tNum = (len(lgrids) - 1)
+    for gid in lgrids[0]:
+        d_difN[gid] = [0] * tNum
+        d_difD[gid] = [0] * tNum
+    maxD = 0
+    maxN = 0
+    minD = float('inf')
+    minN = float('inf')
+
+    for i in range(tNum+1):
+        for g in lgrids[i]:
+            lgrids[i][g].calcOutAggregation(lflows[i])
+
+    for gid in lgrids[0]:
+        for i in range(1, tNum+1):
+            difN = mdif(lgrids[0][gid].wm, lgrids[i][gid].wm)
+            difD = ddif(lgrids[0][gid].wd, lgrids[i][gid].wd, lgrids[0][gid].wm, lgrids[i][gid].wm)
+            d_difN[gid][i-1] = difN
+            d_difD[gid][i-1] = difD
+            minN = min(minN, difN)
+            maxN = max(maxN, difN)
+            minD = min(minD, difD)
+            maxD = max(maxD, difD)
+
+    dif = {}
+    for gid in lgrids[0]:
+        dif[gid] = [0] * tNum
+        for i in range(tNum):
+            dif[gid][i] = alpha*(d_difN[gid][i]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid][i]-minD)/(maxD-minD)
+
+    return dif
+
+
 # read grid id list
 def readGids(fileName):
     dgids = set()

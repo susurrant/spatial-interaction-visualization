@@ -43,9 +43,11 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     return grids, flows
 
 # 读取五环内的交互
-def readData_Inside(filename, dnum, minSpeed = 2, maxSpeed = 150):
-    flows_co = {}
+def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
+    flows = {}
     grids = {}
+    for gid in dgids:
+        grids[gid] = Grid(gid, dnum)
 
     with open(filename, 'r') as f:
         f.readline()
@@ -67,19 +69,16 @@ def readData_Inside(filename, dnum, minSpeed = 2, maxSpeed = 150):
                 ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
                 dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
 
-                flows_co[fid] = [(ox, oy), (dx, dy)]
+                flows[fid] = [(ox, oy), (dx, dy)]
 
-                if ogid not in grids:
-                    grids[ogid] = Grid(ogid, dnum)
-                if dgid not in grids:
-                    grids[dgid] = Grid(dgid, dnum)
+                assert ogid in grids and dgid in grids
 
                 grids[ogid].addOutFlow(fid)
                 grids[dgid].addInFlow(fid)
             else:
                 break
 
-    return grids, flows_co
+    return grids, flows
 
 
 # 交互模式可视化
@@ -109,8 +108,6 @@ def singlePattern(gid, fileName, dgids, ia, mode='bs'):
     saveFileName = './figure/p_' + fileName[-15:] + '_' + str(gid) + '_' + mode + '.jpg'
     if mode == 'bs':
         drawSinglePattern_bs(gid, grids, flows, ia, saveFileName)
-    #elif mode == 'bc':
-        #drawSinglePattern_bc(gid, grids, flows, ia, saveFileName)
 
 # 模式差异可视化
 def patternDifference(fileName1, fileName2, dgids, dnum, ia, alpha):
@@ -145,17 +142,18 @@ if __name__ == '__main__':
     ia = readDrawingSetting(mode, scale[1:])
 
     # -----------------------------drawing--------------------------------
-    #drawGridSymbol_hexagon(ia['c_d'])False
+    #drawGridSymbol_hexagon()
 
-    SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
+    #SIPattern(fileNames[4]+scale, dgids, ia, mode, True) #True 表示只显示五环内的数据
     #singlePattern(124, fileNames[1] + scale, dgids, ia, mode)
-    #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode) #True 表示只显示五环内的数据
+    #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
 
-    if False:
+    if True:
         labels = ['T', 'S', 'C', 'R']
-        gids = [487, 563, 800, 1455]   #scale = 500m
+        #gids = [487, 563, 800, 1455]   #scale = 500m
         gids = [124, 150, 437, 356]    #scale = 1km
+        gids = [124, 150, 437, 356]    # scale = 1km
         colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
         difVar([fileNames[i]+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, dnum)
