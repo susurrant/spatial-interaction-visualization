@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 import seaborn as sns
 from func import *
+import numpy as np
 
 def drawGridSymbol_hexagon(dnum=6):
     mc = []
@@ -326,7 +327,7 @@ def drawPattern_bs_earlymorning(grids, flows, ia, saveFileName):
     draw.line([grids[124].cenx, grids[124].ceny, 375, 3030], width=4, fill=lineColor)
     draw.line([grids[437].cenx, grids[437].ceny, 1125, 3030], width=4, fill=lineColor)
     draw.line([grids[150].cenx, grids[150].ceny, 1875, 3030], width=4, fill=lineColor)
-    draw.line([grids[164].cenx, grids[164].ceny, 2625, 3030], width=4, fill=lineColor)
+    draw.line([grids[392].cenx, grids[392].ceny, 2625, 3030], width=4, fill=lineColor)
 
     draw.text((50, ia['height'] + 530 - 73), 'A: Beijing West Railway Station', font=labelfont, fill=textColor)
     draw.text((960, ia['height'] + 530 - 73), 'B: Wudaokou', font=labelfont, fill=textColor)
@@ -471,49 +472,21 @@ def drawCdifDistribution(gids, gdif, c, labels):
 def userScore():
     sns.set(style="whitegrid")
 
-    x = [i for i in range(1, 4)]
-    '''
-    oyIM = [[3,2,1,2,1,2,3,4,1,4,0,2,3,2,1,3,3,3,2,4], [3,4,1,1,1,2,3,3,1,2,0,2,3,1,1,3,3,2,2,3], [1,0,2,1,3,0,1,2,3,3],
-           [4,2,1,2,2,2,2,3,5,2,2,0,3,1,1,0,2,2,1,3], [3,3,3,3,2,1,2,5,3,2,0,0,0,0,0,2,4,3,3,5],
-           [0,1,0,0,0,0,0,0,0,0,0,3,2,1,0,1,0,0,0,0], [1,1,2,2,1,1,1,2,4,5,1,2,1,2,4,1,3,1,1,3]]
-    oyFM = [[2,2,0,3,2,4,2,4,3,2,1,1,3,3,3,1,1,2,4,2], [4,4,2,4,2,4,4,5,4,3,3,4,4,3,5,3,3,3,5,3], [4,4,4,3,4,3,4,3,5,4],
-           [4,4,2,4,3,3,4,4,5,4,4,4,5,3,5,4,4,4,3,4], [4,1,1,5,2,3,3,4,5,5,3,3,1,1,5,3,1,4,4,3],
-           [4,3,2,5,3,3,2,3,3,4,4,2,0,2,5,4,5,3,4,5], [4,2,3,4,3,4,3,4,3,3,3,3,3,3,4,3,2,3,3,5]]
-    oyPM = [[5,5,3,5,4,4,4,4,5,3,4,4,5,4,5,5,4,5,5,5], [5,4,3,5,4,4,5,5,4,4,4,4,5,4,4,5,4,4,5,4], [5,5,4,4,5,5,5,4,5,5],
-           [5,4,3,5,3,4,3,4,3,3,4,5,5,3,4,4,4,3,5,4], [5,4,2,4,4,5,4,3,1,3,5,3,5,5,3,4,4,2,5,4],
-           [5,4,3,5,4,5,4,4,3,3,4,4,4,5,3,5,5,5,5,4], [5,5,4,5,5,5,4,4,2,4,4,4,5,5,3,5,4,5,5,4]]
-    
-    yIM = []
-    yFM = []
-    yPM = []
+    Q1 = [6/13, 8/13, 13/13]
+    Q2 = [7/13, 7/13, 10/13]
+    Q3 = [2/13, 13/13, 13/13]
 
-    for i in range(7):
-        yIM.append(np.mean(sorted(oyIM[i])[1:-1]))
-        yFM.append(np.mean(sorted(oyFM[i])[1:-1]))
-        yPM.append(np.mean(sorted(oyPM[i])[1:-1]))
-
-    '''
-    yIM = [0.1,0,1,0.1]
-    yFM = [0.3,0.8,1.0,0.1]
-    yPM = [1,1,1,0.9]
-    Q1 = [3/14, 4/14, 14/14]
-    Q2 = [0, 11/14, 14/14]
-    Q3 = [14/14, 14/14, 14/14]
-    Q4 = [1/14, 1/14, 13/14]
-
-    x = np.array(x)
-    fs1 = 18
-    fs2 = 16
+    x = np.array([i for i in range(1, 4)])
+    fs1 = 12
+    fs2 = 10
 
     fig, ax = plt.subplots()
     #ax.set_xlabel('', fontname="Times New Roman", fontsize=fs1)
     ax.set_ylabel('Accuracy', fontname="Times New Roman", fontsize=fs1)
 
-    l1 = ax.bar(x-0.2, Q1, facecolor='#ff2121', width=0.1, label='Q1')
-    l2 = ax.bar(x-0.1, Q2, facecolor='#44cef6', width=0.1, label='Q2')
-    l3 = ax.bar(x, Q3, facecolor='#00e500', width=0.1, label='Q3')
-    l4 = ax.bar(x+0.1, Q4, facecolor='#fff143', width=0.1, label='Q4')
-
+    l1 = ax.bar(x-0.1, Q1, facecolor='#996699', width=0.1, label='Q1')
+    l2 = ax.bar(x, Q2, facecolor='#99cccc', width=0.1, label='Q2')
+    l3 = ax.bar(x+0.1, Q3, facecolor='#ccccff', width=0.1, label='Q3')
 
     ax.set_ylim(0, 1)
     ys = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
@@ -524,11 +497,11 @@ def userScore():
     ax.set_xlim(0, 4)
     xs = [1, 2, 3]
     ax.set_xticks(xs)
-    xlabels = ['The interaction matrix', 'The flow map', 'Our approach']
+    xlabels = ['The OD map', 'The diagram map', 'Our approach']
     ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=fs2)
 
-    leg = plt.legend(handles=[l1, l2, l3, l4])
+    leg = plt.legend(handles=[l1, l2, l3])
     for l in leg.get_texts():
-        l.set_fontsize(14)
+        l.set_fontsize(fs2)
         l.set_fontname("Times New Roman")
     plt.show()

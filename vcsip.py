@@ -153,7 +153,9 @@ if __name__ == '__main__':
     if True:
         labels = ['T', 'S', 'C', 'R']
         #gids = [487, 563, 800, 1455]   #scale = 500m
-        gids = [124, 150, 437, 356]    #scale = 1km
-        gids = [124, 150, 437, 356]    # scale = 1km
+        #gids = [124, 150, 437, 356]    #scale = 1km
+        gids = [124, 150, 437, 165]    # scale = 1km   351 qing ta, 165 shi fo ying, 103 fangzhuang
         colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
         difVar([fileNames[i]+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, dnum)
+
+    #userScore()
