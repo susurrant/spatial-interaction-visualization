@@ -174,16 +174,6 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
 
     drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
 
-    indicatorfont = ImageFont.truetype('./font/times.ttf', 90)
-
-    if False:
-        cenx, ceny = computeCen(128, ia)
-        draw.line([cenx, ceny, 2850, 750], width=2, fill='#000000')
-        draw.text((2870, 700), 'B', font=indicatorfont, fill='#000000')
-        cenx, ceny = computeCen(100, ia)
-        draw.line([cenx, ceny, 300, 2500], width=2, fill='#000000')
-        draw.text((230, 2460), 'A', font=indicatorfont, fill='#000000')
-
     labelfont = ImageFont.truetype('./font/times.ttf', 50)
     labelColor = '#0000ff'#'#003371'
     textColor = '#871F78'
