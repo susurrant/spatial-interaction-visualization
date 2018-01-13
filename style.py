@@ -174,6 +174,26 @@ def od_map():
     return ia
 
 
+def trajectory(scale):
+    if scale == '1km':
+        ia = {'hexParm': (12, 240), 'gridWidth': 84, 'gridBorderWidth': 2, 'ox': 40, 'oy': 50, 'margin': 9,
+              'width': 3000, 'height': 3000,
+              'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 15, 'quality': 1000, 'dpi': (1200, 1200),
+              'k_m': 30, 'k_d': 10, 'c_m': [], 'c_d': []}
+
+    nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
+
+    for i, n in enumerate(nscale):
+        ia['c_m'].append(
+            '#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
+    ia['c_m'][0] = '#ffffff'
+
+    ia['c_d'] = ['#fefffe', '#ffe6e6', '#fecece', '#fbb5b5', '#f69d9d', '#f08585', '#e76c6c', '#de5252', '#d23434',
+                 '#c50000']
+
+    return ia
+
+
 def readDrawingSetting(mode, scale='1km'):
     if mode == 'bc':
         return bivarite_color(scale)
@@ -185,3 +205,5 @@ def readDrawingSetting(mode, scale='1km'):
         return diagram_map()
     elif mode == 'om':
         return od_map()
+    elif mode == 'tj':
+        return trajectory(scale)

@@ -2,6 +2,7 @@
 
 from func import readGids, computeRC, kmeans, computeCo, computeCen
 from PIL import Image, ImageDraw, ImageFont
+from style import readDrawingSetting
 
 class Grid(object):
     def __init__(self, gid, dnum):
@@ -93,26 +94,7 @@ def readData(sjFile, flowOpGridFile, dgids, dnum, hexParm):
     return grids
 
 
-def readDrawingSetting(scale):
-    if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 84, 'gridBorderWidth': 2, 'ox': 40, 'oy': 50, 'margin': 9,
-              'width': 3000, 'height': 3000,
-              'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 15, 'quality': 1000, 'dpi': (1200, 1200),
-              'k_m': 30, 'k_d': 10, 'c_m': [], 'c_d': []}
-    # color setting
-    nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
-
-    for i, n in enumerate(nscale):
-        ia['c_m'].append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
-    ia['c_m'][0] = '#ffffff'
-
-    ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000']
-    ia['c_d'] = ['#fefffe', '#ffe6e6', '#fecece', '#fbb5b5', '#f69d9d', '#f08585', '#e76c6c', '#de5252', '#d23434', '#c50000']
-
-
-    return ia
-
-def drawSIP_8DKmeans(grids, ia, saveFileName, dnum=6):
+def drawTrajPattern(grids, ia, saveFileName, dnum=6):
     mag = []
     dis = []
     for g in grids:
@@ -212,7 +194,7 @@ if __name__ == '__main__':
     saveFileName = './figure/tp_051316_0509.jpg'
 
     dgids = readGids('./data/5th_rr_gid' + scale + '.csv')
-    ia = readDrawingSetting(scale[1:])
+    ia = readDrawingSetting('tj', scale[1:])
     grids = readData(sjFile, flowOpGridFile, dgids, dnum, ia['hexParm'])
 
-    drawSIP_8DKmeans(grids, ia, saveFileName)
+    drawTrajPattern(grids, ia, saveFileName)
