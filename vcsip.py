@@ -88,12 +88,13 @@ def SIPattern(fileName, dgids, ia, mode='bs', inside=False):
         saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_in.jpg'
     else:
         grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
+        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_new.jpg'
 
     if mode == 'bs':
         drawPattern_bs(grids, flows, ia, saveFileName)
     elif mode == 'bc':
         drawPattern_bc(grids, flows, ia, saveFileName)
+
 
 def SIPattern_earlymorning(fileName, dgids, ia, mode='bs'):
     grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
@@ -102,12 +103,6 @@ def SIPattern_earlymorning(fileName, dgids, ia, mode='bs'):
     if mode == 'bs':
         drawPattern_bs_earlymorning(grids, flows, ia, saveFileName)
 
-
-def singlePattern(gid, fileName, dgids, ia, mode='bs'):
-    grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
-    saveFileName = './figure/p_' + fileName[-15:] + '_' + str(gid) + '_' + mode + '.jpg'
-    if mode == 'bs':
-        drawSinglePattern_bs(gid, grids, flows, ia, saveFileName)
 
 # 模式差异可视化
 def patternDifference(fileName1, fileName2, dgids, dnum, ia, alpha):
@@ -135,22 +130,21 @@ if __name__ == '__main__':
     fileNames = ['./data/sj_051316_0105','./data/sj_051316_0509', './data/sj_051316_0913',
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
-    scale = '_1km'
+    scale = '_500m'
     mode = 'bs'
     dnum = 6
     dgids = readGids('./data/5th_rr_gid'+scale+'.csv')
     ia = readDrawingSetting(mode, scale[1:])
 
     # -----------------------------drawing--------------------------------
-    #drawGridSymbol_hexagon()
+    drawGridSymbol_hexagon()
 
-    #SIPattern(fileNames[4]+scale, dgids, ia, mode, True) #True 表示只显示五环内的数据
-    #singlePattern(124, fileNames[1] + scale, dgids, ia, mode)
+    #SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
     #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
 
-    if True:
+    if False:
         labels = ['T', 'S', 'C', 'R']
         #gids = [487, 563, 800, 1455]   #scale = 500m
         #gids = [124, 150, 437, 356]    #scale = 1km

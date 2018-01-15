@@ -12,6 +12,7 @@ def drawGridSymbol_hexagon(dnum=6):
     for n in nscale:
         mc.append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
     dc = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000', '#ffd700']
+    dc = ['#fef0d9','#fdcc8a','#fc8d59','#e34a33','#b30000','#fc8d59']
 
     gridWidth = 240
     oxs, oys = computeCo(gridWidth, dnum // 6)
@@ -279,18 +280,6 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
         draw.polygon(
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
-
-
-def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
-    processGrids(grids, flows, ia)
-    gridWidth = 240
-
-    # RGB
-    image = Image.new('RGB', (500, 450), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    drawSingleHexagon_bs(draw, grids[gid], gridWidth, 0.85, ia['dnum'], 250, 225)
-
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
 def drawPattern_bs_earlymorning(grids, flows, ia, saveFileName):
