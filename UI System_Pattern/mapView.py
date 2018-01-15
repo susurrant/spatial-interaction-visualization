@@ -26,7 +26,7 @@ class MapGUI(Frame):
 
         self.fileNames = ['../data/sj_051316_0105', '../data/sj_051316_0509', '../data/sj_051316_0913',
                           '../data/sj_051316_1317', '../data/sj_051316_1721', '../data/sj_051316_2101']
-        grids, flows = relate2data(self.fileNames[4], self.ia)
+        grids, flows = relate2data(self.fileNames[1], self.ia)
         # pattern map
         self.cv = MapCanvas(self, grids)
         # flow map
@@ -50,6 +50,7 @@ class MapGUI(Frame):
                 '#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
         self.ia['c_m'][0] = '#ffffff'
         self.ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000']
+        self.ia['c_d'] = ['#fef0d9','#fdcc8a','#fc8d59','#e34a33','#b30000']
 
     def show(self):
         self.cv.invalidate()
@@ -138,7 +139,7 @@ class MapCanvas(Canvas):
     def invalidate(self):
         self.delete(ALL)
         oxs, oys = computeCo(self.master.ia['gridWidth'], self.master.ia['dnum'] // 6)
-        ixs, iys = computeCo(self.master.ia['gridWidth'] * 0.7, self.master.ia['dnum'] // 6)
+        ixs, iys = computeCo(self.master.ia['gridWidth'] * 0.75, self.master.ia['dnum'] // 6)
 
         for gid in self.grids:
             cx = self.grids[gid].cenx

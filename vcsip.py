@@ -130,16 +130,16 @@ if __name__ == '__main__':
     fileNames = ['./data/sj_051316_0105','./data/sj_051316_0509', './data/sj_051316_0913',
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
-    scale = '_500m'
+    scale = '_1km'
     mode = 'bs'
     dnum = 6
     dgids = readGids('./data/5th_rr_gid'+scale+'.csv')
     ia = readDrawingSetting(mode, scale[1:])
 
     # -----------------------------drawing--------------------------------
-    drawGridSymbol_hexagon()
+    #drawGridSymbol_hexagon()
 
-    #SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
+    SIPattern(fileNames[4]+scale, dgids, ia, mode, True) #True 表示只显示五环内的数据
     #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)
