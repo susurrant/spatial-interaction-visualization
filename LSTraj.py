@@ -138,7 +138,7 @@ def drawTrajPattern(grids, ia, saveFileName, dnum=6):
 
     if True:
         indicatorfont = ImageFont.truetype('./font/times.ttf', 60)
-        indColor = '#ff2121'
+        indColor = '#4286f4'#'#ff2121'
         indWidth = 3
         cenx, ceny = computeCen(75, ia)
         draw.line([cenx+gridWidth/2, ceny-gridWidth/2, 350, 2450], width=indWidth, fill=indColor)

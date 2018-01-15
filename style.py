@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-：
 
-# 读取渲染设置
+
 def bivarite_color(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
@@ -160,7 +160,7 @@ def od_map():
     # color setting
     ia['border_color'] = '#000000'
     cstr = 'ffffff#ffff80#fff771#ffee61#ffe452#ffd743#ffc933#ffb924#ffa815#ff9505#f58000#e66c00#d65900#c74900#b83900#a82c00#991f00#8a1500#7a0c00#6b0500'
-    #cstr = 'ffffff#f5f500#f5e700#f5da00#f5cc00#f5bf00#f5b100#f5a300#f59600#f58800#f57a00#f56d00#f55f00#f55200#f54400#f53600#f52900#f51b00#f50e00#f50000'
+    #cstr = 'fff7ec#fee8c8#fdd49e#fdbb84#fc8d59#ef6548#d7301f#b30000#7f0000'
     ia['color_scheme'] = []
     for color in cstr.split('#'):
         ia['color_scheme'].append('#'+color)
@@ -173,7 +173,7 @@ def trajectory(scale):
         ia = {'hexParm': (12, 240), 'gridWidth': 84, 'gridBorderWidth': 2, 'ox': 40, 'oy': 50, 'margin': 9,
               'width': 3000, 'height': 3000,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 15, 'quality': 1000, 'dpi': (1200, 1200),
-              'k_m': 30, 'k_d': 10, 'c_m': [], 'c_d': []}
+              'k_m': 27, 'k_d': 9, 'c_m': [], 'c_d': []}
 
     nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
 
@@ -185,9 +185,11 @@ def trajectory(scale):
     ia['c_d'] = ['#fefffe', '#ffe6e6', '#fecece', '#fbb5b5', '#f69d9d', '#f08585', '#e76c6c', '#de5252', '#d23434',
                  '#c50000']
 
+    ia['c_d'] = ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000']
     return ia
 
 
+# 读取渲染设置
 def readDrawingSetting(mode, scale='1km'):
     if mode == 'bc':
         return bivarite_color(scale)

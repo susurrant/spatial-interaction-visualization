@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from sklearn.cluster import KMeans
 from style import readDrawingSetting
+from func import kmeans
 
 # 读取五环内的交互
 def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
@@ -34,16 +35,6 @@ def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
             else:
                 break
     return data
-
-# kmeans classifier
-def kmeans(dn, cNum):
-    X = np.sort(dn).reshape((-1,1))
-    k = KMeans(n_clusters = cNum, random_state = 0).fit(X)
-    labels = []
-    for l in k.labels_:
-        if l not in labels:
-            labels.append(l)
-    return k, labels
 
 
 def drawODMap(file_name, save_file_name, ia):
