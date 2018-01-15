@@ -88,7 +88,7 @@ def SIPattern(fileName, dgids, ia, mode='bs', inside=False):
         saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_in.jpg'
     else:
         grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_new.jpg'
+        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
 
     if mode == 'bs':
         drawPattern_bs(grids, flows, ia, saveFileName)

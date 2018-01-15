@@ -139,7 +139,7 @@ def diagram_map():
 
     # color setting
     ia['border_color'] = '#000000'
-    ia['color_scheme'] = ['#fed998', '#ffaa63', '#fe7b00']
+    ia['color_scheme'] = ['#fee8c8','#fdbb84','#e34a33'] #['#fed998', '#ffaa63', '#fe7b00']
     ia['class_num'] = len(ia['color_scheme'])
     return ia
 
