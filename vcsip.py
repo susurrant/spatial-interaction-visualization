@@ -88,7 +88,7 @@ def SIPattern(fileName, dgids, ia, mode='bs', inside=False):
         saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_in.jpg'
     else:
         grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
+        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '000.jpg'
 
     if mode == 'bs':
         drawPattern_bs(grids, flows, ia, saveFileName)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # -----------------------------drawing--------------------------------
     #drawGridSymbol_hexagon()
 
-    SIPattern(fileNames[4]+scale, dgids, ia, mode, True) #True 表示只显示五环内的数据
+    SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
     #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)

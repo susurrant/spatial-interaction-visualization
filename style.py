@@ -87,10 +87,8 @@ def bivariate_symbol(scale):
         ia['c_m'].append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
     ia['c_m'][0] = '#ffffff'
 
-    ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000']
-    ia['c_d'] = ['#fefffe', '#ffe6e6', '#fecece', '#fbb5b5', '#f69d9d', '#f08585', '#e76c6c', '#de5252', '#d23434',
-                 '#c50000']
-    ia['c_d'] = ['#fef0d9','#fdcc8a','#fc8d59','#e34a33','#b30000']
+    ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000'] # diverging
+    ia['c_d'] = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']     # sequential (OrRd)
 
     return ia
 

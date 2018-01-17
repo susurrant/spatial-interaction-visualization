@@ -178,7 +178,7 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
     labelfont = ImageFont.truetype('./font/times.ttf', 50)
     labelColor = '#0000ff'#'#003371'
     textColor = '#871F78'
-
+    '''
     if '1km' in saveFileName:
         indicatorfont = ImageFont.truetype('./font/calibril.ttf', 80)
         dx = 20
@@ -236,7 +236,7 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
 
         draw.line([grids[186].cenx, grids[186].ceny, 2850, 200], fill='#0000ff', width=3)
         draw.text((2880, 150), 'C', font=labelfont, fill=(0, 0, 0))
-
+    '''
     # ----draw legend----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
     imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
