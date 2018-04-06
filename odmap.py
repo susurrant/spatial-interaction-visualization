@@ -2,7 +2,6 @@
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from sklearn.cluster import KMeans
 from style import readDrawingSetting
 from func import kmeans
 

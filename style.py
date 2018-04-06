@@ -158,10 +158,10 @@ def od_map():
     # color setting
     ia['border_color'] = '#000000'
     cstr = 'ffffff#ffff80#fff771#ffee61#ffe452#ffd743#ffc933#ffb924#ffa815#ff9505#f58000#e66c00#d65900#c74900#b83900#a82c00#991f00#8a1500#7a0c00#6b0500'
-    #cstr = 'fff7ec#fee8c8#fdd49e#fdbb84#fc8d59#ef6548#d7301f#b30000#7f0000'
     ia['color_scheme'] = []
     for color in cstr.split('#'):
         ia['color_scheme'].append('#'+color)
+
     ia['class_number'] = len(ia['color_scheme'])
     return ia
 
