@@ -4,7 +4,7 @@
 from sklearn.cluster import KMeans
 import operator
 import numpy as np
-
+import pysal as ps
 
 # kmeans classifier
 def kmeans(dn, cNum):
@@ -16,6 +16,13 @@ def kmeans(dn, cNum):
             labels.append(l)
     return k, labels
 
+def fisher_jenks(d, cNum):
+    X = np.array(d).reshape((-1, 1))
+    fj = ps.esda.mapclassify.Fisher_Jenks(X, cNum)
+    meanV = []
+    for i in range(cNum):
+        meanV.append(np.mean(X[np.where(i == fj.yb)]))
+    return fj.bins, meanV
 
 # compute row and column indexes
 def computeRC(gid, hexParm):
@@ -177,7 +184,7 @@ def readGids(fileName):
     return dgids
 
 
-def processGrids(grids, flows, ia):
+def processGrids_kmeans(grids, flows, ia):
     mag = []
     dis = []
     for g in grids:
@@ -195,3 +202,34 @@ def processGrids(grids, flows, ia):
         for i in range(ia['dnum']):
             grids[gid].mcolor.append(ia['c_m'][nl.index(nk.predict(grids[gid].wm[i]))])
             grids[gid].dcolor.append(ia['c_d'][dl.index(dk.predict(grids[gid].wd[i]))])
+
+def processGrids_fj(grids, flows, ia):
+    mag = []
+    dis = []
+    for g in grids:
+        grids[g].calcOutAggregation(flows)
+        for tm in grids[g].wm:
+            mag.append(tm)
+        for td in grids[g].wd:
+            dis.append(td)
+
+    nk, nl = fisher_jenks(mag, ia['k_m'])
+    dk, dl = fisher_jenks(dis, ia['k_d'])
+
+    '''
+    ia['c_m'] = []
+    for i in range(ia['k_m']):
+        r = int(round((1 - nl[i]/nl[-1])*255))
+        ia['c_m'].append('#%02X%02X%02X' % (r, r, r))
+    ia['c_m'][0] = '#ffffff'
+    '''
+
+    for gid in grids:
+        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
+        uptos = [np.where(value <= nk)[0] for value in grids[gid].wm]
+        for i in [x.min() if x.size > 0 else len(nk) - 1 for x in uptos]:
+            grids[gid].mcolor.append(ia['c_m'][i])
+
+        uptos = [np.where(value <= dk)[0] for value in grids[gid].wd]
+        for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
+            grids[gid].dcolor.append(ia['c_d'][i])

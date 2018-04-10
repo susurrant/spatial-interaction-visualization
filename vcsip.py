@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-：
 
 from grid import *
-from draw import *
+from draw_new import *
 from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
 from func import readGids
@@ -82,13 +82,11 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 
 
 # 交互模式可视化
-def SIPattern(fileName, dgids, ia, mode='bs', inside=False):
+def SIPattern(dataFileName, saveFileName, dgids, ia, mode='bs', inside=False):
     if inside:
-        grids, flows = readData_Inside(fileName+'.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '_in.jpg'
+        grids, flows = readData_Inside(dataFileName+'.csv', dgids, ia['dnum'])
     else:
-        grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '000.jpg'
+        grids, flows = readData(dataFileName + '.csv', dgids, ia['dnum'])
 
     if mode == 'bs':
         drawPattern_bs(grids, flows, ia, saveFileName)
@@ -139,7 +137,9 @@ if __name__ == '__main__':
     # -----------------------------drawing--------------------------------
     #drawGridSymbol_hexagon()
 
-    SIPattern(fileNames[1]+scale, dgids, ia, mode, False) #True 表示只显示五环内的数据
+    dataFileName = fileNames[1]+scale
+    saveFileName = './figure/p_' + dataFileName[-15:] + '_' + mode + '_fj.jpg'
+    SIPattern(dataFileName, saveFileName, dgids, ia, mode, False) #True 表示只显示五环内的数据
     #SIPattern_earlymorning(fileNames[0]+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+scale, fileNames[4]+scale, dgids, dnum, ia, 0.7)

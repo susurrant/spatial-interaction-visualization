@@ -176,6 +176,7 @@ def outPut(P, R, data_file, save_zone_file, save_data_file):
 
 if __name__ == '__main__':
     data_file = './data/sj_051316_1721_5rr.csv'
+    zone_file = './data/group_051316_1721_r3km.csv'
     max_radius = 3000
     P, R = pointGroup(data_file, max_radius)
-    outPut(P, R, data_file, './data/group_051316_1721_r3km.csv', data_file[:-4]+'_gp.csv')
+    outPut(P, R, data_file, zone_file, data_file[:-4]+'_gp.csv')

@@ -6,6 +6,7 @@ import seaborn as sns
 from func import *
 import numpy as np
 
+# 画示例图形
 def drawGridSymbol_hexagon(dnum=6):
     mc = []
     nscale = [(i + 1) / float(dnum + 1) for i in range(dnum)]
@@ -73,49 +74,6 @@ def drawPattern_bc(grids, flows, ia, saveFileName):
         cenx, ceny = computeCen(100, ia)
         draw.line([cenx, ceny, 300, 2500], width=2, fill='#000000')
         draw.text((230, 2460), 'A', font=indicatorfont, fill='#000000')
-    '''
-    labelfont = ImageFont.truetype('./font/times.ttf', 50)
-    labelColor = '#0000ff'#'#003371'
-    textColor = '#871F78'
-    if '1km' in saveFileName:
-        if '0105' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx-24, ceny+30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(164, ia)
-            draw.text((cenx-87, ceny+10), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(437, ia)
-            draw.text((cenx-20, ceny+45), 'C', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height']-180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-120), 'B: Sanlitun', font=labelfont, fill=textColor)
-            draw.text((30, ia['height']-60), 'C: Wudaokou', font=labelfont, fill=textColor)
-        elif '0509' in saveFileName:
-            cenx, ceny = computeCen(150, ia)
-            draw.text((cenx - 24, ceny + 30), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(176, ia)
-            draw.text((cenx - 105, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(124, ia)
-            draw.text((cenx + 10, ceny - 115), 'C', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(356, ia)
-            draw.text((cenx + 50, ceny - 85), 'D', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao (A transfer station)', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
-            draw.text((800, ia['height'] - 60), 'D: Shuangjin', font=labelfont, fill=textColor)
-    elif '500m' in saveFileName:
-        if '0509' in saveFileName:
-            cenx, ceny = computeCen(563, ia)
-            draw.text((cenx - 24, ceny), 'A', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(1647, ia)
-            draw.text((cenx - 65, ceny - 40), 'B', font=indicatorfont, fill=labelColor)
-            cenx, ceny = computeCen(487, ia)
-            draw.text((cenx + 5, ceny - 70), 'C', font=indicatorfont, fill=labelColor)
-
-            draw.text((30, ia['height'] - 180), 'A: The Forbidden City', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 120), 'B: Sanyuanqiao', font=labelfont, fill=textColor)
-            draw.text((30, ia['height'] - 60), 'C: Beijing West Railway Station', font=labelfont, fill=textColor)
-    '''
 
     # -----------------------------draw legends-------------------------------
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 52)
@@ -163,7 +121,7 @@ def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
 
 
 def drawPattern_bs(grids, flows, ia, saveFileName):
-    processGrids(grids, flows, ia)
+    processGrids_fj(grids, flows, ia)
 
     gridWidth = ia['gridWidth']
     iwidth = ia['width']
@@ -265,6 +223,7 @@ def drawPattern_bs(grids, flows, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
+# 放大展示单个pattern
 def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, ceny=None):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)

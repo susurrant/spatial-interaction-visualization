@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-：
 
 
-def bivarite_color(scale):
+def pattern_map_bivarite_color(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
     #   hexparm: 网格参数(每行六边形数, 总六边形个数的一半)
@@ -60,7 +60,7 @@ def bivarite_color(scale):
     return ia
 
 
-def bivariate_symbol(scale):
+def pattern_map_bivariate_symbol(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
     #   hexparm: 网格参数(每行六边形数, 总六边形个数的一半)
@@ -93,7 +93,7 @@ def bivariate_symbol(scale):
     return ia
 
 
-def diff(scale):
+def pattern_map_diff(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
     #   hexparm: 网格参数(每行六边形数, 总六边形个数的一半)
@@ -132,15 +132,29 @@ def diagram_map():
     #   class_number： 聚类数；color_scheme： 颜色
     ia = dict()
     ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
-               'xoffset': 3, 'yoffset': 3, 'legend_size': 63, 'radius': 100, 'quality': 95, 'dpi': (1200, 1200),
-               'radii': [30, 60, 90]})
+               'xoffset': 3, 'yoffset': 3, 'legend_size': 200, 'radius': 60, 'quality': 95, 'dpi': (1200, 1200),
+               'radii': [30, 60, 90], 'dnum': 6, 'mag_class_num': 15})
 
     # color setting
     ia['border_color'] = '#000000'
-    ia['color_scheme'] = ['#fee8c8','#fdbb84','#e34a33'] #['#fed998', '#ffaa63', '#fe7b00']
-    ia['class_num'] = len(ia['color_scheme'])
+    ia['color_scheme'] = ['#fed998', '#ffaa63', '#fe7b00']#['#fee8c8','#fdbb84','#e34a33'] #
+    ia['dis_class_num'] = len(ia['color_scheme'])
     return ia
 
+def diagram_map_dif():
+    ia = dict()
+    ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
+               'xoffset': 3, 'yoffset': 3, 'legend_height': 80, 'legend_width': 40, 'quality': 95, 'dpi': (1200, 1200),
+               'radii': [30, 60, 90], 'round_radius': 10, 'dnum': 6, 'dis_class_num': 3, 'c_dif': []})
+
+    ia['border_color'] = '#000000'
+    # difference color scheme: blue to red
+    rgbcolor = [(153, 153, 255), (156, 187, 255), (156, 222, 255), (153, 255, 255), (194, 255, 220),
+                (227, 255, 186), (255, 255, 153), (255, 221, 153), (255, 187, 153), (255, 153, 153)]
+    for color in rgbcolor:
+        ia['c_dif'].append('#%02X%02X%02X' % color)
+    ia['dif_class_num'] = len(ia['c_dif'])
+    return ia
 
 def od_map():
     #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
@@ -149,20 +163,26 @@ def od_map():
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：class_number；颜色梯度：color_scheme
     ia = dict()
-    ia.update({'rows': 19, 'columns':19,
-               'gridWidth': 10, 'ox': 40, 'oy': 20,
-               'width': 3700, 'height': 3750, 'xoffset': 0, 'yoffset': 0,
-               'legend_height': 80, 'legend_width': 60,
-               'quality': 95, 'dpi': (1200, 1200)})
+    ia.update({'rows': 19, 'columns':19, 'gridWidth': 10, 'ox': 40, 'oy': 20, 'width': 3700, 'height': 3750,
+               'xoffset': 0, 'yoffset': 0, 'legend_height': 80, 'legend_width': 60, 'quality': 95, 'dpi': (1200, 1200),
+               'c_dif': []})
 
     # color setting
     ia['border_color'] = '#000000'
-    cstr = 'ffffff#ffff80#fff771#ffee61#ffe452#ffd743#ffc933#ffb924#ffa815#ff9505#f58000#e66c00#d65900#c74900#b83900#a82c00#991f00#8a1500#7a0c00#6b0500'
+    cstr = 'ffffff#f3eeb1#e8dea4#ddcd98#d2bd8b#c6ae7e#bb9e72#b08f66#a58059#9a714d#906241#855335#7a4428#70361b#65270a'
     ia['color_scheme'] = []
     for color in cstr.split('#'):
         ia['color_scheme'].append('#'+color)
 
-    ia['class_number'] = len(ia['color_scheme'])
+    ia['mag_class_num'] = len(ia['color_scheme'])
+
+    # difference color scheme: blue to red
+    rgbcolor = [(153, 153, 255), (156, 187, 255), (156, 222, 255), (153, 255, 255), (194, 255, 220),
+                (227, 255, 186), (255, 255, 153), (255, 221, 153), (255, 187, 153), (255, 153, 153)]
+    for color in rgbcolor:
+        ia['c_dif'].append('#%02X%02X%02X' % color)
+    ia['dif_class_num'] = len(ia['c_dif'])
+
     return ia
 
 
@@ -189,14 +209,16 @@ def trajectory(scale):
 
 # 读取渲染设置
 def readDrawingSetting(mode, scale='1km'):
-    if mode == 'bc':
-        return bivarite_color(scale)
-    elif mode == 'bs':
-        return bivariate_symbol(scale)
-    elif mode == 'diff':
-        return diff(scale)
+    if mode == 'pm_bc':
+        return pattern_map_bivarite_color(scale)
+    elif mode == 'pm_bs':
+        return pattern_map_bivariate_symbol(scale)
+    elif mode == 'pm_dif':
+        return pattern_map_diff(scale)
     elif mode == 'dm':
         return diagram_map()
+    elif mode == 'dm_dif':
+        return diagram_map_dif()
     elif mode == 'om':
         return od_map()
     elif mode == 'tj':
