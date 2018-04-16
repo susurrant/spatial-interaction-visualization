@@ -85,12 +85,12 @@ def drawODMap_kmeans(file_name, save_file_name, ia):
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
 
 def drawODMap_fj(file_name, save_file_name, ia):
-    data = readData(file_name, ia['rows'], ia['columns'])
-    nk, nl = fisher_jenks(data.flatten(), ia['mag_class_num'])
-
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)
     gridWidth = ia['gridWidth']
+
+    data = readData(file_name, ia['rows'], ia['columns'])
+    nk, nl = fisher_jenks(data.flatten(), ia['mag_class_num'])
 
     # draw cells
     for r in range(ia['rows']**2):
@@ -109,13 +109,20 @@ def drawODMap_fj(file_name, save_file_name, ia):
             left = ia['ox'] + (c - ia['xoffset'])*gridWidth*ia['columns']
             draw.rectangle([(left, top), (left+gridWidth*ia['columns'], top+gridWidth*ia['rows'])], outline=ia['border_color'])
 
+
     # draw home cell border
     for r in range(ia['rows']**2):
         top = ia['oy'] + (r - ia['yoffset']) * gridWidth
         for c in range(ia['columns']**2):
             left = ia['ox'] + (c - ia['xoffset']) * gridWidth
             if r % ia['rows'] == r // ia['rows'] and c % ia['columns'] == c // ia['columns']:
-                draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=None, outline='#0000ff')
+                #draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=None, outline='#0000ff')
+                draw.line([left, top, left + gridWidth, top, left + gridWidth, top + gridWidth,
+                           left, top + gridWidth, left, top], fill='#0000ff', width=2)
+
+    draw.line([ia['width'] - 600, ia['height'] - 75, ia['width'] - 600 + 30, ia['height'] - 75, ia['width'] - 600 + 30,
+               ia['height'] - 45, ia['width'] - 600, ia['height'] - 45, ia['width'] - 600, ia['height'] - 75],
+              fill='#0000ff', width=2)
 
     left = (ia['width'] - ia['legend_width']*ia['mag_class_num']) // 2
     bottom = ia['height'] - 10
@@ -124,31 +131,17 @@ def drawODMap_fj(file_name, save_file_name, ia):
                        fill=c)
 
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 58)
+    draw.text((ia['width']-600+70, bottom - ia['legend_height']), 'home cell', font=imageTitlefont, fill=(0, 0, 0))
     draw.text((left - 50, bottom - ia['legend_height']), '0', font=imageTitlefont, fill=(0, 0, 0))
     draw.text((left + ia['legend_width']*ia['mag_class_num'] + 20, bottom - ia['legend_height']), 'max magnitude',
               font=imageTitlefont, fill=(0, 0, 0))
-
-    labelfont = ImageFont.truetype('./font/calibril.ttf', 90)
-    left = ia['ox'] + (4*ia['columns'] - ia['xoffset']) * gridWidth
-    right = ia['ox'] + (8*ia['columns'] - ia['xoffset']) * gridWidth
-    top = ia['oy'] + (2*ia['rows'] - ia['yoffset']) * gridWidth
-    bottom = ia['oy'] + (6*ia['rows'] - ia['yoffset']) * gridWidth
-    draw.line([left, top, right, top, right, bottom, left, bottom, left, top], fill='#0000ff', width=4)
-    draw.text((left + 20, top + 110), 'D', font=labelfont, fill=(0, 0, 0))
-
-    draw.text((ia['ox'] + (6*ia['columns'] - ia['xoffset']) * gridWidth,
-               ia['oy'] + (9*ia['rows'] - ia['yoffset']) * gridWidth), 'A', font=labelfont, fill=(0, 0, 0))
-    draw.text((ia['ox'] + (13*ia['columns'] - ia['xoffset']) * gridWidth,
-               ia['oy'] + (10*ia['rows'] - ia['yoffset']) * gridWidth), 'B', font=labelfont, fill=(0, 0, 0))
-    draw.text((ia['ox'] + (10*ia['columns'] - ia['xoffset']) * gridWidth,
-               ia['oy'] + (4*ia['rows'] - ia['yoffset']) * gridWidth), 'C', font=labelfont, fill=(0, 0, 0))
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
 
 def drawODMap_dif(file_name, file_name_c, save_file_name, ia):
     data = readData(file_name, ia['rows'], ia['columns'])
     data_c = readData(file_name_c, ia['rows'], ia['columns'])
-    dif = data-data_c
+    dif = np.abs(data-data_c)
     nk, nl = fisher_jenks(dif.flatten(), ia['dif_class_num'])
 
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
@@ -182,18 +175,24 @@ def drawODMap_dif(file_name, file_name_c, save_file_name, ia):
         for c in range(ia['columns'] ** 2):
             left = ia['ox'] + (c - ia['xoffset']) * gridWidth
             if r % ia['rows'] == r // ia['rows'] and c % ia['columns'] == c // ia['columns']:
-                draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=None, outline='#000000')
+                #draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=None, outline='#000000')
+                draw.line([left, top, left + gridWidth, top, left + gridWidth, top + gridWidth,
+                           left, top + gridWidth, left, top], fill='#000000', width=2)
+
+    draw.line([ia['width'] - 600, ia['height'] - 70, ia['width'] - 600 + 30, ia['height'] - 70, ia['width'] - 600 + 30,
+               ia['height'] - 40, ia['width'] - 600, ia['height'] - 40, ia['width'] - 600, ia['height'] - 70],
+              fill='#000000', width=2)
 
     left = (ia['width'] - ia['legend_width'] * ia['dif_class_num']) // 2
     bottom = ia['height'] - 10
-    for i, c in enumerate(ia['color_scheme']):
+    for i, c in enumerate(ia['c_dif']):
         draw.rectangle([(left + i * ia['legend_width'], bottom - ia['legend_height']),
-                        (left + (i + 1) * ia['legend_width'], bottom)],
-                       fill=c)
+                        (left + (i + 1) * ia['legend_width'], bottom)], fill=c)
 
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 58)
-    draw.text((left - 50, bottom - ia['legend_height']), '0', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left + ia['legend_width'] * ia['dif_class_num'] + 20, bottom - ia['legend_height']), 'max difference',
+    imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
+    draw.text((ia['width'] - 600 + 70, bottom - ia['legend_height']), 'home cell', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((left - 180, bottom - ia['legend_height']), 'Small', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((left + ia['legend_width'] * ia['dif_class_num'] + 30, bottom - ia['legend_height']), 'Large',
               font=imageTitlefont, fill=(0, 0, 0))
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])

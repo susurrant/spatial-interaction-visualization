@@ -203,6 +203,7 @@ def processGrids_kmeans(grids, flows, ia):
             grids[gid].mcolor.append(ia['c_m'][nl.index(nk.predict(grids[gid].wm[i]))])
             grids[gid].dcolor.append(ia['c_d'][dl.index(dk.predict(grids[gid].wd[i]))])
 
+
 def processGrids_fj(grids, flows, ia):
     mag = []
     dis = []

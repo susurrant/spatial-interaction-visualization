@@ -5,7 +5,7 @@ import sys
 sys.path.append('../')
 from grid import *
 from LL2UTM import LL2UTM_USGS
-from func import kmeans, computeCen, readGids, processGrids
+from func import kmeans, computeCen, readGids, processGrids_kmeans
 
 def readData(filename, dgids, dnum, minSpeed=2, maxSpeed=150):
     grids = {}
@@ -50,7 +50,7 @@ def readData(filename, dgids, dnum, minSpeed=2, maxSpeed=150):
 def relate2data(fileName, ia):
     dgids = readGids('../data/5th_rr_gid' + ia['scale'] + '.csv')
     grids, flows = readData(fileName+ ia['scale'] + '.csv', dgids, ia['dnum'])
-    processGrids(grids, flows, ia)
+    processGrids_kmeans(grids, flows, ia)
     return grids, flows
 
 

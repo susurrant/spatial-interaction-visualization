@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-：
 
-from func import readGids, computeRC, kmeans, computeCo, computeCen
+from func import readGids, computeRC, fisher_jenks, computeCo, computeCen
 from PIL import Image, ImageDraw, ImageFont
 from style import readDrawingSetting
+import numpy as np
 
 class Grid(object):
     def __init__(self, gid, dnum):
@@ -103,8 +104,8 @@ def drawTrajPattern(grids, ia, saveFileName, dnum=6):
         for td in grids[g].d:
             dis.append(td)
     k_m = ia['k_m']
-    nk, nl = kmeans(mag, k_m)
-    dk, dl = kmeans(dis, ia['k_d'])
+    nk, nl = fisher_jenks(mag, k_m)
+    dk, dl = fisher_jenks(dis, ia['k_d'])
 
     gridWidth = ia['gridWidth']
     iwidth = ia['width']
@@ -116,51 +117,48 @@ def drawTrajPattern(grids, ia, saveFileName, dnum=6):
     # RGB
     image = Image.new('RGB', (iwidth, iheight), '#ffffff')
     draw = ImageDraw.Draw(image)
-    xs, ys = computeCo(gridWidth, dnum // 6)
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo((gridWidth+gridBorderWidth) * 0.75, dnum // 6)
 
     for gid in grids:
         cenx, ceny = computeCen(gid, ia)
         for i in range(dnum):
-            nc = c_m[nl.index(nk.predict(grids[gid].m[i]))]
+            x = np.where(grids[gid].m[i] <= nk)[0]
+            j = x.min() if x.size > 0 else len(nk) - 1
             draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
-                         fill=nc, outline=nc)
+                         fill=c_m[j], outline=c_m[j])
 
-            dc = c_d[dl.index(dk.predict(grids[gid].d[i]))]
+            x = np.where(grids[gid].d[i] <= dk)[0]
+            k = x.min() if x.size > 0 else len(dk) - 1
             draw.polygon(
                 [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
-                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=dc, fill=dc)
-
-            #draw.line([cenx + xs[i], ceny + ys[i], cenx + xs[i + 1], ceny + ys[i + 1]], width=gridBorderWidth,
-            #          fill='#000000')
-
+                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=c_d[k], fill=c_d[k])
 
     if True:
-        indicatorfont = ImageFont.truetype('./font/times.ttf', 60)
+        indicatorfont = ImageFont.truetype('./font/times.ttf', 67)
         indColor = '#4286f4'#'#ff2121'
         indWidth = 3
         cenx, ceny = computeCen(75, ia)
         draw.line([cenx+gridWidth/2, ceny-gridWidth/2, 350, 2450], width=indWidth, fill=indColor)
-        draw.text((60, 2450), 'The 4th ring road', font=indicatorfont, fill=indColor)
+        draw.text((20, 2450), 'The 4th ring road', font=indicatorfont, fill=indColor)
 
         cenx, ceny = computeCen(329, ia)
         draw.line([cenx, ceny+gridWidth/4, 350, 2650], width=indWidth, fill=indColor)
-        draw.text((60, 2650), 'The 3rd ring road', font=indicatorfont, fill=indColor)
+        draw.text((20, 2650), 'The 3rd ring road', font=indicatorfont, fill=indColor)
 
         cenx, ceny = computeCen(343, ia)
         draw.line([cenx-gridWidth, ceny-gridWidth/4, 350, 2850], width=indWidth, fill=indColor)
-        draw.text((60, 2850), 'The 2nd ring road', font=indicatorfont, fill=indColor)
+        draw.text((20, 2850), 'The 2nd ring road', font=indicatorfont, fill=indColor)
 
         cenx, ceny = computeCen(213, ia)
-        draw.line([cenx, ceny+gridWidth/4, 2600, 200], width=indWidth, fill=indColor)
-        draw.text((2400, 100), 'The airport expressway', font=indicatorfont, fill=indColor)
+        draw.line([cenx, ceny+gridWidth, 2600, 200], width=indWidth, fill=indColor)
+        draw.text((2330, 100), 'The airport expressway', font=indicatorfont, fill=indColor)
 
 
 
     # ----draw legend----
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 54)
-    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 50)
+    imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
+    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 60)
     sy = iheight - 50
     lw = ia['legendWidth']
     if '500m' in saveFileName:
@@ -170,16 +168,16 @@ def drawTrajPattern(grids, ia, saveFileName, dnum=6):
     mx = iwidth - 550
     for i, c in enumerate(c_m):
         draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
-    draw.text((mx - gridWidth, sy - (k_m + 5) * lw), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx - 1.5 * gridWidth, sy - lw), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx - 1.5 * gridWidth, sy - lw * (k_m + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - gridWidth-20, sy - (k_m + 6) * lw), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx - 1.5 * gridWidth-20, sy - lw), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - 1.5 * gridWidth-20, sy - lw * (k_m + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
 
     mx = iwidth - 270
     for i, c in enumerate(c_d):
         draw.line([mx, sy - i * lw * 3, mx + gridWidth, sy - i * lw * 3], width=lw * 3, fill=c)
-    draw.text((mx - gridWidth + 20, sy - (k_m + 5) * lw), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx + 1.5 * gridWidth, sy - lw), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx + 1.5 * gridWidth, sy - lw * (k_m + 1)), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - gridWidth + 20, sy - (k_m + 6) * lw), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx + 1.3 * gridWidth, sy - lw), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx + 1.3 * gridWidth, sy - lw * (k_m + 1)), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     iquality = ia['quality']
     idpi = ia['dpi']
@@ -191,7 +189,7 @@ if __name__ == '__main__':
     dnum = 6
     sjFile = './data/sj_ftt'+scale+'.csv'
     flowOpGridFile = './data/sj_op'+scale+'.csv'
-    saveFileName = './figure/tp_051316_0509.jpg'
+    saveFileName = './figure/tj_051316_0509.jpg'
 
     dgids = readGids('./data/5th_rr_gid' + scale + '.csv')
     ia = readDrawingSetting('tj', scale[1:])

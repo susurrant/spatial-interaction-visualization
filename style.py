@@ -12,14 +12,12 @@ def pattern_map_bivarite_color(scale):
     #   聚类数：dis_class_number、dis_class_number、k_dif；颜色：color_scheme、c_dif
     if scale == '1km':
         ia = {'hexParm': (12, 240), 'gridWidth': 84, 'ox': 30, 'oy': 40, 'margin': 9,
-              'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3,
-              'legend_size': 63, 'legend_yoffset': 130, 'legend_xoffset': 150,
-              'quality': 95, 'dpi': (1200, 1200)}
+              'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3, 'dnum': 6,
+              'legend_size': 63, 'quality': 95, 'dpi': (1200, 1200)}
     elif scale == '500m':
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
-              'width': 3000, 'height': 3000,
-              'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legendWidth': 20, 'quality': 1000, 'dpi': (1200, 1200),
-              'mag_class_number': 5, 'dis_class_number': 5}
+              'width': 3000, 'height': 3000, 'dnum': 6,
+              'xoffset': 1, 'yoffset': 6, 'legend_size': 63, 'quality': 1000, 'dpi': (1200, 1200)}
 
 
     # color setting
@@ -72,13 +70,13 @@ def pattern_map_bivariate_symbol(scale):
     if scale == '1km':
         ia = {'hexParm': (12, 240), 'gridWidth': 82, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 13,
               'width': 3000, 'height': 3000, 'dnum': 6,
-              'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
-              'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
+              'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
+              'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'dnum': 6,
-              'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
-              'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
+              'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legend_width': 100, 'legend_height': 20,
+              'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
 
     # color setting
     nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
@@ -93,25 +91,23 @@ def pattern_map_bivariate_symbol(scale):
     return ia
 
 
-def pattern_map_diff(scale):
+def pattern_map_dif(scale):
     # -----------------------------配置----------------------------------
     # 参数说明：
     #   hexparm: 网格参数(每行六边形数, 总六边形个数的一半)
     #   网格：gridWidth：网格尺寸；gridBorderWidth：网格边线宽度（奇数较好）；margin：网格间隙宽，应大于gridBorderWidth
     #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
     #   图像尺寸：width：图像宽度；height：图像高度；frameMargin：图像边框据图像边缘偏移
-    #   图例：legendWidth：图例条基本宽度
+    #   图例：legend_width：图例条宽度
     #   聚类数：k_dif；颜色：c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 76, 'gridBorderWidth': 18, 'ox': 20, 'oy': 40, 'margin': 18,
-              'width': 3000, 'height': 3000,
-              'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
-              'c_dif': []}
+        ia = {'hexParm': (12, 240), 'gridWidth': 76, 'gridBorderWidth': 18, 'ox': 10, 'oy': 30, 'margin': 9,
+              'width': 2700, 'height': 2700, 'dnum': 6, 'xoffset': 3, 'yoffset': 3, 'frameMargin': 5,
+              'legend_width': 100, 'legend_height': 40, 'quality': 95, 'dpi': (1200, 1200), 'c_dif': []}
     elif scale == '500m':
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
-              'width': 3000, 'height': 3000,
-              'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legendWidth': 20, 'quality': 95, 'dpi': (1200, 1200),
-              'c_dif': []}
+              'width': 3000, 'height': 3000, 'xoffset': 1, 'yoffset': 6, 'frameMargin': 2,
+              'legend_width': 100, 'legend_height': 40,'quality': 95, 'dpi': (1200, 1200), 'c_dif': []}
 
     # color setting
     # blue to red
@@ -141,6 +137,7 @@ def diagram_map():
     ia['dis_class_num'] = len(ia['color_scheme'])
     return ia
 
+
 def diagram_map_dif():
     ia = dict()
     ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
@@ -155,6 +152,7 @@ def diagram_map_dif():
         ia['c_dif'].append('#%02X%02X%02X' % color)
     ia['dif_class_num'] = len(ia['c_dif'])
     return ia
+
 
 def od_map():
     #   rows, columns: 网格行数、列数; gridWidth：网格尺寸
@@ -214,7 +212,7 @@ def readDrawingSetting(mode, scale='1km'):
     elif mode == 'pm_bs':
         return pattern_map_bivariate_symbol(scale)
     elif mode == 'pm_dif':
-        return pattern_map_diff(scale)
+        return pattern_map_dif(scale)
     elif mode == 'dm':
         return diagram_map()
     elif mode == 'dm_dif':

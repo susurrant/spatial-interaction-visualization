@@ -438,17 +438,7 @@ def drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia):
                               fill=ia['color_scheme'][j], outline='#fe0000')
         drawRoundTrip(draw, cenx, ceny, grid_sta[gid][ia['dnum']][0])
 
-    labelfont = ImageFont.truetype('./font/calibril.ttf', 110)
-    draw.text((930, 1480), 'A', font=labelfont, fill=(0, 0, 0))
-    draw.text((2310, 1560), 'B', font=labelfont, fill=(0, 0, 0))
-    draw.text((1570, 550), 'C', font=labelfont, fill=(0, 0, 0))
-    left = 650
-    right = 1230
-    top = 380
-    bottom = 920
-    draw.line([left, top, right, top, right, bottom, left, bottom, left, top], fill='#0000ff', width=4)
-    draw.text((left+20, top+20), 'D', font=labelfont, fill=(0, 0, 0))
-
+    # draw legend
     x = ia['width'] - 700
     y = ia['height'] - 200
     legend_size = ia['legend_size']
@@ -507,7 +497,7 @@ def drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia):
     for i in range(ia['dif_class_num']):
         draw.rectangle([x + i * ia['legend_width'], y - ia['legend_height'], x + (i + 1) * ia['legend_width'], y],
                        fill=ia['c_dif'][i])
-    imagescalefont = ImageFont.truetype('./font/times.ttf', 50)
+    imagescalefont = ImageFont.truetype('./font/times.ttf', 64)
     draw.text((x - 70, y + 20), 'Small', font=imagescalefont, fill=(0, 0, 0))
     draw.text((x + ia['dif_class_num']*ia['legend_width']-50, y + 20), 'Large', font=imagescalefont, fill=(0, 0, 0))
 
