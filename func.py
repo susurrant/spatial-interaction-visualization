@@ -111,6 +111,7 @@ def ddif(d1, d2, m1, m2):
 def cdif(grids1, grids2, flows1, flows2, alpha):
     d_difN = {}
     d_difD = {}
+    gid_nodata = set()
     maxD = 0
     maxN = 0
     minD = float('inf')
@@ -119,6 +120,9 @@ def cdif(grids1, grids2, flows1, flows2, alpha):
     for gid in grids1:
         grids1[gid].calcOutAggregation(flows1)
         grids2[gid].calcOutAggregation(flows2)
+        if sum(grids1[gid].wm) ==0 and sum(grids2[gid].wm)==0:
+            gid_nodata.add(gid)
+            continue
         difN = mdif(grids1[gid].wm, grids2[gid].wm)
         difD = ddif(grids1[gid].wd, grids2[gid].wd, grids1[gid].wm, grids2[gid].wm)
         d_difN[gid] = difN
@@ -129,10 +133,10 @@ def cdif(grids1, grids2, flows1, flows2, alpha):
         maxD = max(maxD, difD)
 
     dif = {}
-    for gid in grids1:
+    for gid in d_difN:
         dif[gid] = alpha*(d_difN[gid]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid]-minD)/(maxD-minD)
 
-    return dif
+    return dif, gid_nodata
 
 
 # comprehensive difference between several patterns and a specific pattern

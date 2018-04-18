@@ -6,8 +6,8 @@ import seaborn as sns
 from func import *
 import numpy as np
 
-# draw glyph
-def drawSingleGlyph(ia):
+
+def drawSingleGlyph_bs(ia):
     dnum = ia['dnum']
 
     gridWidth = 240
@@ -222,7 +222,6 @@ def drawglyph342(ia):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * 0.9, dnum // 6)
 
-    #['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']
     ia['c_m'] = ['#303030', '#303030', '#9F9F9F', '#9F9F9F', '#DFDFDF', '#DFDFDF']
     ia['c_d'] = ['#e34a33', '#e34a33', '#fc8d59', '#fc8d59', '#fef0d9', '#fef0d9']
 
@@ -362,9 +361,9 @@ def drawDif_Kmeans(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
 
 def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     k_dif = ia['k_dif']
-    dif = cdif(grids1, grids2, flows1, flows2, alpha)
+    dif, gid_nodata = cdif(grids1, grids2, flows1, flows2, alpha)
     dif_train = []
-    for gid in grids1:
+    for gid in dif:
         dif_train.append(dif[gid])
     difk, difl = fisher_jenks(dif_train, k_dif)
 
@@ -374,17 +373,19 @@ def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     for gid in grids1:
         cenx, ceny = computeCen(gid, ia)
         hex_co = computeCo_hexagon(cenx, ceny, ia['gridWidth'])
-        x = np.where(dif[gid] <= difk)[0]
-        i = x.min() if x.size > 0 else len(difk) - 1
-        nc = ia['c_dif'][i]
-
         co = []
         for item in hex_co:
             co.append(item[2])
             co.append(item[3])
         co.append(co[0])
         co.append(co[1])
-        draw.polygon(co, fill=nc, outline=nc)
+        if gid in gid_nodata:
+            draw.polygon(co, fill=None, outline=ia['c_dif'][0])
+        else:
+            x = np.where(dif[gid] <= difk)[0]
+            i = x.min() if x.size > 0 else len(difk) - 1
+            nc = ia['c_dif'][i]
+            draw.polygon(co, fill=nc, outline=nc)
 
     # ----绘制图例----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 74)

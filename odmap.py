@@ -35,7 +35,6 @@ def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
                 break
     return data
 
-
 def drawODMap_kmeans(file_name, save_file_name, ia):
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
     draw = ImageDraw.Draw(image)

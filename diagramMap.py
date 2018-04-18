@@ -221,15 +221,37 @@ def statistic_dif(data_file, data_file_c, zones, ia):
     for gid in grid_sta:
         grid_dif[gid] = []
         for i in range(ia['dnum']):
-            grid_dif[gid].append([abs(grid_sta[gid][i][0]-grid_sta_c[gid][i][0]), abs(grid_sta[gid][i][1]-grid_sta_c[gid][i][1])
-                                     , abs(grid_sta[gid][i][2]-grid_sta_c[gid][i][2])])
-            dif.extend(grid_dif[gid][i])
-            #print(grid_dif[gid][i])
-        round_dif = abs(grids[gid].round_flow_num - grids_c[gid].round_flow_num)
-        grid_dif[gid].append([round_dif])
-        dif.append(round_dif)
+            dif_list = []
+            if grid_sta[gid][i][0] == 0 and grid_sta_c[gid][i][0] == 0:
+                dif_list.append(-1)
+            else:
+                temp_dif = abs(grid_sta[gid][i][0]-grid_sta_c[gid][i][0])
+                dif_list.append(temp_dif)
+                dif.append(temp_dif)
+
+            if grid_sta[gid][i][1] == 0 and grid_sta_c[gid][i][1] == 0:
+                dif_list.append(-1)
+            else:
+                temp_dif = abs(grid_sta[gid][i][1] - grid_sta_c[gid][i][1])
+                dif_list.append(temp_dif)
+                dif.append(temp_dif)
+
+            if grid_sta[gid][i][2] == 0 and grid_sta_c[gid][i][2] == 0:
+                dif_list.append(-1)
+            else:
+                temp_dif = abs(grid_sta[gid][i][2] - grid_sta_c[gid][i][2])
+                dif_list.append(temp_dif)
+                dif.append(temp_dif)
+
+            grid_dif[gid].append(dif_list)
+
+        if grids[gid].round_flow_num == 0 and grids_c[gid].round_flow_num == 0:
+            grid_dif[gid].append([-1])
+        else:
+            round_dif = abs(grids[gid].round_flow_num - grids_c[gid].round_flow_num)
+            grid_dif[gid].append([round_dif])
+            dif.append(round_dif)
     fk, fl = fisher_jenks(dif, ia['dif_class_num'])
-    #print(fk)
 
     # 设置颜色
     rgrids = {}
@@ -237,9 +259,14 @@ def statistic_dif(data_file, data_file_c, zones, ia):
         rgrids[gid] = []
         for j, dif in enumerate(grid_dif[gid]):
             rgrids[gid].append([])
-            uptos = [np.where(value <= fk)[0] for value in dif]
-            for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
-                rgrids[gid][j].append(ia['c_dif'][i])
+            for value in dif:
+                if value == -1:
+                    tem_color = None
+                else:
+                    x = np.where(value <= fk)[0]
+                    i = x.min() if x.size > 0 else len(dk) - 1
+                    tem_color = ia['c_dif'][i]
+                rgrids[gid][j].append(tem_color)
 
     return rgrids
 
@@ -492,6 +519,7 @@ def drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia):
         draw.ellipse([cenx-ia['round_radius'],ceny-ia['round_radius'],cenx+ia['round_radius'],ceny+ia['round_radius']],
                      fill=grid_sta[gid][ia['dnum']][0], outline='#fe0000')
 
+    # draw legend
     x = ia['width'] - 600
     y = ia['height'] - 200
     for i in range(ia['dif_class_num']):
