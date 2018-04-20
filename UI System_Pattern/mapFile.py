@@ -18,8 +18,8 @@ def set_glyph_color(grids, flows, ia):
     dis = []
     for gid in grids:
         grids[gid].calcOutAggregation(flows)
-        mag.extend(grids[g].out_wm)
-        dis.extend(grids[g].out_wd)
+        mag.extend(grids[gid].out_wm)
+        dis.extend(grids[gid].out_wd)
 
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
@@ -37,8 +37,8 @@ def set_glyph_color(grids, flows, ia):
     dis = []
     for gid in grids:
         grids[gid].calcInAggregation(flows)
-        mag.extend(grids[g].in_wm)
-        dis.extend(grids[g].in_wd)
+        mag.extend(grids[gid].in_wm)
+        dis.extend(grids[gid].in_wd)
 
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
@@ -74,7 +74,7 @@ def set_glyph_coordinate(grids, flows, ia):
         grids[gid].border.append(cx + fxs[0])
         grids[gid].border.append(cy + fys[0])
 
-    # coordinate calculation - flows
+    # sampling and coordinate calculation - flows
     for fid in flows:
         if np.random.random() < ia['p']:
             flows[fid].select_tag = True
@@ -128,7 +128,7 @@ def readData(filename, dgids, dnum, minSpeed=2, maxSpeed=150):
 
 
 def relate2data(filenames, ia):
-    dgids = readGids('../data/5th_rr_gid_1km.csv')
+    dgids = readGids(ia['dgids_file'])
     grid_data = []
     flow_data = []
     for fn in filenames:

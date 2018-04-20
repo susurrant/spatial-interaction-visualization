@@ -209,17 +209,17 @@ if __name__ == '__main__':
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
     scale = '1km'#'500m'
-    mode = 'pm_dif'
+    mode = 'pm_bs'
     dgids = readGids('./data/5th_rr_gid_'+scale+'.csv')
     ia = readDrawingSetting(mode, scale)
 
     # -----------------------------drawing--------------------------------
     #drawSingleGlyph(ia)
-    #SIPatterns(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
+    SIPatterns(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
     #drawppp(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False)
     #drawglyph342(ia)
-    patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
+    #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
 
     if False:
         labels = ['T', 'S', 'C', 'R']

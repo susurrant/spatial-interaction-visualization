@@ -211,18 +211,16 @@ def processGrids_kmeans(grids, flows, ia):
 def processGrids_fj(grids, flows, ia):
     mag = []
     dis = []
-    for g in grids:
-        grids[g].calcOutAggregation(flows)
-        for tm in grids[g].wm:
-            mag.append(tm)
-        for td in grids[g].wd:
-            dis.append(td)
+    for gid in grids:
+        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
+        grids[gid].calcOutAggregation(flows)
+        mag.extend(grids[gid].wm)
+        dis.extend(grids[gid].wd)
 
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
 
     for gid in grids:
-        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
         uptos = [np.where(value <= nk)[0] for value in grids[gid].wm]
         for i in [x.min() if x.size > 0 else len(nk) - 1 for x in uptos]:
             grids[gid].mcolor.append(ia['c_m'][i])
