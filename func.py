@@ -221,14 +221,6 @@ def processGrids_fj(grids, flows, ia):
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
 
-    '''
-    ia['c_m'] = []
-    for i in range(ia['k_m']):
-        r = int(round((1 - nl[i]/nl[-1])*255))
-        ia['c_m'].append('#%02X%02X%02X' % (r, r, r))
-    ia['c_m'][0] = '#ffffff'
-    '''
-
     for gid in grids:
         grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
         uptos = [np.where(value <= nk)[0] for value in grids[gid].wm]

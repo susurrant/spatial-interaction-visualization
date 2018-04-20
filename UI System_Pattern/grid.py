@@ -10,12 +10,34 @@ class Grid(object):
         self.outFlow = []
         self.inFlow = []
 
-        self.wm = [0]*dnum
-        self.wd = [0]*dnum
-        self.mcolor = []
-        self.dcolor = []
+        self.dnum = dnum
+
         self.cenx = -1
         self.ceny = -1
+        self.oco = [] # 外侧三角形
+        self.ico = [] # 内侧三角形
+        self.border = [] # 黑边
+
+        self.out_wm = [0]*dnum
+        self.out_wd = [0]*dnum
+        self.out_mcolor = []
+        self.out_dcolor = []
+
+        self.in_wm = [0] * dnum
+        self.in_wd = [0] * dnum
+        self.in_mcolor = []
+        self.in_dcolor = []
+
+    def reset(self):
+        self.out_wm = [0] * self.dnum
+        self.out_wd = [0] * self.dnum
+        self.out_mcolor = []
+        self.out_dcolor = []
+
+        self.in_wm = [0] * self.dnum
+        self.in_wd = [0] * self.dnum
+        self.in_mcolor = []
+        self.in_dcolor = []
 
     def addOutFlow(self, fid):
         self.outFlow.append(fid)
@@ -27,13 +49,26 @@ class Grid(object):
         for fid in self.outFlow:
             td, ta = self.calcInteraction(flows[fid].co)
             tm = 1
-            idx, tw = self.calcMD(ta, len(self.wm))
-            self.wm[idx] += tm
-            self.wd[idx] += tm * td
+            idx, tw = self.calcMD(ta, self.dnum)
+            self.out_wm[idx] += tm
+            self.out_wd[idx] += tm * td
 
-        for i in range(len(self.wm)):
-            if self.wm[i] != 0:
-                self.wd[i] /= self.wm[i]
+        for i in range(self.dnum):
+            if self.out_wm[i] != 0:
+                self.out_wd[i] /= self.out_wm[i]
+
+    def calcInAggregation(self, flows):
+        for fid in self.inFlow:
+            td, ta = self.calcInteraction(flows[fid].co)
+            tm = 1
+            idx, tw = self.calcMD(ta, self.dnum)
+            idx = (idx + 3) % 6
+            self.in_wm[idx] += tm
+            self.in_wd[idx] += tm * td
+
+        for i in range(self.dnum):
+            if self.in_wm[i] != 0:
+                self.in_wd[i] /= self.in_wm[i]
 
     # compute main interaction direction
     @staticmethod

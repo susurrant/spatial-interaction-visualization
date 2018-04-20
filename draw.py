@@ -205,6 +205,7 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
 
+
 def drawsp(grids, flows, ia, scale, saveFileName):
     processGrids_fj(grids, flows, ia)
     image = Image.new('RGB', (500, 450), '#ffffff')
@@ -213,6 +214,7 @@ def drawsp(grids, flows, ia, scale, saveFileName):
     ceny = 225
     drawSingleHexagon_bs(draw, grids[342], 240, 0.9, ia['dnum'], cenx, ceny)
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
 
 # draw glyph
 def drawglyph342(ia):
@@ -237,6 +239,7 @@ def drawglyph342(ia):
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=ia['c_d'][i%dnum], fill=ia['c_d'][i%dnum])
 
     image.save('./figure/p_051316_1317_1km_pm_bs_3.jpg', quality=95, dpi=(1200, 1200))
+
 
 # draw patterns with highlighting selected patterns
 def drawPattern_bs_sp(grids, flows, ia, saveFileName):
@@ -376,24 +379,31 @@ def drawCdifDistribution(gids, gdif, c, labels):
     plt.show()
 
 
-def userScore():
+def user_accu():
     sns.set(style="whitegrid")
 
-    Q1 = [6/13, 8/13, 13/13]
-    Q2 = [7/13, 7/13, 10/13]
-    Q3 = [2/13, 13/13, 13/13]
+    user_num = 27
+    # OD, DM, PM
+    ra = np.array([[23, 24, 27],  # Q1
+                   [22, 19, 16],  # Q2
+                   [5, 20, 23],  # Q3
+                   [15, 16, 24],  # Q4
+                   [21, 22, 25],  # Q5
+                   [18, 17, 27]]) / user_num  # Q6
 
-    x = np.array([i for i in range(1, 4)])
-    fs1 = 12
-    fs2 = 10
+    x = np.array([0.5, 1.5, 2.5])
+    fs1 = 14
+    fs2 = 12
+    colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
 
-    fig, ax = plt.subplots()
-    #ax.set_xlabel('', fontname="Times New Roman", fontsize=fs1)
+    fig, ax = plt.subplots(figsize=(7, 3))
+    # ax.set_xlabel('', fontname="Times New Roman", fontsize=fs1)
     ax.set_ylabel('Accuracy', fontname="Times New Roman", fontsize=fs1)
 
-    l1 = ax.bar(x-0.1, Q1, facecolor='#996699', width=0.1, label='Q1')
-    l2 = ax.bar(x, Q2, facecolor='#99cccc', width=0.1, label='Q2')
-    l3 = ax.bar(x+0.1, Q3, facecolor='#ccccff', width=0.1, label='Q3')
+    bw = 0.11
+    ll = []
+    for n, i in enumerate([-5, -3, -1, 1, 3, 5]):
+        ll.append(ax.bar(x + i * bw / 2, ra[n], facecolor=colors[n], width=bw, label='Q' + str(n + 1)))
 
     ax.set_ylim(0, 1)
     ys = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
@@ -401,14 +411,65 @@ def userScore():
     ylabels = [str(item) for item in ys]
     ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=fs2)
 
-    ax.set_xlim(0, 4)
-    xs = [1, 2, 3]
+    ax.set_xlim(0, 3.4)
+    xs = [0.5, 1.5, 2.5]
     ax.set_xticks(xs)
-    xlabels = ['The OD map', 'The diagram map', 'Our approach']
+    xlabels = ['OD map', 'Diagram map', 'Pattern map']
     ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=fs2)
 
-    leg = plt.legend(handles=[l1, l2, l3])
+    leg = plt.legend(handles=ll)
     for l in leg.get_texts():
-        l.set_fontsize(fs2)
+        l.set_fontsize(10)
         l.set_fontname("Times New Roman")
+    plt.show()
+
+
+def user_resTime():
+    ticks = ['OD map', 'Diagram map', 'Pattern map']
+    t1 = [[6.3, 14.2, 12.2, 9.1, 11.7, 11.4], [7.1, 15.2, 4.9, 6.4, 3.8, 23.6, 8.0],
+          [8.3, 8.1, 5.7, 2.3, 2.4, 6.5, 3.4, 3.7, 2.3, 3.7, 2.8]]
+    t2 = [[24.7, 25.6, 27.8, 13.2, 21.9, 25.6, 33.1, 31.6], [9.7, 13.5, 15.0, 17.7, 6, 11.5, 15.9, 16.5, 9.3],
+          [10.6, 7.2, 10.2, 11, 10.8, 8.9, 8.6, 5.2]]
+    t3 = [[22.6, 24.3, 27.6], [23.4, 15.4, 4.7, 20.2, 12.2], [17.6, 8.8, 8.1, 11.5, 7.8, 9.6, 8.2]]
+    t4 = [[13.0, 19.1, 18.8, 16.4, 18.6, 19.5, 15.2], [13.8, 11.9, 6.1, 15.7, 11.8, 10.4],
+          [8.6, 9.8, 9.5, 5.3, 12.4, 5.8, 10.1, 4.5]]
+    t5 = [[16.4, 10.8, 19.9, 9.5, 20.2, 21.1, 18.7, 11.2], [8.1, 6.2, 9.6, 9.7, 10.3, 10.1],
+          [4, 3.2, 3.2, 3.0, 6.3, 5.2, 5.1, 4.6]]
+    t6 = [[22.7, 25.7, 13.2, 21.8], [23.4, 18.4, 10.2, 8.3, 15, 8.2, 7.4],
+          [7.4, 2.7, 2.9, 2.1, 4.3, 3.8, 7.3, 7.3, 4.2]]
+    t = [t1, t2, t3, t4, t5, t6]
+    fs1 = 14
+    fs2 = 12
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
+    ax.set_ylabel('Time/s', fontname="Times New Roman", fontsize=fs1)
+    xs = np.array([0.5, 1.5, 2.5])
+
+    def set_box_color(bp, color):
+        plt.setp(bp['boxes'], color=color)
+        plt.setp(bp['whiskers'], color=color)
+        plt.setp(bp['caps'], color=color)
+        plt.setp(bp['medians'], color=color)
+
+    bw = 0.1
+    margin = 0.05
+    for n, i in enumerate([-5, -3, -1, 1, 3, 5]):
+        bp = ax.boxplot(t[n], positions=xs + (bw + margin / 2) * i / 2, sym='', widths=bw)
+        set_box_color(bp, colors[n])
+
+    ax.set_xlim(0, 3)
+    ax.set_xticks(xs)
+    ax.xaxis.set_ticklabels(ticks, fontname="Times New Roman", fontsize=fs2)
+
+    ax.set_ylim(0, 35)
+    ys = [0, 5, 10, 15, 20, 25, 30, 35]
+    ax.set_yticks(ys)
+    ylabels = [str(item) for item in ys]
+    ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=fs2)
+
+    for i in range(6):
+        ax.plot([], c=colors[i], label='Q' + str(i + 1))
+    ax.legend()
+
     plt.show()
