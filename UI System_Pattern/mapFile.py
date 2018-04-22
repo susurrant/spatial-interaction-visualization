@@ -12,15 +12,12 @@ import numpy as np
 def set_glyph_color(grids, flows, ia):
     for gid in grids:
         grids[gid].reset()
-        grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
 
     mag = []
     dis = []
     for gid in grids:
-        grids[gid].calcOutAggregation(flows)
         mag.extend(grids[gid].out_wm)
         dis.extend(grids[gid].out_wd)
-
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
 
@@ -36,10 +33,8 @@ def set_glyph_color(grids, flows, ia):
     mag = []
     dis = []
     for gid in grids:
-        grids[gid].calcInAggregation(flows)
         mag.extend(grids[gid].in_wm)
         dis.extend(grids[gid].in_wd)
-
     nk, nl = fisher_jenks(mag, ia['k_m'])
     dk, dl = fisher_jenks(dis, ia['k_d'])
 
@@ -53,10 +48,13 @@ def set_glyph_color(grids, flows, ia):
             grids[gid].in_dcolor.append(ia['c_d'][i])
 
 
-def set_glyph_coordinate(grids, flows, ia):
+def set_glyph_data(grids, flows, ia):
     # coordinate calculation - center
     for gid in grids:
+        grids[gid].calcOutAggregation(flows)
+        grids[gid].calcInAggregation(flows)
         grids[gid].cenx, grids[gid].ceny = computeCen(gid, ia)
+
 
     # coordinate calculation - grids
     oxs, oys = computeCo(ia['gridWidth'], ia['dnum'] // 6)
@@ -76,8 +74,6 @@ def set_glyph_coordinate(grids, flows, ia):
 
     # sampling and coordinate calculation - flows
     for fid in flows:
-        if np.random.random() < ia['p']:
-            flows[fid].select_tag = True
         co = flows[fid].co
         ox = (co[0][0] - ia['xoff']) / ia['trans_scale']
         oy = 800 - (co[0][1] - ia['yoff']) / ia['trans_scale']
@@ -133,8 +129,8 @@ def relate2data(filenames, ia):
     flow_data = []
     for fn in filenames:
         grids, flows = readData(fn, dgids, ia['dnum'])
+        set_glyph_data(grids, flows, ia)
         set_glyph_color(grids, flows, ia)
-        set_glyph_coordinate(grids, flows, ia)
         grid_data.append(grids)
         flow_data.append(flows)
 

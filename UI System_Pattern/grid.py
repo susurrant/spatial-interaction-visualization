@@ -29,13 +29,8 @@ class Grid(object):
         self.in_dcolor = []
 
     def reset(self):
-        self.out_wm = [0] * self.dnum
-        self.out_wd = [0] * self.dnum
         self.out_mcolor = []
         self.out_dcolor = []
-
-        self.in_wm = [0] * self.dnum
-        self.in_wd = [0] * self.dnum
         self.in_mcolor = []
         self.in_dcolor = []
 

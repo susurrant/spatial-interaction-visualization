@@ -30,6 +30,7 @@ class MapGUI(Frame):
         self.ia = self.init_ia(1, 15, 5)
         filenames_1km = ['../data/sj_051316_0509_1km.csv', '../data/sj_051316_1721_1km.csv']
         self.grids_1km, self.flows_1km = relate2data(filenames_1km, self.ia)
+        self.sample_flows()
 
         self.pc = pattern_canvas(self, self.grids_1km[0]) # pattern map canvas
         self.pc.place(x=0, y=0)
@@ -37,6 +38,14 @@ class MapGUI(Frame):
         self.fc.place(x=800, y=0)
 
         self.show()
+
+    def sample_flows(self):
+        for i in range(len(self.flows_1km)):
+            for fid in self.flows_1km[i]:
+                if np.random.random() < self.ia['p']:
+                    if fid in self.flows_500m[i]:
+                        self.flows_1km[i][fid].select_tag = True
+                        self.flows_500m[i][fid].select_tag = True
 
     @staticmethod
     def init_ia(scale=1, k_m=15, k_d=5):
@@ -118,7 +127,7 @@ class ParameterFrm(Frame):
         self.dis_num = IntVar()
         #--------------------------------------------------------
 
-        Label(self, text='Time period', bg=bgc).place(x=110, y=5)
+        Label(self, text='Period', bg=bgc).place(x=110, y=5)
         self.period.set('Morning (5-9 a.m.)')
         self.time = ttk.Combobox(self, textvariable=self.period, state='readonly')
         self.time['values'] = ('Early morning (1-5 a.m.)', 'Morning (5-9 a.m.)', 'Noon (9 a.m.-1 p.m.)',
@@ -203,7 +212,7 @@ class pattern_canvas(Canvas):
                                         outline=self.grids[gid].out_mcolor[i])
                     self.create_polygon(self.grids[gid].ico[i], fill=self.grids[gid].out_dcolor[i],
                                         outline=self.grids[gid].out_dcolor[i])
-                self.create_line(self.grids[gid].border, width=1, fill='#000000')
+                self.create_line(self.grids[gid].border, width=0.5, fill='#000000')
         elif self.SI_type == 1:
             for gid in self.grids:
                 for i in range(self.master.ia['dnum']):
@@ -211,7 +220,7 @@ class pattern_canvas(Canvas):
                                         outline=self.grids[gid].in_mcolor[i])
                     self.create_polygon(self.grids[gid].ico[i], fill=self.grids[gid].in_dcolor[i],
                                         outline=self.grids[gid].in_dcolor[i])
-                self.create_line(self.grids[gid].border, width=1, fill='#000000')
+                self.create_line(self.grids[gid].border, width=0.5, fill='#000000')
 
         self.drawLegend()
 
