@@ -6,6 +6,7 @@ __pycache__/
 data/
 figure/
 font/
+map/
 
 # C extensions
 *.so
