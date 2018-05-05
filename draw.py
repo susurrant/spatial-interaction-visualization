@@ -395,6 +395,7 @@ def user_accu():
     fs1 = 14
     fs2 = 12
     colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
+    colors = ['#d73027', '#fdae61', '#1b7837', '#7fbf7b', '#762a83', '#af8dc3']
 
     fig, ax = plt.subplots(figsize=(7, 3))
     # ax.set_xlabel('', fontname="Times New Roman", fontsize=fs1)
@@ -414,7 +415,7 @@ def user_accu():
     ax.set_xlim(0, 3.4)
     xs = [0.5, 1.5, 2.5]
     ax.set_xticks(xs)
-    xlabels = ['OD map', 'Diagram map', 'Pattern map']
+    xlabels = ['OD map', 'Diagram map', 'Direction-based pattern map']
     ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=fs2)
 
     leg = plt.legend(handles=ll)
@@ -425,7 +426,7 @@ def user_accu():
 
 
 def user_resTime():
-    ticks = ['OD map', 'Diagram map', 'Pattern map']
+    ticks = ['OD map', 'Diagram map', 'Direction-based pattern map']
     t1 = [[6.3, 14.2, 12.2, 9.1, 11.7, 11.4], [7.1, 15.2, 4.9, 6.4, 3.8, 23.6, 8.0],
           [8.3, 8.1, 5.7, 2.3, 2.4, 6.5, 3.4, 3.7, 2.3, 3.7, 2.8]]
     t2 = [[24.7, 25.6, 27.8, 13.2, 21.9, 25.6, 33.1, 31.6], [9.7, 13.5, 15.0, 17.7, 6, 11.5, 15.9, 16.5, 9.3],
@@ -443,6 +444,7 @@ def user_resTime():
 
     fig, ax = plt.subplots(figsize=(7, 3))
     colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
+    colors = ['#d73027', '#fdae61', '#1b7837', '#7fbf7b', '#762a83', '#af8dc3']
     ax.set_ylabel('Time/s', fontname="Times New Roman", fontsize=fs1)
     xs = np.array([0.5, 1.5, 2.5])
 

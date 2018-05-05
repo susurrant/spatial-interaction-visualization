@@ -5,40 +5,7 @@ from draw import *
 from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
 from func import readGids
-import numpy as np
 
-def calcMD(a, n):
-    d = np.array([i * 2 * np.pi / n for i in range(n)]) + np.pi / n
-    w = np.cos(d - a)
-    idx = np.where(w == np.max(w))[0][0]
-    return idx, w[idx]
-
-def calcInteraction(flow):
-    dx = flow[1][0] - flow[0][0]
-    dy = flow[1][1] - flow[0][1]
-    d = np.sqrt(dy ** 2 + dx ** 2)
-    a = abs(np.arcsin(dy / d))
-    if dx > 0:
-        if dy < 0:
-            a = 2 * np.pi - a
-        elif dy == 0:
-            a = 0
-    elif dx < 0:
-        if dy > 0:
-            a = np.pi - a
-        elif dy < 0:
-            a += np.pi
-        else:
-            a = np.pi
-    else:
-        if dy > 0:
-            a = 0.5 * np.pi
-        elif dy < 0:
-            a = 1.5 * np.pi
-        else:
-            a = -1
-
-    return d / 1000.0, a  # return distance (km) and azimuth
 
 # 读取数据
 def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
@@ -74,41 +41,6 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
                         grids[gid].addInFlow(fid)
             else:
                 break
-    '''
-    tag5 = 0
-    tag3 = 0
-    tag2 = 0
-    rl = []
-    al = []
-    for fid in grids[342].outFlow:
-        td, ta = calcInteraction(flows[fid])
-        idx, tw = calcMD(ta, 6)
-        if idx == 5:
-            if tag5==4:
-                tag5=0
-            else:
-                tag5+=1
-                rl.append(fid)
-        if idx == 2:
-            if tag2==5:
-                tag2=0
-            else:
-                tag2+=1
-                rl.append(fid)
-        if idx == 3:
-            if tag3 == 3:
-                tag3=0
-            else:
-                tag3+=1
-                al.append(fid)
-        if idx ==4:
-            rl.append(fid)
-
-    for fid in rl:
-        grids[342].outFlow.remove(fid)
-    for fid in al:
-        grids[342].outFlow.append(fid)
-    '''
 
     return grids, flows
 
@@ -215,11 +147,14 @@ if __name__ == '__main__':
 
     # -----------------------------drawing--------------------------------
     #drawSingleGlyph(ia)
-    SIPatterns(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
+    #SIPatterns(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
     #drawppp(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False)
     #drawglyph342(ia)
     #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
+
+    #user_accu()
+    user_resTime()
 
     if False:
         labels = ['T', 'S', 'C', 'R']
