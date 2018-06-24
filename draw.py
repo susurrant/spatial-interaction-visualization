@@ -14,16 +14,42 @@ def drawSingleGlyph_bs(ia):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * 0.9, dnum // 6)
 
-    image = Image.new('RGB', (500, 450), '#ffffff')
+    image = Image.new('RGB', (830, 450), '#ffffff')
     draw = ImageDraw.Draw(image)
     cenx = 250
     ceny = 225
+    mindex = [1, 4, 8, 10, 12, 14]
+    dindex = [0, 1, 2, 3, 4, 2]
     for i in range(dnum):
         draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
-                      fill=ia['c_m'][i%dnum], outline=ia['c_m'][i])
+                      fill=ia['c_m'][mindex[i]], outline=ia['c_m'][mindex[i]])
         draw.polygon(
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
-                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=ia['c_d'][i%dnum], fill=ia['c_d'][i%dnum])
+                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=ia['c_d'][dindex[i]], fill=ia['c_d'][dindex[i]])
+
+    imageTitlefont = ImageFont.truetype('./font/arial.ttf', 28)
+    imageMeasureFont = ImageFont.truetype('./font/arial.ttf', 26)
+    sy = 450 - 100
+    lh = 13
+    lw = 40
+
+    # magnitude
+    mx = 830 - 230
+    for i, c in enumerate(ia['c_m']):
+        draw.line([mx, sy - i * lh, mx + lw, sy - i * lh], width=lh, fill=c)
+    draw.text((mx - lw * 1.8, sy + lh*2), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx - 1.4 * lw, sy - lh), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - 1.4 * lw, sy - lh * (ia['k_m'] + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
+
+    # distance
+    disx = 830 - 125
+    scale = ia['k_m'] / ia['k_d']
+    for i, n in enumerate(ia['c_d']):
+        draw.line([disx, sy - (i + 0.35) * lh * scale, disx + lw, sy - (i + 0.35) * lh * scale],
+                  width=int(round(lh * scale)), fill=n)
+    draw.text((disx - lw *0.3, sy + lh*2), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((disx + 1.2 * lw, sy - lh), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
 
     image.save('./figure/glyph.jpg', quality=95, dpi=(1200, 1200))
 
@@ -204,42 +230,6 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
         draw.polygon(
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
-
-
-def drawsp(grids, flows, ia, scale, saveFileName):
-    processGrids_fj(grids, flows, ia)
-    image = Image.new('RGB', (500, 450), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    cenx = 250
-    ceny = 225
-    drawSingleHexagon_bs(draw, grids[342], 240, 0.9, ia['dnum'], cenx, ceny)
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# draw glyph
-def drawglyph342(ia):
-    dnum = ia['dnum']
-
-    gridWidth = 240
-    oxs, oys = computeCo(gridWidth, dnum // 6)
-    ixs, iys = computeCo(gridWidth * 0.9, dnum // 6)
-
-    ia['c_m'] = ['#303030', '#303030', '#9F9F9F', '#9F9F9F', '#DFDFDF', '#DFDFDF']
-    ia['c_d'] = ['#e34a33', '#e34a33', '#fc8d59', '#fc8d59', '#fef0d9', '#fef0d9']
-
-    image = Image.new('RGB', (500, 450), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    cenx = 250
-    ceny = 225
-    for i in range(dnum):
-        draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
-                      fill=ia['c_m'][i%dnum], outline=ia['c_m'][i])
-        draw.polygon(
-            [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
-                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=ia['c_d'][i%dnum], fill=ia['c_d'][i%dnum])
-
-    image.save('./figure/p_051316_1317_1km_pm_bs_3.jpg', quality=95, dpi=(1200, 1200))
-
 
 # draw patterns with highlighting selected patterns
 def drawPattern_bs_sp(grids, flows, ia, saveFileName):

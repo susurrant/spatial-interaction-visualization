@@ -130,10 +130,6 @@ def difVar(fs, dgids, gids, labels, colors, alpha, dnum):
     gdif = cdif_multi(grids, flows, alpha)
     drawCdifDistribution(gids, gdif, colors, labels)
 
-def drawppp(dataFileName, dgids, ia, scale, mode, inside=False):
-    grids, flows = readData(dataFileName + '.csv', dgids, ia['dnum'])
-    saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_sss.jpg'
-    drawsp(grids, flows, ia, scale, saveFileName)
 
 if __name__ == '__main__':
     # -----------------------------data----------------------------------
@@ -146,15 +142,13 @@ if __name__ == '__main__':
     ia = readDrawingSetting(mode, scale)
 
     # -----------------------------drawing--------------------------------
-    #drawSingleGlyph(ia)
-    #SIPatterns(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
+    #drawSingleGlyph_bs(ia)
+    SIPatterns(fileNames[4]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
-    #drawppp(fileNames[3]+'_'+scale, dgids, ia, scale, mode, False)
-    #drawglyph342(ia)
-    #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
 
+    #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
     #user_accu()
-    user_resTime()
+    #user_resTime()
 
     if False:
         labels = ['T', 'S', 'C', 'R']
