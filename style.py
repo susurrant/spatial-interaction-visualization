@@ -11,7 +11,7 @@ def pattern_map_bivarite_color(scale):
     #   图例：legendWidth：图例条基本宽度；；legend_yoffset：图例相对右下角点的纵向偏移；legend_xoffset：图例相对右下角点的横向偏移
     #   聚类数：dis_class_number、dis_class_number、k_dif；颜色：color_scheme、c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 84, 'ox': 30, 'oy': 40, 'margin': 9,
+        ia = {'shape': (12, 240), 'gridWidth': 84, 'ox': 30, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3, 'dnum': 6,
               'legend_size': 63, 'quality': 95, 'dpi': (1200, 1200)}
     elif scale == '500m':
@@ -68,11 +68,45 @@ def pattern_map_bivariate_symbol(scale):
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 82, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 13,
+        ia = {'shape': (12, 240), 'gridWidth': 82, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 13,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
+        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
+              'width': 3000, 'height': 3000, 'dnum': 6,
+              'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legend_width': 100, 'legend_height': 20,
+              'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
+
+    # color setting
+    nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
+
+    for i, n in enumerate(nscale):
+        ia['c_m'].append('#%02X%02X%02X' % (int(round((1 - n) * 255)), int(round((1 - n) * 255)), int(round((1 - n) * 255))))
+    ia['c_m'][0] = '#ffffff'
+
+    ia['c_d'] = ['#9fd4ff', '#00dd66', '#ffd700', '#ff8000', '#c70000'] # diverging
+    ia['c_d'] = ['#fef0d9', '#fdcc8a', '#fc8d59', '#e34a33', '#b30000']     # sequential (OrRd)
+
+    return ia
+
+
+def pattern_map_bs_square(scale):
+    # -----------------------------配置----------------------------------
+    # 参数说明：
+    #   shape: 网格参数(正方形行数、列数)
+    #   网格：gridWidth：网格尺寸；gridBorderWidth：网格边线宽度（奇数较好）；margin：网格间隙宽，应大于gridBorderWidth
+    #   图像位置：ox、oy：左上角的原点x、y坐标偏移，用于细微调整图像位置；xoffset、yoffset：图像水平、竖直偏移，大范围调节图像位置
+    #   图像尺寸：width：图像宽度；height：图像高度；frameMargin：图像边框据图像边缘偏移
+    #   图例：legendWidth：图例条基本宽度
+    #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
+    if scale == '1km':
+        ia = {'shape': (19, 19), 'gridWidth': 120, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 20,
+              'width': 3000, 'height': 3000, 'dnum': 8,
+              'xoffset': -2, 'yoffset': -2, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
+              'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
+    elif scale == '500m':
+        # remains modified
         ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legend_width': 100, 'legend_height': 20,
@@ -101,7 +135,7 @@ def pattern_map_dif(scale):
     #   图例：legend_width：图例条宽度
     #   聚类数：k_dif；颜色：c_dif
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 76, 'gridBorderWidth': 18, 'ox': 10, 'oy': 30, 'margin': 9,
+        ia = {'shape': (12, 240), 'gridWidth': 76, 'gridBorderWidth': 18, 'ox': 10, 'oy': 30, 'margin': 9,
               'width': 2700, 'height': 2700, 'dnum': 6, 'xoffset': 3, 'yoffset': 3, 'frameMargin': 5,
               'legend_width': 100, 'legend_height': 40, 'quality': 95, 'dpi': (1200, 1200), 'c_dif': []}
     elif scale == '500m':
@@ -127,7 +161,7 @@ def diagram_map():
     #   legendWidth：图例条基本宽度; radius：扇形符号最大半径
     #   class_number： 聚类数；color_scheme： 颜色
     ia = dict()
-    ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
+    ia.update({'shape': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
                'xoffset': 3, 'yoffset': 3, 'legend_size': 200, 'radius': 60, 'quality': 95, 'dpi': (1200, 1200),
                'radii': [30, 60, 90], 'dnum': 6, 'mag_class_num': 15})
 
@@ -140,7 +174,7 @@ def diagram_map():
 
 def diagram_map_dif():
     ia = dict()
-    ia.update({'hexParm': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
+    ia.update({'shape': (12, 240), 'gridWidth': 92, 'ox': 45, 'oy': 50, 'margin': 0, 'width': 3000, 'height': 3000,
                'xoffset': 3, 'yoffset': 3, 'legend_height': 80, 'legend_width': 40, 'quality': 95, 'dpi': (1200, 1200),
                'radii': [30, 60, 90], 'round_radius': 10, 'dnum': 6, 'dis_class_num': 3, 'c_dif': []})
 
@@ -186,7 +220,7 @@ def od_map():
 
 def trajectory(scale):
     if scale == '1km':
-        ia = {'hexParm': (12, 240), 'gridWidth': 84, 'gridBorderWidth': 2, 'ox': 40, 'oy': 50, 'margin': 9,
+        ia = {'shape': (12, 240), 'gridWidth': 84, 'gridBorderWidth': 2, 'ox': 40, 'oy': 50, 'margin': 9,
               'width': 3000, 'height': 3000,
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legendWidth': 15, 'quality': 1000, 'dpi': (1200, 1200),
               'k_m': 27, 'k_d': 9, 'c_m': [], 'c_d': []}
@@ -221,3 +255,5 @@ def readDrawingSetting(mode, scale='1km'):
         return od_map()
     elif mode == 'tj':
         return trajectory(scale)
+    elif mode == 'sq':
+        return pattern_map_bs_square(scale)

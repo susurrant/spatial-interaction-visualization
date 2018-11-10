@@ -9,58 +9,23 @@ from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
 
 
-def drawSingleGlyph_bs(ia):
-    dnum = ia['dnum']
-
-    gridWidth = 240
-    oxs, oys = computeCo(gridWidth, dnum // 6)
-    ixs, iys = computeCo(gridWidth * 0.9, dnum // 6)
-
-    image = Image.new('RGB', (830, 450), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    cenx = 250
-    ceny = 225
-    mindex = [1, 4, 8, 10, 12, 14]
-    dindex = [0, 1, 2, 3, 4, 2]
-    for i in range(dnum):
-        draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
-                      fill=ia['c_m'][mindex[i]], outline=ia['c_m'][mindex[i]])
-        draw.polygon(
-            [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
-                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=ia['c_d'][dindex[i]], fill=ia['c_d'][dindex[i]])
-
-    imageTitlefont = ImageFont.truetype('./font/arial.ttf', 28)
-    imageMeasureFont = ImageFont.truetype('./font/arial.ttf', 26)
-    sy = 450 - 100
-    lh = 13
-    lw = 40
-
-    # magnitude
-    mx = 830 - 230
-    for i, c in enumerate(ia['c_m']):
-        draw.line([mx, sy - i * lh, mx + lw, sy - i * lh], width=lh, fill=c)
-    draw.text((mx - lw * 1.8, sy + lh*2), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx - 1.4 * lw, sy - lh), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx - 1.4 * lw, sy - lh * (ia['k_m'] + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
-
-    # distance
-    disx = 830 - 125
-    scale = ia['k_m'] / ia['k_d']
-    for i, n in enumerate(ia['c_d']):
-        draw.line([disx, sy - (i + 0.35) * lh * scale, disx + lw, sy - (i + 0.35) * lh * scale],
-                  width=int(round(lh * scale)), fill=n)
-    draw.text((disx - lw *0.3, sy + lh*2), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((disx + 1.2 * lw, sy - lh), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
-
-    image.save('./figure/glyph.jpg', quality=95, dpi=(1200, 1200))
-
-
 def computeCo_square(gridwidth):
     l = gridwidth/2
-    xs = [l, l, 0, -l, -l, -l, 0, l]
-    ys = [0, -l, -l, -l, 0, l, l, l]
+    xs = [l, l, 0, -l, -l, -l, 0, l, l]
+    ys = [0, -l, -l, -l, 0, l, l, l, 0]
     return xs, ys
+
+
+# compute central point coordinates for a square
+def computeCen_square(gid, ia):
+    ox = ia['ox']
+    oy = ia['oy']
+    x = gid % ia['shape'][1]
+    y = ia['shape'][0] - 1 - gid // ia['shape'][1]
+    cenx = ox + (x - ia['xoffset']) * (ia['gridWidth'] + ia['margin'])
+    ceny = oy + (y - ia['yoffset']) * (ia['gridWidth'] + ia['margin'])
+
+    return cenx, ceny
 
 
 def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
@@ -126,7 +91,9 @@ def drawLabels(draw, grids, ia, scale):
 
 
 def drawPattern_bs(grids, flows, ia, scale, saveFileName):
-    processGrids_fj(grids, flows, ia)
+    max_mag, max_dis = processGrids_fj(grids, flows, ia)
+    for gid in grids:
+        grids[gid].cenx, grids[gid].ceny = computeCen_square(gid, ia)
 
     iwidth = ia['width']
     iheight = ia['height']
@@ -151,38 +118,19 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     for i, c in enumerate(ia['c_m']):
         draw.line([mx, sy - i * lh, mx + lw, sy - i * lh], width=lh, fill=c)
     draw.text((mx-lw*1.2, sy-(ia['k_m']+5)*lh), 'Magnitude', font=imageTitlefont, fill=(0,0,0))
-    draw.text((mx-1.4*lw, sy-lh), 'Low', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((mx-1.4*lw, sy-lh*(ia['k_m']+1)), 'High', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((mx-lw/1.7, sy-lh), '0', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((mx-1.1*lw, sy-lh*(ia['k_m']+1)), str(max_mag), font=imageMeasureFont, fill=(0,0,0))
 
     # distance
     disx = iwidth - 260
     s = ia['k_m'] / ia['k_d']
     for i, n in enumerate(ia['c_d']):
         draw.line([disx, sy-(i+0.35)*lh*s, disx+lw, sy-(i+0.35)*lh*s], width=int(round(lh*s)), fill=n)
-    draw.text((disx-lw*0.6, sy-(ia['k_m']+5)*lh), 'Distance', font=imageTitlefont, fill=(0,0,0))
-    draw.text((disx+1.2*lw, sy-lh), 'Short', font=imageMeasureFont, fill=(0,0,0))
-    draw.text((disx+1.2*lw, sy-lh*ia['k_m']-lh), 'Long', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((disx-lw*0.8, sy-(ia['k_m']+5)*lh), 'Distance/km', font=imageTitlefont, fill=(0,0,0))
+    draw.text((disx+1.2*lw, sy-lh), '0', font=imageMeasureFont, fill=(0,0,0))
+    draw.text((disx+1.2*lw, sy-lh*ia['k_m']-lh), str('%.2f'%max_dis), font=imageMeasureFont, fill=(0,0,0))
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# highlighting single pattern
-def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, ceny=None):
-    oxs, oys = computeCo(gridWidth, dnum // 6)
-    ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
-
-    if not cenx:
-        cenx = grid.cenx
-    if not ceny:
-        ceny = grid.ceny
-
-    for i in range(dnum):
-        draw.polygon([cenx, ceny, cenx + ixs[i], ceny + iys[i], cenx + ixs[i + 1], ceny + iys[i + 1]],
-                      fill=grid.mcolor[i], outline=grid.mcolor[i])
-        draw.polygon(
-            [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
-                cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
-
 
 
 # 读取数据
@@ -222,6 +170,7 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 
     return grids, flows
 
+
 # 读取五环内的交互
 def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
@@ -260,6 +209,7 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 
     return grids, flows
 
+
 # 交互模式可视化
 def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
     if inside:
@@ -274,8 +224,8 @@ def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
 
 if __name__ == '__main__':
     scale = '1km'
-    mode = 'pm_bs'
-    dgids = readGids('./data/5th_rr_gid_' + scale + '.csv')
+    mode = 'sq'
+    dgids = readGids('./data/5th_rr_square_' + scale + '.csv')
     ia = readDrawingSetting(mode, scale)
 
-    SIPatterns('./data/sj_051316_0509' + '_' + scale, dgids, ia, scale, mode, False)  # True 表示只显示五环内的数据
+    SIPatterns('./data/sj_051316_1721_1.6km_square', dgids, ia, scale, mode, False)  # True 表示只显示五环内的数据

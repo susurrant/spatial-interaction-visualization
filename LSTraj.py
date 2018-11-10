@@ -193,6 +193,6 @@ if __name__ == '__main__':
 
     dgids = readGids('./data/5th_rr_gid' + scale + '.csv')
     ia = readDrawingSetting('tj', scale[1:])
-    grids = readData(sjFile, flowOpGridFile, dgids, dnum, ia['hexParm'])
+    grids = readData(sjFile, flowOpGridFile, dgids, dnum, ia['shape'])
 
     drawTrajPattern(grids, ia, saveFileName)

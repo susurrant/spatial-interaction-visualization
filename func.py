@@ -37,7 +37,7 @@ def computeRC(gid, hexParm):
 
 # compute central point coordinates
 def computeCen(gid, ia):
-    hexParm = ia['hexParm']
+    hexParm = ia['shape']
     totalY = computeRC(hexParm[1]-1, hexParm)[0] + 2
     y, x = computeRC(gid, hexParm)
 
@@ -228,3 +228,5 @@ def processGrids_fj(grids, flows, ia):
         uptos = [np.where(value <= dk)[0] for value in grids[gid].wd]
         for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
             grids[gid].dcolor.append(ia['c_d'][i])
+
+    return max(mag), max(dis)

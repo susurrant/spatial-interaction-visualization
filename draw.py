@@ -173,21 +173,8 @@ def drawLabels(draw, grids, ia, scale):
         draw.text((30, ia['height'] - 80), 'D: Beijing West Railway Station', font=labelfont, fill=textColor)
 
 
-def drawPattern_bs(grids, flows, ia, scale, saveFileName):
-    processGrids_fj(grids, flows, ia)
-
-    iwidth = ia['width']
-    iheight = ia['height']
-
-    # RGB
-    image = Image.new('RGB', (iwidth, iheight), '#ffffff')
-    draw = ImageDraw.Draw(image)
-
-    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
-
-    drawLabels(draw, grids, ia, scale)
-
-    # ----draw legend----
+def drawLegend(draw, ia, max_mag, max_dis):
+    '''
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
     imageMeasureFont = ImageFont.truetype('./font/times.ttf', 60)
     sy = iheight - 50
@@ -212,6 +199,44 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     draw.text((disx+1.2*lw, sy-lh*ia['k_m']-lh), 'Long', font=imageMeasureFont, fill=(0,0,0))
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+    '''
+    imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
+    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 60)
+    sy = ia['height'] - 50
+    lh = ia['legend_height']
+    lw = ia['legend_width']
+
+    # magnitude
+    mx = ia['width'] - 530
+    for i, c in enumerate(ia['c_m']):
+        draw.line([mx, sy - i * lh, mx + lw, sy - i * lh], width=lh, fill=c)
+    draw.text((mx - lw * 1.2, sy - (ia['k_m'] + 5) * lh), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx - lw / 1.7, sy - lh), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - 1.1 * lw, sy - lh * (ia['k_m'] + 1)), str(max_mag), font=imageMeasureFont, fill=(0, 0, 0))
+
+    # distance
+    disx = ia['width'] - 260
+    s = ia['k_m'] / ia['k_d']
+    for i, n in enumerate(ia['c_d']):
+        draw.line([disx, sy - (i + 0.35) * lh * s, disx + lw, sy - (i + 0.35) * lh * s], width=int(round(lh * s)),
+                  fill=n)
+    draw.text((disx - lw * 0.8, sy - (ia['k_m'] + 5) * lh), 'Distance/km', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((disx + 1.2 * lw, sy - lh), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), str('%.2f' % max_dis), font=imageMeasureFont, fill=(0, 0, 0))
+
+
+def drawPattern_bs(grids, flows, ia, scale, saveFileName):
+    max_mag, max_dis = processGrids_fj(grids, flows, ia)
+
+    # RGB
+    image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
+    draw = ImageDraw.Draw(image)
+
+    drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
+    drawLabels(draw, grids, ia, scale)
+    drawLegend(draw, ia, max_mag, max_dis)
+
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
 # highlighting single pattern
@@ -231,13 +256,12 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
 
+
 # draw patterns with highlighting selected patterns
 def drawPattern_bs_sp(grids, flows, ia, saveFileName):
-    processGrids_fj(grids, flows, ia)
+    max_mag, max_dis = processGrids_fj(grids, flows, ia)
 
-    iwidth = ia['width']
-    iheight = ia['height']
-    image = Image.new('RGB', (iwidth, iheight+530), '#ffffff')
+    image = Image.new('RGB', (ia['width'], ia['height']+530), '#ffffff')
     draw = ImageDraw.Draw(image)
     drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
 
@@ -260,30 +284,7 @@ def drawPattern_bs_sp(grids, flows, ia, saveFileName):
     draw.text((1610, ia['height'] + 450), 'C: The Forbidden City', font=labelfont, fill=textColor)
     draw.text((2500, ia['height'] + 450), 'D: Sanlitun', font=labelfont, fill=textColor)
 
-    # ----draw legend----
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
-    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 60)
-    sy = iheight - 50
-    lh = ia['legend_height']
-    lw = ia['legend_width']
-
-    # magnitude
-    mx = iwidth - 530
-    for i, c in enumerate(ia['c_m']):
-        draw.line([mx, sy - i * lh, mx + lw, sy - i * lh], width=lh, fill=c)
-    draw.text((mx - lw * 1.2, sy - (ia['k_m'] + 5) * lh), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx - 1.4 * lw, sy - lh), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx - 1.4 * lw, sy - lh * (ia['k_m'] + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
-
-    # distance
-    disx = iwidth - 260
-    scale = ia['k_m'] / ia['k_d']
-    for i, n in enumerate(ia['c_d']):
-        draw.line([disx, sy - (i + 0.35) * lh * scale, disx + lw, sy - (i + 0.35) * lh * scale],
-                  width=int(round(lh * scale)), fill=n)
-    draw.text((disx - lw * 0.6, sy - (ia['k_m'] + 5) * lh), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((disx + 1.2 * lw, sy - lh), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
+    drawLegend(draw, ia, max_mag, max_dis)
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
