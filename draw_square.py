@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-：
 
+# dnum = 8
+
 from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
-import seaborn as sns
 from func import *
-import numpy as np
+from grid import Square
+from LL2UTM import LL2UTM_USGS
+from style import readDrawingSetting
 
 
 def drawSingleGlyph_bs(ia):
@@ -54,67 +56,17 @@ def drawSingleGlyph_bs(ia):
     image.save('./figure/glyph.jpg', quality=95, dpi=(1200, 1200))
 
 
-def drawPattern_bc(grids, flows, ia, saveFileName):
-    # -------------------------------classify data----------------------------------
-    mag = []
-    dis = []
-    for g in grids:
-        grids[g].calcOutAggregation(flows)
-        for tm in grids[g].wm:
-            mag.append(tm)
-        for td in grids[g].wd:
-            dis.append(td)
-
-    nk, nl = fisher_jenks(mag, ia['mag_class_number'])
-    dk, dl = fisher_jenks(dis, ia['dis_class_number'])
-
-    # -----------------------------draw visual glyphs-------------------------------
-    image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
-    draw = ImageDraw.Draw(image)
-
-    gridWidth = ia['gridWidth']
-    xs, ys = computeCo(gridWidth, ia['dnum']//6)
-    for gid in grids:
-        cenx, ceny = computeCen(gid, ia)
-        border = []
-        for i in range(ia['dnum']):
-            border.append(cenx + xs[i])
-            border.append(ceny + ys[i])
-            x = np.where(grids[gid].wm[i] <= nk)[0]
-            j = x.min() if x.size > 0 else len(nk) - 1
-            x = np.where(grids[gid].wd[i] <= dk)[0]
-            k = x.min() if x.size > 0 else len(dk) - 1
-            nc = ia['color_scheme'][j][k]
-            draw.polygon([cenx,ceny,cenx+xs[i], ceny+ys[i], cenx+xs[i+1], ceny+ys[i+1]], fill=nc, outline=nc)
-        draw.polygon(border, outline = ia['border_color'])
-
-    # -----------------------------draw legends-------------------------------
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 65)
-    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 60)
-    ls = ia['legend_size']
-    bottom = ia['height'] - 180
-    left = ia['width'] - 400
-
-    for j in range(ia['mag_class_number']):
-        for k in range(ia['dis_class_number']):
-            draw.rectangle([(left+k*ls, bottom-j*ls),(left+(k+1)*ls, bottom-(j+1)*ls)], fill = ia['color_scheme'][j][k])
-
-    draw.text((left - 350, bottom - ia['mag_class_number'] * ls / 2 - 30), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 140, bottom - 30), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((left - 140, bottom - ia['mag_class_number'] * ls - 10), 'High', font=imageMeasureFont, fill=(0, 0, 0))
-
-    draw.text((left + ia['dis_class_number'] * ls / 2 - 90, bottom + 100), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 80, bottom + 20), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((left + ia['dis_class_number'] * ls - 40, bottom + 20), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
-
-    # -----------------------------save figure-------------------------------
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+def computeCo_square(gridwidth):
+    l = gridwidth/2
+    xs = [l, l, 0, -l, -l, -l, 0, l]
+    ys = [0, -l, -l, -l, 0, l, l, l]
+    return xs, ys
 
 
 def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
-    oxs, oys = computeCo(gridWidth, dnum // 6)
-    ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
-    fxs, fys = computeCo(gridWidth + margin, dnum // 6)
+    oxs, oys = computeCo_square(gridWidth)
+    ixs, iys = computeCo_square(gridWidth * area_scale)
+    fxs, fys = computeCo_square(gridWidth + margin)
     for gid in grids:
         cenx, ceny = grids[gid].cenx, grids[gid].ceny
         fco = []
@@ -185,7 +137,7 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
 
     drawHexagons_bs(draw, grids, ia['gridWidth'], ia['area_scale'], ia['margin'], ia['dnum'])
 
-    drawLabels(draw, grids, ia, scale)
+    #drawLabels(draw, grids, ia, scale)
 
     # ----draw legend----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
@@ -204,9 +156,9 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
 
     # distance
     disx = iwidth - 260
-    scale = ia['k_m'] / ia['k_d']
+    s = ia['k_m'] / ia['k_d']
     for i, n in enumerate(ia['c_d']):
-        draw.line([disx, sy-(i+0.35)*lh*scale, disx+lw, sy-(i+0.35)*lh*scale], width=int(round(lh*scale)), fill=n)
+        draw.line([disx, sy-(i+0.35)*lh*s, disx+lw, sy-(i+0.35)*lh*s], width=int(round(lh*s)), fill=n)
     draw.text((disx-lw*0.6, sy-(ia['k_m']+5)*lh), 'Distance', font=imageTitlefont, fill=(0,0,0))
     draw.text((disx+1.2*lw, sy-lh), 'Short', font=imageMeasureFont, fill=(0,0,0))
     draw.text((disx+1.2*lw, sy-lh*ia['k_m']-lh), 'Long', font=imageMeasureFont, fill=(0,0,0))
@@ -230,3 +182,100 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
         draw.polygon(
             [cenx + ixs[i], ceny + iys[i], cenx + oxs[i], ceny + oys[i], cenx + oxs[i + 1], ceny + oys[i + 1],
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
+
+
+
+# 读取数据
+def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
+    flows = {}
+    grids = {}
+    for gid in dgids:
+        grids[gid] = Square(gid, dnum)
+
+    with open(filename, 'r') as f:
+        f.readline()
+        while True:
+            line = f.readline().strip()
+            if line:
+                sl = line.split(',')
+                if float(sl[-2]) < minSpeed or float(sl[-2]) > maxSpeed:
+                    continue
+
+                fid = int(sl[-4])
+                gid = int(sl[-1])
+
+                if fid not in flows:
+                    flows[fid] = [(), ()]
+
+                x, y = LL2UTM_USGS(float(sl[-5]), float(sl[-6]))
+
+                if sl[-3] == '1':
+                    flows[fid][0] = (x, y)
+                    if gid in dgids:
+                        grids[gid].addOutFlow(fid)
+                elif sl[-3] == '0':
+                    flows[fid][1] = (x, y)
+                    if gid in dgids:
+                        grids[gid].addInFlow(fid)
+            else:
+                break
+
+    return grids, flows
+
+# 读取五环内的交互
+def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
+    flows = {}
+    grids = {}
+    for gid in dgids:
+        grids[gid] = Square(gid, dnum)
+
+    with open(filename, 'r') as f:
+        f.readline()
+        while True:
+            line1 = f.readline().strip()
+            if line1:
+                line2 = f.readline().strip()
+                sl1 = line1.split(',')
+                sl2 = line2.split(',')
+                if int(sl1[1]) == 0 or int(sl2[1]) == 0:
+                    continue
+                if float(sl1[-2]) < minSpeed or float(sl1[-2]) > maxSpeed:
+                    continue
+
+                fid = int(sl1[-4])
+                ogid = int(sl1[-1])
+                dgid = int(sl2[-1])
+
+                ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
+                dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
+
+                flows[fid] = [(ox, oy), (dx, dy)]
+
+                assert ogid in grids and dgid in grids
+
+                grids[ogid].addOutFlow(fid)
+                grids[dgid].addInFlow(fid)
+            else:
+                break
+
+    return grids, flows
+
+# 交互模式可视化
+def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
+    if inside:
+        grids, flows = readData_Inside(dataFileName+'.csv', dgids, ia['dnum'])
+        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_in_square.jpg'
+    else:
+        grids, flows = readData(dataFileName + '.csv', dgids, ia['dnum'])
+        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_square.jpg'
+
+    drawPattern_bs(grids, flows, ia, scale, saveFileName)
+
+
+if __name__ == '__main__':
+    scale = '1km'
+    mode = 'pm_bs'
+    dgids = readGids('./data/5th_rr_gid_' + scale + '.csv')
+    ia = readDrawingSetting(mode, scale)
+
+    SIPatterns('./data/sj_051316_0509' + '_' + scale, dgids, ia, scale, mode, False)  # True 表示只显示五环内的数据

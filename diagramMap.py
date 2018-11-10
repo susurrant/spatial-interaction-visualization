@@ -2,9 +2,9 @@
 
 from PIL import Image, ImageDraw, ImageFont
 from LL2UTM import LL2UTM_USGS
-from draw import kmeans, computeCen, computeCo, fisher_jenks
+from draw import kmeans, computeCen, fisher_jenks
 import numpy as np
-from grid import Grid
+from grid import Hexagon
 import style
 import csv
 
@@ -30,9 +30,9 @@ def readData_Inside(filename, dnum, minSpeed=2, maxSpeed=150):
                 ogid = int(sl1[-1])
                 dgid = int(sl2[-1])
                 if ogid not in grids:
-                    grids[ogid] = Grid(ogid, dnum)
+                    grids[ogid] = Hexagon(ogid, dnum)
                 if dgid not in grids:
-                    grids[dgid] = Grid(dgid, dnum)
+                    grids[dgid] = Hexagon(dgid, dnum)
 
                 ox, oy = LL2UTM_USGS(float(sl1[-5]), float(sl1[-6]))
                 dx, dy = LL2UTM_USGS(float(sl2[-5]), float(sl2[-6]))
@@ -54,7 +54,7 @@ def readData_with_zones(filename, zones, dnum, minSpeed=2, maxSpeed=150):
     flows_co = {}
     grids = {}
     for rid in zones:
-        grids[rid] = Grid(rid, dnum)
+        grids[rid] = Hexagon(rid, dnum)
 
     with open(filename, 'r') as f:
         f.readline()

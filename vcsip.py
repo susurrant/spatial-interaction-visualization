@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-：
 
-from grid import *
+from grid import Hexagon
 from draw import *
 from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
@@ -12,7 +12,7 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
     for gid in dgids:
-        grids[gid] = Grid(gid, dnum)
+        grids[gid] = Hexagon(gid, dnum)
 
     with open(filename, 'r') as f:
         f.readline()
@@ -49,7 +49,7 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
     for gid in dgids:
-        grids[gid] = Grid(gid, dnum)
+        grids[gid] = Hexagon(gid, dnum)
 
     with open(filename, 'r') as f:
         f.readline()

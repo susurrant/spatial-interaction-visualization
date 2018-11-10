@@ -2,8 +2,8 @@
 
 import numpy as np
 
-class Grid(object):
-    def __init__(self, gid, dnum=6):
+class Glyph(object):
+    def __init__(self, gid, dnum):
         # 格网ID
         self.gid = gid
         # 关联的流集合
@@ -50,8 +50,8 @@ class Grid(object):
     # compute main interaction direction
     @staticmethod
     def calcMD(a, n):
-        d = np.array([i*2*np.pi/n for i in range(n)]) + np.pi/n
-        w = np.cos(d-a)
+        d = np.array([i * 2 * np.pi / n for i in range(n)]) + np.pi / n
+        w = np.cos(d - a)
         idx = np.where(w == np.max(w))[0][0]
         return idx, w[idx]
 
@@ -82,3 +82,13 @@ class Grid(object):
                 a = -1
 
         return d/1000.0, a  # return distance (km) and azimuth
+
+
+class Hexagon(Glyph):
+    def __init__(self, gid, dnum=6):
+        Glyph.__init__(self, gid, dnum)
+
+
+class Square(Glyph):
+    def __init__(self, gid, dnum=8):
+        Glyph.__init__(self, gid, dnum)
