@@ -9,10 +9,11 @@ from func import computeCen, readGids, computeCo, fisher_jenks
 import numpy as np
 
 
-def set_glyph_color(grids, flows, ia):
+def set_glyph_color(grids, ia):
     for gid in grids:
         grids[gid].reset()
 
+    max_v = []
     mag = []
     dis = []
     for gid in grids:
@@ -29,6 +30,8 @@ def set_glyph_color(grids, flows, ia):
         uptos = [np.where(value <= dk)[0] for value in grids[gid].out_wd]
         for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
             grids[gid].out_dcolor.append(ia['c_d'][i])
+    max_v.append(max(mag))
+    max_v.append(max(dis))
 
     mag = []
     dis = []
@@ -46,7 +49,9 @@ def set_glyph_color(grids, flows, ia):
         uptos = [np.where(value <= dk)[0] for value in grids[gid].in_wd]
         for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
             grids[gid].in_dcolor.append(ia['c_d'][i])
-
+    max_v.append(max(mag))
+    max_v.append(max(dis))
+    return max_v
 
 def set_glyph_data(grids, flows, ia):
     # coordinate calculation - center
@@ -127,11 +132,13 @@ def relate2data(filenames, ia):
     dgids = readGids(ia['dgids_file'])
     grid_data = []
     flow_data = []
+    max_v = []
+
     for fn in filenames:
         grids, flows = readData(fn, dgids, ia['dnum'])
         set_glyph_data(grids, flows, ia)
-        set_glyph_color(grids, flows, ia)
+        max_v.append(set_glyph_color(grids, ia))
         grid_data.append(grids)
         flow_data.append(flows)
 
-    return grid_data, flow_data
+    return grid_data, flow_data, max_v

@@ -9,7 +9,7 @@ sys.path.append('../')
 from tkinter import *
 from tkinter import ttk, messagebox
 from tkinter import filedialog
-from mapFile import relate2data, set_glyph_color
+from mapFile import relate2data, set_glyph_color, computeCo
 from LL2UTM import LL2UTM_USGS
 import numpy as np
 
@@ -26,13 +26,13 @@ class MapGUI(Frame):
 
         self.ia = self.init_ia(0.5, 15, 5)
         filenames_500m = ['../data/sj_051316_0509_500m.csv', '../data/sj_051316_1721_500m.csv']
-        self.grids_500m, self.flows_500m = relate2data(filenames_500m, self.ia)
+        self.grids_500m, self.flows_500m, self.max_v_500m = relate2data(filenames_500m, self.ia)
         self.ia = self.init_ia(1, 15, 5)
         filenames_1km = ['../data/sj_051316_0509_1km.csv', '../data/sj_051316_1721_1km.csv']
-        self.grids_1km, self.flows_1km = relate2data(filenames_1km, self.ia)
+        self.grids_1km, self.flows_1km, self.max_v_1km  = relate2data(filenames_1km, self.ia)
         self.sample_flows()
 
-        self.pc = pattern_canvas(self, self.grids_1km[0]) # pattern map canvas
+        self.pc = pattern_canvas(self, self.grids_1km[0], self.max_v_1km[0]) # pattern map canvas
         self.pc.place(x=0, y=0)
         self.fc = flow_canvas(self, self.flows_1km[0]) # flow map canvas
         self.fc.place(x=800, y=0)
@@ -51,15 +51,15 @@ class MapGUI(Frame):
     def init_ia(scale=1, k_m=15, k_d=5):
         ia = dict()
         if scale == 0.5:
-            ia.update({'hexParm': (24, 960), 'width': 800, 'height': 800, 'gridWidth': 11, 'gridBorderWidth': 3,
+            ia.update({'shape': (24, 960), 'width': 800, 'height': 800, 'gridWidth': 11, 'gridBorderWidth': 3,
                        'xoffset': 3, 'yoffset': 7, 'ox': 20, 'oy': 5, 'margin': 2, 'dnum': 6,
-                       'legendWidth': 6, 'xoff': 425000, 'yoff': 4396000, 'trans_scale': 55, 'area_ratio': 0.85,
-                       'p': 0.1, 'dgids_file': '../data/5th_rr_gid_500m.csv'})
+                       'legendWidth': 4, 'xoff': 425000, 'yoff': 4396000, 'trans_scale': 55, 'area_ratio': 0.85,
+                       'p': 0.1, 'dgids_file': '../data/5th_rr_hexagon_500m.csv'})
         elif scale == 1:
-            ia.update({'hexParm': (12, 240), 'width': 800, 'height': 800, 'gridWidth': 22, 'gridBorderWidth': 5,
+            ia.update({'shape': (12, 240), 'width': 800, 'height': 800, 'gridWidth': 22, 'gridBorderWidth': 5,
                        'xoffset': 3, 'yoffset': 3, 'ox': 7, 'oy': 7, 'margin': 3, 'dnum': 6,
-                       'legendWidth': 6, 'xoff': 425000, 'yoff': 4396000, 'trans_scale': 55, 'area_ratio': 0.75,
-                       'p': 0.1, 'dgids_file': '../data/5th_rr_gid_1km.csv'})
+                       'legendWidth': 4, 'xoff': 425000, 'yoff': 4396000, 'trans_scale': 55, 'area_ratio': 0.75,
+                       'p': 0.1, 'dgids_file': '../data/5th_rr_hexagon_1km.csv'})
 
         ia.update({'k_m': k_m, 'k_d': k_d, 'c_m': [], 'c_d': []})
         nscale = [(i + 1) / float(ia['k_m'] + 1) for i in range(ia['k_m'])]
@@ -99,12 +99,12 @@ class MapGUI(Frame):
             return
 
         if mapscale == 0.5:
-            set_glyph_color(self.grids_500m[time_idx], self.flows_500m[time_idx], self.ia)
-            self.pc.set_p(self.grids_500m[time_idx], SI_type)
+            set_glyph_color(self.grids_500m[time_idx], self.flows_500m[time_idx])
+            self.pc.set_p(self.grids_500m[time_idx], SI_type, self.max_v_500m[time_idx])
             self.fc.set_p(self.flows_500m[time_idx], SI_type)
         elif mapscale == 1:
-            set_glyph_color(self.grids_1km[time_idx], self.flows_1km[time_idx], self.ia)
-            self.pc.set_p(self.grids_1km[time_idx], SI_type)
+            set_glyph_color(self.grids_1km[time_idx], self.flows_1km[time_idx])
+            self.pc.set_p(self.grids_1km[time_idx], SI_type, self.max_v_1km[time_idx])
             self.fc.set_p(self.flows_1km[time_idx], SI_type)
 
         self.show()
@@ -177,10 +177,11 @@ class ParameterFrm(Frame):
 
 
 class pattern_canvas(Canvas):
-    def __init__(self, master, grids):
+    def __init__(self, master, grids, max_v):
         Canvas.__init__(self, master, height = 800, width = 800, bg = 'white')
         self.grids = grids
         self.SI_type = 0 # 0: outgoing, 1: incomging
+        self.max_v = max_v  # max_mag, max_dis
         
         def mouseLeftClick(event):
             mgid = -1
@@ -198,9 +199,10 @@ class pattern_canvas(Canvas):
 
         self.bind("<Button>", mouseLeftClick)
 
-    def set_p(self, grids, SI_type):
+    def set_p(self, grids, SI_type, max_v):
         self.grids = grids
         self.SI_type = SI_type
+        self.max_v = max_v
         self.invalidate()
 
     def invalidate(self):
@@ -228,34 +230,70 @@ class pattern_canvas(Canvas):
     def drawLegend(self):
         ia = self.master.ia
         sy = ia['height'] - 30
-        lw = ia['legendWidth']*15/ia['k_m']
+        lw = ia['legendWidth'] * 15 / ia['k_m']
         gridWidth = 20
+        if self.SI_type == 0:
+            max_v = self.max_v[0:2]
+        elif self.SI_type == 1:
+            max_v = self.max_v[2:]
 
         # magnitude
         mx = ia['width'] - 160
         for i, c in enumerate(ia['c_m']):
             self.create_line(mx, sy - i * lw, mx + gridWidth, sy - i * lw, width=lw, fill=c)
-        self.create_text(mx + 10, ia['height'] - 8, text='Magnitude', font=('Arial', 12),
+        self.create_text(mx + 8, ia['height'] - (ia['k_m'] + 11) * lw - 4, text='Magnitude', font=('Arial', 10),
                          fill='#000000')
-        self.create_text(mx - gridWidth, sy - 3, text='Low', font=('Arial', 10), fill='#000000')
-        self.create_text(mx - gridWidth, sy - lw * ia['k_m'] + lw/2, text='High', font=('Arial', 10),
+        self.create_text(mx - gridWidth + 5, sy - 3, text='0', font=('Arial', 10), fill='#000000')
+        self.create_text(mx - gridWidth, sy - lw * ia['k_m'] + lw/2, text=str(max_v[0]), font=('Arial', 10),
                          fill='#000000')
 
         # distance
         disx = ia['width'] - 80
         lw = ia['legendWidth'] * 15 / ia['k_d']
         for i, n in enumerate(ia['c_d']):
-            self.create_line(disx, sy - (i + 0.35) * lw, disx + gridWidth, sy - (i + 0.35) * lw,
-                             width=int(round(lw)), fill=n)
-        self.create_text(disx + 10, ia['height'] - 8, text='Distance', font=('Arial', 12),
+            self.create_line(disx, sy - (i + 0.35) * lw, disx + gridWidth, sy - (i + 0.35) * lw, width=int(round(lw)),
+                             fill=n)
+        self.create_text(disx + 12, ia['height'] - (ia['k_d'] + 4) * lw, text='Distance/km', font=('Arial', 10),
                          fill='#000000')
-        self.create_text(disx + 25 + gridWidth, sy - 3, text='Short', font=('Arial', 10), fill='#000000')
-        self.create_text(disx + 25 + gridWidth, sy - lw * ia['k_d'], text='Long', font=('Arial', 10),
+        self.create_text(disx + 12 + gridWidth, sy - 3, text='0', font=('Arial', 10), fill='#000000')
+        self.create_text(disx + 25 + gridWidth, sy - lw * ia['k_d'], text='%.2f'%max_v[1], font=('Arial', 10),
                          fill='#000000')
 
-    def highlight(self, mgid):
+    def highlight(self, gid):
         self.invalidate()
-        self.create_line(self.grids[mgid].border, width=3, fill='#0000ff')
+        ia = self.master.ia
+        oxs, oys = computeCo(ia['gridWidth'] * 2, ia['dnum'] // 6)
+        ixs, iys = computeCo(ia['gridWidth'] * 2 * ia['area_ratio'], ia['dnum'] // 6)
+        fxs, fys = computeCo(ia['gridWidth'] * 2 + ia['margin'] * 2, ia['dnum'] // 6)
+
+        cx = self.grids[gid].cenx
+        cy = self.grids[gid].ceny
+        oco = []
+        ico = []
+        border = []
+        for i in range(ia['dnum']):
+            oco.append([cx, cy, cx + ixs[i], cy + iys[i], cx + ixs[i + 1], cy + iys[i + 1]])
+            ico.append([cx + ixs[i], cy + iys[i], cx + oxs[i], cy + oys[i], cx + oxs[i + 1], cy + oys[i + 1],
+                 cx + ixs[i + 1], cy + iys[i + 1]])
+            border.append(cx + fxs[i])
+            border.append(cy + fys[i])
+        border.append(cx + fxs[0])
+        border.append(cy + fys[0])
+
+        if self.SI_type == 0:
+            for i in range(ia['dnum']):
+                self.create_polygon(oco[i], fill=self.grids[gid].out_mcolor[i],
+                                    outline=self.grids[gid].out_mcolor[i])
+                self.create_polygon(ico[i], fill=self.grids[gid].out_dcolor[i],
+                                    outline=self.grids[gid].out_dcolor[i])
+            self.create_line(border, width=2, fill='#000000')
+        elif self.SI_type == 1:
+            for i in range(ia['dnum']):
+                self.create_polygon(oco[i], fill=self.grids[gid].in_mcolor[i],
+                                    outline=self.grids[gid].in_mcolor[i])
+                self.create_polygon(ico[i], fill=self.grids[gid].in_dcolor[i],
+                                    outline=self.grids[gid].in_dcolor[i])
+            self.create_line(border, width=2, fill='#000000')
 
 
 class flow_canvas(Canvas):
