@@ -136,14 +136,14 @@ if __name__ == '__main__':
     fileNames = ['./data/sj_051316_0105','./data/sj_051316_0509', './data/sj_051316_0913',
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
-    scale = '1km'#'500m'
-    mode = 'pm_bs'
+    scale = '1km' #'1km' or '500m'
+    mode = 'pm_bc'
     dgids = readGids('./data/5th_rr_hexagon_'+scale+'.csv')
     ia = readDrawingSetting(mode, scale)
 
     # -----------------------------drawing--------------------------------
     #drawSingleGlyph_bs(ia)
-    SIPatterns(fileNames[4]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
+    SIPatterns(fileNames[1]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)

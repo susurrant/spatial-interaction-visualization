@@ -100,12 +100,12 @@ def drawPattern_bc(grids, flows, ia, saveFileName):
             draw.rectangle([(left+k*ls, bottom-j*ls),(left+(k+1)*ls, bottom-(j+1)*ls)], fill = ia['color_scheme'][j][k])
 
     draw.text((left - 350, bottom - ia['mag_class_number'] * ls / 2 - 30), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 140, bottom - 30), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((left - 140, bottom - ia['mag_class_number'] * ls - 10), 'High', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((left - 70, bottom - 35), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((left - 100, bottom - ia['mag_class_number'] * ls - 20), str(max(mag)), font=imageMeasureFont, fill=(0, 0, 0))
 
-    draw.text((left + ia['dis_class_number'] * ls / 2 - 90, bottom + 100), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 80, bottom + 20), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((left + ia['dis_class_number'] * ls - 40, bottom + 20), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((left + ia['dis_class_number'] * ls / 2 - 160, bottom + 100), 'Distance/km', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((left - 40, bottom + 20), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((left + ia['dis_class_number'] * ls - 40, bottom + 20), '%.2f' % max(dis), font=imageMeasureFont, fill=(0, 0, 0))
 
     # -----------------------------save figure-------------------------------
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
@@ -163,8 +163,10 @@ def drawLabels(draw, grids, ia, scale):
         dx = 13
         dy = 20
         draw.text((grids[563].cenx - dx, grids[563].ceny - dy), 'A', font=indicatorfont, fill=labelColor)
-        draw.text((grids[517].cenx - dx, grids[517].ceny - dy), 'C', font=indicatorfont, fill='#ffffff')
-        draw.text((grids[487].cenx - dx, grids[487].ceny - dy), 'D', font=indicatorfont, fill='#ffffff')
+        draw.line([grids[517].cenx, grids[517].ceny, 2800, 700], width=4, fill='#5566ff')
+        draw.text((2820, 670), 'C', font=indicatorfont, fill=labelColor)
+        draw.line([grids[487].cenx, grids[487].ceny, 160, 2000], width=4, fill='#5566ff')
+        draw.text((110, 1980), 'D', font=indicatorfont, fill=labelColor)
         draw.text((grids[1716].cenx - dx, grids[1716].ceny - dy), 'B', font=indicatorfont, fill=labelColor)
 
         draw.text((30, ia['height'] - 260), 'A: The Forbidden City', font=labelfont, fill=textColor)

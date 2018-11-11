@@ -168,16 +168,16 @@ def drawTrajPattern(grids, ia, saveFileName, dnum=6):
     mx = iwidth - 550
     for i, c in enumerate(c_m):
         draw.line([mx, sy - i * lw, mx + gridWidth, sy - i * lw], width=lw, fill=c)
-    draw.text((mx - gridWidth-20, sy - (k_m + 6) * lw), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx - 1.5 * gridWidth-20, sy - lw), 'Low', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx - 1.5 * gridWidth-20, sy - lw * (k_m + 1)), 'High', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - gridWidth - 30, sy - (k_m + 6) * lw), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx - gridWidth + 30, sy - lw), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - 1.5 * gridWidth - 20, sy - lw * (k_m + 1)), str(max(mag)), font=imageMeasureFont, fill=(0, 0, 0))
 
     mx = iwidth - 270
     for i, c in enumerate(c_d):
         draw.line([mx, sy - i * lw * 3, mx + gridWidth, sy - i * lw * 3], width=lw * 3, fill=c)
-    draw.text((mx - gridWidth + 20, sy - (k_m + 6) * lw), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((mx + 1.3 * gridWidth, sy - lw), 'Short', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((mx + 1.3 * gridWidth, sy - lw * (k_m + 1)), 'Long', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx - gridWidth - 10, sy - (k_m + 6) * lw), 'Distance/km', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((mx + 1.3 * gridWidth, sy - lw), '0', font=imageMeasureFont, fill=(0, 0, 0))
+    draw.text((mx + 1.3 * gridWidth, sy - lw * (k_m + 1)), '%.2f' % max(dis), font=imageMeasureFont, fill=(0, 0, 0))
 
     iquality = ia['quality']
     idpi = ia['dpi']
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     flowOpGridFile = './data/sj_op'+scale+'.csv'
     saveFileName = './figure/tj_051316_0509.jpg'
 
-    dgids = readGids('./data/5th_rr_gid' + scale + '.csv')
+    dgids = readGids('./data/5th_rr_hexagon' + scale + '.csv')
     ia = readDrawingSetting('tj', scale[1:])
     grids = readData(sjFile, flowOpGridFile, dgids, dnum, ia['shape'])
 

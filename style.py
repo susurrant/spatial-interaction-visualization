@@ -15,7 +15,7 @@ def pattern_map_bivarite_color(scale):
               'width': 3000, 'height': 3000, 'xoffset': 3, 'yoffset': 3, 'dnum': 6,
               'legend_size': 63, 'quality': 95, 'dpi': (1200, 1200)}
     elif scale == '500m':
-        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
+        ia = {'shape': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 1, 'yoffset': 6, 'legend_size': 63, 'quality': 1000, 'dpi': (1200, 1200)}
 
@@ -73,7 +73,7 @@ def pattern_map_bivariate_symbol(scale):
               'xoffset': 3, 'yoffset': 3, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
-        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
+        ia = {'shape': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legend_width': 100, 'legend_height': 20,
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
@@ -107,7 +107,7 @@ def pattern_map_bs_square(scale):
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
         # remains modified
-        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
+        ia = {'shape': (24, 960), 'gridWidth': 38, 'area_scale': 0.75, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'dnum': 6,
               'xoffset': 1, 'yoffset': 6, 'frameMargin': 2, 'legend_width': 100, 'legend_height': 20,
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
@@ -139,7 +139,7 @@ def pattern_map_dif(scale):
               'width': 2700, 'height': 2700, 'dnum': 6, 'xoffset': 3, 'yoffset': 3, 'frameMargin': 5,
               'legend_width': 100, 'legend_height': 40, 'quality': 95, 'dpi': (1200, 1200), 'c_dif': []}
     elif scale == '500m':
-        ia = {'hexParm': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
+        ia = {'shape': (24, 960), 'gridWidth': 38, 'gridBorderWidth': 9, 'ox': -10, 'oy': 40, 'margin': 9,
               'width': 3000, 'height': 3000, 'xoffset': 1, 'yoffset': 6, 'frameMargin': 2,
               'legend_width': 100, 'legend_height': 40,'quality': 95, 'dpi': (1200, 1200), 'c_dif': []}
 
