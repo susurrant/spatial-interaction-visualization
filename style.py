@@ -101,9 +101,9 @@ def pattern_map_bs_square(scale):
     #   图例：legendWidth：图例条基本宽度
     #   聚类数：k_m、k_d、k_dif；颜色：c_m、c_d、c_dif
     if scale == '1km':
-        ia = {'shape': (19, 19), 'gridWidth': 120, 'area_scale': 0.75, 'ox': 15, 'oy': 15, 'margin': 20,
+        ia = {'shape': (19, 19), 'gridWidth': 130, 'area_scale': 0.75, 'ox': 5, 'oy': 5, 'margin': 20,
               'width': 3000, 'height': 3000, 'dnum': 8,
-              'xoffset': -2, 'yoffset': -2, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
+              'xoffset': -1, 'yoffset': -1, 'frameMargin': 5, 'legend_width': 100, 'legend_height': 20,
               'quality': 95, 'dpi': (1200, 1200), 'k_m': 15, 'k_d': 5, 'c_m': [], 'c_d': []}
     elif scale == '500m':
         # remains modified

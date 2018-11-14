@@ -318,7 +318,7 @@ def statistic_class(data_file, dis_class_num, mag_class_num, dnum, radius):
                 rgrids[gid][j][1] += rgrids[gid][j][0]
                 rgrids[gid][j][2] += rgrids[gid][j][1]
 
-    return rgrids
+    return rgrids, max(mag), max(dis)
 
 def drawDiagramMap_AJ1(data_file, ia, save_file, dnum=6):
     grid_sta, round_flow, maxmag = statistic_kmeans(data_file, ia['class_num'], dnum)
@@ -442,7 +442,7 @@ def drawDiagramMap_RO1_proportion(data_file, zone_file, save_file, ia):
 
 # 按分级等间隔设置半径
 def drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia):
-    grid_sta = statistic_class(data_file, ia['dis_class_num'], ia['mag_class_num'], ia['dnum'], ia['radius'])
+    grid_sta, max_mag, max_dis = statistic_class(data_file, ia['dis_class_num'], ia['mag_class_num'], ia['dnum'], ia['radius'])
     zones = readZones(zone_file)
 
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
@@ -480,14 +480,14 @@ def drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia):
     draw.line([px + np.sqrt(3)*legend_size/2, y-legend_size/2, px + np.sqrt(3)*legend_size/2-12, y-legend_size/2+19], width=1, fill='#000000')
 
     imagescalefont = ImageFont.truetype('./font/times.ttf', 55)
-    draw.text((x - 150, y - 50), 'Short', font=imagescalefont, fill=(0, 0, 0))
-    draw.text((x - 155, y - 130), 'Medium', font=imagescalefont, fill=(0, 0, 0))
-    draw.text((x - 60, y - 200), 'Long', font=imagescalefont, fill=(0, 0, 0))
-    draw.text((px - 60, y + 10), 'Low', font=imagescalefont, fill=(0, 0, 0))
-    draw.text((px + 170, y + 10), 'High', font=imagescalefont, fill=(0, 0, 0))
+    draw.text((x - 30, y + 10), '0', font=imagescalefont, fill=(0, 0, 0))
+    #draw.text((x - 155, y - 130), 'Medium', font=imagescalefont, fill=(0, 0, 0))
+    draw.text((x + 170, y + 10), '%.2f'%max_dis, font=imagescalefont, fill=(0, 0, 0))
+    draw.text((px - 30, y + 10), '0', font=imagescalefont, fill=(0, 0, 0))
+    draw.text((px + 170, y + 10), str(max_mag), font=imagescalefont, fill=(0, 0, 0))
 
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 65)
-    draw.text((x-20, y + 80), 'Distance', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((x-50, y + 80), 'Distance/km', font=imageTitlefont, fill=(0, 0, 0))
     draw.text((px-20, y + 80), 'Magnitude', font=imageTitlefont, fill=(0, 0, 0))
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 55)
     draw.text((x + 380, y - 310), 'Round trips', font=imageTitlefont, fill=(0, 0, 0))
@@ -533,13 +533,13 @@ def drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia):
 
 
 if __name__ == '__main__':
-    mode = 'dm_dif'
+    mode = 'dm'
     data_file = './data/sj_051316_1721_5rr_gp.csv'
     zone_file = './data/group_051316_1721_r3km.csv'
     save_file = './figure/dm_dif_051316_1721_3km_5rr_'+mode+'.jpg'
     ia = style.readDrawingSetting(mode)
 
-    #drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia)
+    drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia)
 
-    data_file_c = './data/sj_051316_0509_5rr.csv'
-    drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia)
+    #data_file_c = './data/sj_051316_0509_5rr.csv'
+    #drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia)

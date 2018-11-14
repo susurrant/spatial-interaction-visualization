@@ -7,7 +7,7 @@ from func import *
 import numpy as np
 
 
-def drawSingleGlyph_bs(ia):
+def drawGlyph_bs(ia):
     dnum = ia['dnum']
 
     gridWidth = 240
@@ -259,6 +259,14 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
 
 
+def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
+    processGrids_fj(grids, flows, ia)
+    image = Image.new('RGB', (450, 450), '#ffffff')
+    draw = ImageDraw.Draw(image)
+    drawSingleHexagon_bs(draw, grids[gid], 220, 0.85, ia['dnum'], 225, 225)
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
+
 # draw patterns with highlighting selected patterns
 def drawPattern_bs_sp(grids, flows, ia, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
@@ -376,27 +384,29 @@ def user_accu():
     sns.set(style="whitegrid")
 
     user_num = 27
-    # OD, DM, PM
+    # OD, DM, PMH
     ra = np.array([[23, 24, 27],  # Q1
                    [22, 19, 16],  # Q2
                    [5, 20, 23],  # Q3
-                   [15, 16, 24],  # Q4
-                   [21, 22, 25],  # Q5
-                   [18, 17, 27]]) / user_num  # Q6
+                   [15, 16, 24]]) / user_num  # Q4
+    # OD, DM, PMH, PMS
+    ra = [[0.85185185,0.88888889,1., 1],
+          [0.81481481,0.7037037,0.59259259, 6/11],15
+          [0.18518519,0.74074074,0.85185185, 10/11],25
+          [0.55555556,0.59259259,0.88888889, 9/11]]22
 
-    x = np.array([0.5, 1.5, 2.5])
+    x = np.array([0.5, 1.5, 2.5, 3.5])
     fs1 = 14
     fs2 = 12
-    colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
-    colors = ['#d73027', '#fdae61', '#1b7837', '#7fbf7b', '#762a83', '#af8dc3']
+    colors = ['#fdae61', '#1b7837', '#7fbf7b', '#762a83']
 
-    fig, ax = plt.subplots(figsize=(7, 3))
+    fig, ax = plt.subplots(figsize=(6, 3))
     # ax.set_xlabel('', fontname="Times New Roman", fontsize=fs1)
     ax.set_ylabel('Accuracy', fontname="Times New Roman", fontsize=fs1)
 
     bw = 0.11
     ll = []
-    for n, i in enumerate([-5, -3, -1, 1, 3, 5]):
+    for n, i in enumerate([-3, -1, 1, 3]):
         ll.append(ax.bar(x + i * bw / 2, ra[n], facecolor=colors[n], width=bw, label='Q' + str(n + 1)))
 
     ax.set_ylim(0, 1)
@@ -405,10 +415,10 @@ def user_accu():
     ylabels = [str(item) for item in ys]
     ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=fs2)
 
-    ax.set_xlim(0, 3.4)
-    xs = [0.5, 1.5, 2.5]
+    ax.set_xlim(0, 4.4)
+    xs = [0.5, 1.5, 2.5, 3.5]
     ax.set_xticks(xs)
-    xlabels = ['OD map', 'Diagram map', 'Direction-based pattern map']
+    xlabels = ['ODM', 'DM', 'PM_H', 'PM_S']
     ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=fs2)
 
     leg = plt.legend(handles=ll)
@@ -419,27 +429,25 @@ def user_accu():
 
 
 def user_resTime():
-    ticks = ['OD map', 'Diagram map', 'Direction-based pattern map']
+    ticks = ['ODM', 'DM', 'PM_H', 'PM_S']
     t1 = [[6.3, 14.2, 12.2, 9.1, 11.7, 11.4], [7.1, 15.2, 4.9, 6.4, 3.8, 23.6, 8.0],
-          [8.3, 8.1, 5.7, 2.3, 2.4, 6.5, 3.4, 3.7, 2.3, 3.7, 2.8]]
+          [8.1, 5.7, 2.3, 2.4, 6.5, 3.4, 3.7, 2.3, 3.7, 2.8], [3.63, 5, 8.46, 3.59, 4.2, 4.23, 3.57, 7.94]]
     t2 = [[24.7, 25.6, 27.8, 13.2, 21.9, 25.6, 33.1, 31.6], [9.7, 13.5, 15.0, 17.7, 6, 11.5, 15.9, 16.5, 9.3],
-          [10.6, 7.2, 10.2, 11, 10.8, 8.9, 8.6, 5.2]]
-    t3 = [[22.6, 24.3, 27.6], [23.4, 15.4, 4.7, 20.2, 12.2], [17.6, 8.8, 8.1, 11.5, 7.8, 9.6, 8.2]]
+          [10.6, 7.2, 10.2, 11, 10.8, 8.9, 8.6, 5.2], [8.02, 14.45, 8.8, 11.5]]
+    t3 = [[22.6, 24.3, 27.6], [23.4, 15.4, 4.7, 20.2, 12.2], [17.6, 8.8, 8.1, 11.5, 7.8, 9.6, 8.2],
+          [10.02, 8.99, 7.03, 9.03, 13.34, 8.59, 6.68]]
     t4 = [[13.0, 19.1, 18.8, 16.4, 18.6, 19.5, 15.2], [13.8, 11.9, 6.1, 15.7, 11.8, 10.4],
-          [8.6, 9.8, 9.5, 5.3, 12.4, 5.8, 10.1, 4.5]]
-    t5 = [[16.4, 10.8, 19.9, 9.5, 20.2, 21.1, 18.7, 11.2], [8.1, 6.2, 9.6, 9.7, 10.3, 10.1],
-          [4, 3.2, 3.2, 3.0, 6.3, 5.2, 5.1, 4.6]]
-    t6 = [[22.7, 25.7, 13.2, 21.8], [23.4, 18.4, 10.2, 8.3, 15, 8.2, 7.4],
-          [7.4, 2.7, 2.9, 2.1, 4.3, 3.8, 7.3, 7.3, 4.2]]
-    t = [t1, t2, t3, t4, t5, t6]
+          [8.6, 9.8, 9.5, 5.3, 12.4, 5.8, 10.1, 4.5], [5.99, 8.57, 10.67, 7.75, 5.53, 10.89]]
+    t = [t1, t2, t3, t4]
     fs1 = 14
     fs2 = 12
 
-    fig, ax = plt.subplots(figsize=(7, 3))
-    colors = ['#d73027', '#f46d43', '#fdae61', '#fee090', '#91bfdb', '#4575b4']
+    fig, ax = plt.subplots(figsize=(6, 3))
     colors = ['#d73027', '#fdae61', '#1b7837', '#7fbf7b', '#762a83', '#af8dc3']
+    colors = ['#fdae61', '#1b7837', '#7fbf7b', '#762a83']
+
     ax.set_ylabel('Time/s', fontname="Times New Roman", fontsize=fs1)
-    xs = np.array([0.5, 1.5, 2.5])
+    xs = np.array([0.5, 1.5, 2.5, 3.5])
 
     def set_box_color(bp, color):
         plt.setp(bp['boxes'], color=color)
@@ -449,11 +457,11 @@ def user_resTime():
 
     bw = 0.1
     margin = 0.05
-    for n, i in enumerate([-5, -3, -1, 1, 3, 5]):
+    for n, i in enumerate([-3, -1, 1, 3]):
         bp = ax.boxplot(t[n], positions=xs + (bw + margin / 2) * i / 2, sym='', widths=bw)
         set_box_color(bp, colors[n])
 
-    ax.set_xlim(0, 3)
+    ax.set_xlim(0, 4)
     ax.set_xticks(xs)
     ax.xaxis.set_ticklabels(ticks, fontname="Times New Roman", fontsize=fs2)
 
@@ -463,7 +471,7 @@ def user_resTime():
     ylabels = [str(item) for item in ys]
     ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=fs2)
 
-    for i in range(6):
+    for i in range(4):
         ax.plot([], c=colors[i], label='Q' + str(i + 1))
     ax.legend()
 

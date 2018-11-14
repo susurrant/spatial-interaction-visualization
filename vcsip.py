@@ -106,6 +106,14 @@ def SIPatterns_sp(fileName, dgids, ia, mode='bs'):
         drawPattern_bs_sp(grids, flows, ia, saveFileName)
 
 
+def singlePattern(gid, fileName, dgids, ia, mode='bs'):
+    grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
+    saveFileName = './figure/p_' + fileName[-15:] + '_' + str(gid) + '.jpg'
+
+    if mode == 'pm_bs':
+        drawSinglePattern_bs(gid, grids, flows, ia, saveFileName)
+
+
 # 模式差异可视化
 def patternDifference(fileName1, fileName2, dgids, ia, alpha, inside=False):
     if inside:
@@ -137,18 +145,19 @@ if __name__ == '__main__':
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
     scale = '1km' #'1km' or '500m'
-    mode = 'pm_bc'
+    mode = 'pm_bs'
     dgids = readGids('./data/5th_rr_hexagon_'+scale+'.csv')
     ia = readDrawingSetting(mode, scale)
 
     # -----------------------------drawing--------------------------------
-    #drawSingleGlyph_bs(ia)
-    SIPatterns(fileNames[1]+'_'+scale, dgids, ia, scale, mode, False) #True 表示只显示五环内的数据
+    #drawGlyph_bs(ia)
+    #SIPatterns(fileNames[4]+'_'+scale, dgids, ia, scale, mode, True) #True 表示只显示五环内的数据
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
+    #singlePattern(392, fileNames[0]+'_'+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
     #user_accu()
-    #user_resTime()
+    user_resTime()
 
     if False:
         labels = ['T', 'S', 'C', 'R']

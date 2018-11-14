@@ -131,8 +131,8 @@ def drawODMap_fj(file_name, save_file_name, ia):
 
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 58)
     draw.text((ia['width']-600+70, bottom - ia['legend_height']), 'home cell', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 50, bottom - ia['legend_height']), '0', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left + ia['legend_width']*ia['mag_class_num'] + 20, bottom - ia['legend_height']), 'max magnitude',
+    draw.text((left - 45, bottom - ia['legend_height']), '0', font=imageTitlefont, fill=(0, 0, 0))
+    draw.text((left + ia['legend_width']*ia['mag_class_num'] + 30, bottom - ia['legend_height']), str(np.max(data)),
               font=imageTitlefont, fill=(0, 0, 0))
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
@@ -205,6 +205,6 @@ if __name__ == '__main__':
     save_file_name = './figure/odmap_1600msq_051316_1721_dif.jpg'
 
     ia = readDrawingSetting(mode)
-    #drawODMap_fj(file_name, save_file_name, ia)
-    drawODMap_dif(file_name, file_name_c, save_file_name, ia)
+    drawODMap_fj(file_name, save_file_name, ia)
+    #drawODMap_dif(file_name, file_name_c, save_file_name, ia)
 

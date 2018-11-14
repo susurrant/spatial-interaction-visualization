@@ -214,10 +214,10 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
     if inside:
         grids, flows = readData_Inside(dataFileName+'.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_in_square.jpg'
+        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_in.jpg'
     else:
         grids, flows = readData(dataFileName + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '_square.jpg'
+        saveFileName = './figure/p_' + dataFileName[10:] + '_' + mode + '.jpg'
 
     drawPattern_bs(grids, flows, ia, scale, saveFileName)
 
@@ -228,4 +228,4 @@ if __name__ == '__main__':
     dgids = readGids('./data/5th_rr_square_' + scale + '.csv')
     ia = readDrawingSetting(mode, scale)
 
-    SIPatterns('./data/sj_051316_1721_1.6km_square', dgids, ia, scale, mode, False)  # True 表示只显示五环内的数据
+    SIPatterns('./data/sj_051316_1721_1.6km_square', dgids, ia, scale, mode, True)  # True 表示只显示五环内的数据
