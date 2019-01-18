@@ -1,5 +1,5 @@
 # spatial interaction visualization
-Visualizing and Comparing Spatial Interaction Patterns
+Visualizing spatial interaction characteristics with direction-based pattern maps
 
 ## Description
 Visualization that presents the data using maps, data tables or diagrams so that spatial patterns can be observed, is a vital field in SI studies. This research proposes direction-based pattern maps, a new visualization approach for SI data to present the SI pattern of every place by aggregating the data in cardinal directions.</br>
