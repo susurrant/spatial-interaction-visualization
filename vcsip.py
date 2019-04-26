@@ -156,8 +156,8 @@ if __name__ == '__main__':
     #singlePattern(392, fileNames[0]+'_'+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
-    #user_accu()
-    user_resTime()
+    user_accu()
+    #user_resTime()
 
     if False:
         labels = ['T', 'S', 'C', 'R']
@@ -165,5 +165,3 @@ if __name__ == '__main__':
         gids = [124, 150, 437, 165]    # scale = 1km
         colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
         difVar([fileNames[i]+'_'+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, 6)
-
-    #userScore()
