@@ -9,6 +9,7 @@ from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
 
 
+# compute the control point coordinate indeces in eight directions
 def computeCo_square(gridwidth):
     l = gridwidth/2
     xs = [l, l, 0, -l, -l, -l, 0, l, l]
@@ -16,7 +17,7 @@ def computeCo_square(gridwidth):
     return xs, ys
 
 
-# compute central point coordinates for a square
+# compute the central point coordinates of a square
 def computeCen_square(gid, ia):
     ox = ia['ox']
     oy = ia['oy']
@@ -27,8 +28,8 @@ def computeCen_square(gid, ia):
 
     return cenx, ceny
 
-
-def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
+# draw squares
+def drawSquares_bs(draw, grids, gridWidth, area_scale, margin, dnum):
     oxs, oys = computeCo_square(gridWidth)
     ixs, iys = computeCo_square(gridWidth * area_scale)
     fxs, fys = computeCo_square(gridWidth + margin)
@@ -46,6 +47,7 @@ def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
         draw.polygon(fco, fill=None, outline='#000000')
 
 
+# mark place labels
 def drawLabels(draw, grids, ia, scale):
     labelfont = ImageFont.truetype('./font/times.ttf', 64)
     labelColor = '#0000ff'  # '#003371'
@@ -90,6 +92,7 @@ def drawLabels(draw, grids, ia, scale):
         draw.text((30, ia['height'] - 80), 'D: Beijing West Railway Station', font=labelfont, fill=textColor)
 
 
+# main drawing function
 def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
     for gid in grids:
@@ -133,7 +136,7 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-# 读取数据
+# read data
 def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
@@ -171,7 +174,7 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     return grids, flows
 
 
-# 读取五环内的交互
+# also read data but inside the 5th ring road
 def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
@@ -210,7 +213,7 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     return grids, flows
 
 
-# 交互模式可视化
+# SI pattern visualization. inside == True - only visualize data inside the 5th ring road
 def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
     if inside:
         grids, flows = readData_Inside(dataFileName+'.csv', dgids, ia['dnum'])
@@ -228,4 +231,4 @@ if __name__ == '__main__':
     dgids = readGids('./data/5th_rr_square_' + scale + '.csv')
     ia = readDrawingSetting(mode, scale)
 
-    SIPatterns('./data/sj_051316_1721_1.6km_square', dgids, ia, scale, mode, True)  # True 表示只显示五环内的数据
+    SIPatterns('./data/sj_051316_1721_1.6km_square', dgids, ia, scale, mode, True)

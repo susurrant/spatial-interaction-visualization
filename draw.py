@@ -6,7 +6,7 @@ import seaborn as sns
 from func import *
 import numpy as np
 
-
+# illustrate pattern glyph example
 def drawGlyph_bs(ia):
     dnum = ia['dnum']
 
@@ -54,6 +54,7 @@ def drawGlyph_bs(ia):
     image.save('./figure/glyph.jpg', quality=95, dpi=(1200, 1200))
 
 
+# draw spatial interaction patterns using binary colors
 def drawPattern_bc(grids, flows, ia, saveFileName):
     # -------------------------------classify data----------------------------------
     mag = []
@@ -111,6 +112,7 @@ def drawPattern_bc(grids, flows, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
+# draw spatial interaction patterns using binary symbols
 def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
@@ -129,6 +131,7 @@ def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
         draw.polygon(fco, fill=None, outline='#000000')
 
 
+# mark place labels
 def drawLabels(draw, grids, ia, scale):
     labelfont = ImageFont.truetype('./font/times.ttf', 64)
     labelColor = '#0000ff'  # '#003371'
@@ -175,6 +178,7 @@ def drawLabels(draw, grids, ia, scale):
         draw.text((30, ia['height'] - 80), 'D: Beijing West Railway Station', font=labelfont, fill=textColor)
 
 
+# draw legends
 def drawLegend(draw, ia, max_mag, max_dis):
     '''
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
@@ -226,7 +230,7 @@ def drawLegend(draw, ia, max_mag, max_dis):
     draw.text((disx + 1.2 * lw, sy - lh), '0', font=imageMeasureFont, fill=(0, 0, 0))
     draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), str('%.2f' % max_dis), font=imageMeasureFont, fill=(0, 0, 0))
 
-
+# main drawing function
 def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
 
@@ -241,7 +245,7 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-# highlighting single pattern
+# draw the pattern of one place/hexagon
 def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, ceny=None):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
@@ -259,6 +263,7 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
 
 
+# main function - draw the pattern of one place/hexagon with gid
 def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
     processGrids_fj(grids, flows, ia)
     image = Image.new('RGB', (450, 450), '#ffffff')
@@ -267,7 +272,7 @@ def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-# draw patterns with highlighting selected patterns
+# draw spatial interaction patterns with highlighting selected patterns
 def drawPattern_bs_sp(grids, flows, ia, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
 
@@ -299,6 +304,7 @@ def drawPattern_bs_sp(grids, flows, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
+# (abandoned)
 def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     k_dif = ia['k_dif']
     dif, gid_nodata = cdif(grids1, grids2, flows1, flows2, alpha)
@@ -327,7 +333,7 @@ def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
             nc = ia['c_dif'][i]
             draw.polygon(co, fill=nc, outline=nc)
 
-    # ----绘制图例----
+    # ----draw legends----
     imageTitlefont = ImageFont.truetype('./font/times.ttf', 74)
     imageMeasureFont = ImageFont.truetype('./font/times.ttf', 80)
     sy = ia['height'] - 50
@@ -344,6 +350,7 @@ def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
+# draw pattern difference (abandoned)
 def drawCdifDistribution(gids, gdif, c, labels):
     sns.set(style="whitegrid")
     sns.set_context("paper")
@@ -380,6 +387,7 @@ def drawCdifDistribution(gids, gdif, c, labels):
     plt.show()
 
 
+# plotting for the user test result - accuracy
 def user_accu():
     sns.set(style="whitegrid")
 
@@ -422,6 +430,7 @@ def user_accu():
     plt.show()
 
 
+# plotting for the user test result - response time
 def user_resTime():
     ticks = ['ODM', 'DM', 'PM_H', 'PM_S']
     t1 = [[6.3, 14.2, 12.2, 9.1, 11.7, 11.4], [7.1, 15.2, 4.9, 6.4, 3.8, 23.6, 8.0],
