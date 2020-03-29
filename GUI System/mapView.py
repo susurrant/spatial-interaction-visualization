@@ -25,16 +25,16 @@ class MapGUI(Frame):
         self.pFrm.place(x=0, y=800)
 
         self.ia = self.init_ia(0.5, 15, 5)
-        filenames_500m = ['../data/sj_051316_0105_500m.csv', '../data/sj_051316_1721_500m.csv']
+        filenames_500m = ['../data/sj_051316_0105_500m.csv', '../data/sj_051316_0509_500m.csv']
         self.grids_500m, self.flows_500m, self.max_v_500m = relate2data(filenames_500m, self.ia)
         self.ia = self.init_ia(1, 15, 5)
-        filenames_1km = ['../data/sj_051316_0105_1km.csv', '../data/sj_051316_1721_1km.csv']
+        filenames_1km = ['../data/sj_051316_0105_1km.csv', '../data/sj_051316_0509_1km.csv']
         self.grids_1km, self.flows_1km, self.max_v_1km  = relate2data(filenames_1km, self.ia)
         self.sample_flows()
 
-        self.pc = pattern_canvas(self, self.grids_1km[0], self.max_v_1km[0]) # pattern map canvas
+        self.pc = pattern_canvas(self, self.grids_1km[1], self.max_v_1km[1]) # pattern map canvas
         self.pc.place(x=0, y=0)
-        self.fc = flow_canvas(self, self.flows_1km[0]) # flow map canvas
+        self.fc = flow_canvas(self, self.flows_1km[1]) # flow map canvas
         self.fc.place(x=800, y=0)
 
         self.show()
