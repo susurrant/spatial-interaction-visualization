@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-：
 
 from grid import Hexagon
-from draw import *
+from drawing import *
 from LL2UTM import LL2UTM_USGS
 from style import readDrawingSetting
 from func import readGids

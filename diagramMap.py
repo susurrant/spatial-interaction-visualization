@@ -2,7 +2,7 @@
 
 from PIL import Image, ImageDraw, ImageFont
 from LL2UTM import LL2UTM_USGS
-from draw import kmeans, computeCen, fisher_jenks
+from drawing import kmeans, computeCen, fisher_jenks
 import numpy as np
 from grid import Hexagon
 import style
