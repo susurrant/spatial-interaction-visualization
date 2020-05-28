@@ -156,8 +156,6 @@ if __name__ == '__main__':
     #singlePattern(392, fileNames[0]+'_'+scale, dgids, ia, mode)
 
     #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
-    user_accu()
-    #user_resTime()
 
     if False:
         labels = ['T', 'S', 'C', 'R']
