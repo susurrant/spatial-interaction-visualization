@@ -6,7 +6,8 @@ import seaborn as sns
 from func import *
 import numpy as np
 
-# illustrate pattern glyph example
+
+# draw a glyph
 def drawGlyph_bs(ia):
     dnum = ia['dnum']
 
@@ -131,7 +132,7 @@ def drawHexagons_bs(draw, grids, gridWidth, area_scale, margin, dnum):
         draw.polygon(fco, fill=None, outline='#000000')
 
 
-# mark place labels
+# add place labels
 def drawLabels(draw, grids, ia, scale):
     labelfont = ImageFont.truetype('./font/times.ttf', 64)
     labelColor = '#0000ff'  # '#003371'
@@ -230,7 +231,8 @@ def drawLegend(draw, ia, max_mag, max_dis):
     draw.text((disx + 1.2 * lw, sy - lh), '0', font=imageMeasureFont, fill=(0, 0, 0))
     draw.text((disx + 1.2 * lw, sy - lh * ia['k_m'] - lh), str('%.2f' % max_dis), font=imageMeasureFont, fill=(0, 0, 0))
 
-# main drawing function
+
+# main function
 def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
 
@@ -245,7 +247,16 @@ def drawPattern_bs(grids, flows, ia, scale, saveFileName):
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
 
 
-# draw the pattern of one place/hexagon
+# draw the pattern of one place/hexagon with gid
+def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
+    processGrids_fj(grids, flows, ia)
+    image = Image.new('RGB', (450, 450), '#ffffff')
+    draw = ImageDraw.Draw(image)
+    drawSingleHexagon_bs(draw, grids[gid], 220, 0.85, ia['dnum'], 225, 225)
+    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
+
+
+# draw the pattern of a particular place/hexagon
 def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, ceny=None):
     oxs, oys = computeCo(gridWidth, dnum // 6)
     ixs, iys = computeCo(gridWidth * area_scale, dnum // 6)
@@ -263,17 +274,8 @@ def drawSingleHexagon_bs(draw, grid, gridWidth, area_scale, dnum, cenx=None, cen
                 cenx + ixs[i + 1], ceny + iys[i + 1]], outline=grid.dcolor[i], fill=grid.dcolor[i])
 
 
-# main function - draw the pattern of one place/hexagon with gid
-def drawSinglePattern_bs(gid, grids, flows, ia, saveFileName):
-    processGrids_fj(grids, flows, ia)
-    image = Image.new('RGB', (450, 450), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    drawSingleHexagon_bs(draw, grids[gid], 220, 0.85, ia['dnum'], 225, 225)
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# draw spatial interaction patterns with highlighting selected patterns
-def drawPattern_bs_sp(grids, flows, ia, saveFileName):
+# draw spatial interaction patterns and highlight four patterns
+def drawPattern_bs_highlight(grids, flows, ia, saveFileName):
     max_mag, max_dis = processGrids_fj(grids, flows, ia)
 
     image = Image.new('RGB', (ia['width'], ia['height']+530), '#ffffff')
@@ -302,86 +304,3 @@ def drawPattern_bs_sp(grids, flows, ia, saveFileName):
     drawLegend(draw, ia, max_mag, max_dis)
 
     image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# (abandoned)
-def drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName):
-    k_dif = ia['k_dif']
-    dif, gid_nodata = cdif(grids1, grids2, flows1, flows2, alpha)
-    dif_train = []
-    for gid in dif:
-        dif_train.append(dif[gid])
-    difk, difl = fisher_jenks(dif_train, k_dif)
-
-    image = Image.new("RGB", (ia['width'], ia['height']), '#ffffff')
-    draw = ImageDraw.Draw(image)
-
-    for gid in grids1:
-        cenx, ceny = computeCen(gid, ia)
-        hex_co = computeCo_hexagon(cenx, ceny, ia['gridWidth'])
-        co = []
-        for item in hex_co:
-            co.append(item[2])
-            co.append(item[3])
-        co.append(co[0])
-        co.append(co[1])
-        if gid in gid_nodata:
-            draw.polygon(co, fill=None, outline=ia['c_dif'][0])
-        else:
-            x = np.where(dif[gid] <= difk)[0]
-            i = x.min() if x.size > 0 else len(difk) - 1
-            nc = ia['c_dif'][i]
-            draw.polygon(co, fill=nc, outline=nc)
-
-    # ----draw legends----
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 74)
-    imageMeasureFont = ImageFont.truetype('./font/times.ttf', 80)
-    sy = ia['height'] - 50
-    sx = ia['width'] - 400
-    lh = ia['legend_height']
-    lw = ia['legend_width']
-    for i, c in enumerate(ia['c_dif']):
-        draw.line([sx, sy - i * lh, sx + lw, sy - i * lh], width=lh, fill=c)
-
-    draw.text((sx - lw, sy - (k_dif+2.5)*lh), 'Difference', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((sx + lw*1.2, sy - lh*0.7), 'Small', font=imageMeasureFont, fill=(0, 0, 0))
-    draw.text((sx + lw*1.2, sy - lh*(k_dif+0.5)), 'Large', font=imageMeasureFont, fill=(0, 0, 0))
-
-    image.save(saveFileName, quality=ia['quality'], dpi=ia['dpi'])
-
-
-# draw pattern difference (abandoned)
-def drawCdifDistribution(gids, gdif, c, labels):
-    sns.set(style="whitegrid")
-    sns.set_context("paper")
-
-    fig, ax = plt.subplots()
-    ax.set_ylabel('odif', fontname="Times New Roman", style='italic', fontsize=13)
-    ax.set_xlabel('Time', fontname="Times New Roman", fontsize=13)
-    x = [i for i in range(5)]
-    ls = []
-    for i, gid in enumerate(gids):
-        l, = ax.plot(x, gdif[gid], 'o--', linewidth = 2, color = c[i], label = labels[i])
-        ls.append(l)
-
-
-    ax.set_ylim(0, 0.4)
-    ys = [0, 0.1, 0.2, 0.3, 0.4]
-    ax.set_yticks(ys)
-    ylabels = [str(abs(item)) for item in ys]
-    ax.yaxis.set_ticklabels(ylabels, fontname="Times New Roman", fontsize=12)
-
-
-    ax.set_xlim(0, 4)
-    xs = [i for i in range(0, 5)]
-    ax.set_xticks(xs)
-    xlabels = ['1-5 a.m.', '9 a.m.-1 p.m.', '1-5 p.m.', '5-9 p.m.', '9 p.m.-1 a.m.']
-    ax.xaxis.set_ticklabels(xlabels, fontname="Times New Roman", fontsize=12)
-
-
-    leg = plt.legend(handles=ls, loc=0)
-    for l in leg.get_texts():
-        l.set_fontsize(12)
-        l.set_fontname("Times New Roman")
-
-    plt.show()

@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from style import readDrawingSetting
 from func import kmeans, fisher_jenks
 
-# 读取五环内的交互
+# Load data within the 5th ring road
 def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
     data = np.zeros((rows**2, columns**2), dtype=np.uint32)
     with open(filename, 'r') as f:
@@ -34,6 +34,7 @@ def readData(filename, rows, columns, minSpeed=2, maxSpeed=150):
             else:
                 break
     return data
+
 
 def drawODMap_kmeans(file_name, save_file_name, ia):
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
@@ -82,6 +83,7 @@ def drawODMap_kmeans(file_name, save_file_name, ia):
                ia['oy'] + (4*ia['rows'] - ia['yoffset']) * gridWidth), 'C', font=labelfont, fill=(0, 0, 0))
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
+
 
 def drawODMap_fj(file_name, save_file_name, ia):
     image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
@@ -137,66 +139,6 @@ def drawODMap_fj(file_name, save_file_name, ia):
 
     image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
 
-def drawODMap_dif(file_name, file_name_c, save_file_name, ia):
-    data = readData(file_name, ia['rows'], ia['columns'])
-    data_c = readData(file_name_c, ia['rows'], ia['columns'])
-    dif = np.abs(data-data_c)
-    nk, nl = fisher_jenks(dif.flatten(), ia['dif_class_num'])
-
-    image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    gridWidth = ia['gridWidth']
-
-    # draw cells
-    for r in range(ia['rows'] ** 2):
-        top = ia['oy'] + (r - ia['yoffset']) * gridWidth
-        for c in range(ia['columns'] ** 2):
-            left = ia['ox'] + (c - ia['xoffset']) * gridWidth
-            if data[r,c] == 0 and data_c[r,c]==0:
-                color = '#ffffff'
-            else:
-                x = np.where(dif[r, c] <= nk)[0]
-                i = x.min() if x.size > 0 else len(nk) - 1
-                color = ia['c_dif'][i]
-            draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=color)
-
-    # draw border
-    for r in range(ia['rows']):
-        top = ia['oy'] + (r - ia['yoffset']) * gridWidth * ia['rows']
-        for c in range(ia['columns']):
-            left = ia['ox'] + (c - ia['xoffset']) * gridWidth * ia['columns']
-            draw.rectangle([(left, top), (left + gridWidth * ia['columns'], top + gridWidth * ia['rows'])],
-                           outline=ia['border_color'])
-
-    # draw home cell border
-    for r in range(ia['rows'] ** 2):
-        top = ia['oy'] + (r - ia['yoffset']) * gridWidth
-        for c in range(ia['columns'] ** 2):
-            left = ia['ox'] + (c - ia['xoffset']) * gridWidth
-            if r % ia['rows'] == r // ia['rows'] and c % ia['columns'] == c // ia['columns']:
-                #draw.rectangle([(left, top), (left + gridWidth, top + gridWidth)], fill=None, outline='#000000')
-                draw.line([left, top, left + gridWidth, top, left + gridWidth, top + gridWidth,
-                           left, top + gridWidth, left, top], fill='#000000', width=2)
-
-    draw.line([ia['width'] - 600, ia['height'] - 70, ia['width'] - 600 + 30, ia['height'] - 70, ia['width'] - 600 + 30,
-               ia['height'] - 40, ia['width'] - 600, ia['height'] - 40, ia['width'] - 600, ia['height'] - 70],
-              fill='#000000', width=2)
-
-    left = (ia['width'] - ia['legend_width'] * ia['dif_class_num']) // 2
-    bottom = ia['height'] - 10
-    for i, c in enumerate(ia['c_dif']):
-        draw.rectangle([(left + i * ia['legend_width'], bottom - ia['legend_height']),
-                        (left + (i + 1) * ia['legend_width'], bottom)], fill=c)
-
-    imageTitlefont = ImageFont.truetype('./font/times.ttf', 64)
-    draw.text((ia['width'] - 600 + 70, bottom - ia['legend_height']), 'home cell', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left - 180, bottom - ia['legend_height']), 'Small', font=imageTitlefont, fill=(0, 0, 0))
-    draw.text((left + ia['legend_width'] * ia['dif_class_num'] + 30, bottom - ia['legend_height']), 'Large',
-              font=imageTitlefont, fill=(0, 0, 0))
-
-    image.save(save_file_name, quality=ia['quality'], dpi=ia['dpi'])
-
-
 
 if __name__ == '__main__':
     mode = 'om'
@@ -206,5 +148,4 @@ if __name__ == '__main__':
 
     ia = readDrawingSetting(mode)
     drawODMap_fj(file_name, save_file_name, ia)
-    #drawODMap_dif(file_name, file_name_c, save_file_name, ia)
 

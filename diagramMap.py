@@ -9,7 +9,7 @@ import style
 import csv
 
 
-# 读取五环内的交互
+# Load data within the 5th ring road
 def readData_Inside(filename, dnum, minSpeed=2, maxSpeed=150):
     flows_co = {}
     grids = {}
@@ -49,6 +49,7 @@ def readData_Inside(filename, dnum, minSpeed=2, maxSpeed=150):
                 break
 
     return grids, flows_co
+
 
 def readData_with_zones(filename, zones, dnum, minSpeed=2, maxSpeed=150):
     flows_co = {}
@@ -109,6 +110,7 @@ def readData_with_zones(filename, zones, dnum, minSpeed=2, maxSpeed=150):
 
     return grids, flows_co
 
+
 def statistic_kmeans(data_file, dis_class_num, dnum):
     grids, flows = readData_Inside(data_file, dnum)
     dis = []
@@ -138,6 +140,7 @@ def statistic_kmeans(data_file, dis_class_num, dnum):
         round_flow[gid] = grids[gid].round_flow_num
 
     return grid_sta, round_flow, maxmag
+
 
 def statistic_fj(data_file, dis_class_num, dnum):
     grids, flows = readData_Inside(data_file, dnum)
@@ -169,6 +172,7 @@ def statistic_fj(data_file, dis_class_num, dnum):
 
     return grid_sta, round_flow, maxmag
 
+
 def write(grids, fn):
     with open(fn, 'w', newline='') as f:
         sheet = csv.writer(f)
@@ -178,97 +182,6 @@ def write(grids, fn):
                 d.extend(ld)
             sheet.writerow(d)
 
-def statistic_dif(data_file, data_file_c, zones, ia):
-    # 时间段1的分布统计：data_file
-    grids, flows = readData_Inside(data_file, ia['dnum'])
-    dis = []
-    for gid in grids:
-        grids[gid].calcOutList(flows)
-        for ld in grids[gid].ld:
-            dis.extend(ld)
-    dk, dl = fisher_jenks(dis, ia['dis_class_num'])
-
-    grid_sta = {}
-    for gid in grids:
-        grid_sta[gid] = []
-        for i in range(ia['dnum']):
-            grid_sta[gid].append([0, 0, 0])
-        for j, ld in enumerate(grids[gid].ld):
-            uptos = [np.where(value <= dk)[0] for value in ld]
-            for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
-                grid_sta[gid][j][i] += 1
-    #write(grid_sta, '1.csv')
-
-    # 时间段2的分布统计：data_file_c
-    grids_c, flows_c = readData_with_zones(data_file_c, zones, ia['dnum'])
-    for gid in grids_c:
-        grids_c[gid].calcOutList(flows_c)
-    grid_sta_c = {}
-    for gid in grids_c:
-        grid_sta_c[gid] = []
-        for i in range(ia['dnum']):
-            grid_sta_c[gid].append([0, 0, 0])
-        for j, ld in enumerate(grids_c[gid].ld):
-            uptos = [np.where(value <= dk)[0] for value in ld]
-            for i in [x.min() if x.size > 0 else len(dk) - 1 for x in uptos]:
-                grid_sta_c[gid][j][i] += 1
-
-    #write(grid_sta_c, '2.csv')
-
-    # 求差
-    grid_dif = {}
-    dif = []
-    for gid in grid_sta:
-        grid_dif[gid] = []
-        for i in range(ia['dnum']):
-            dif_list = []
-            if grid_sta[gid][i][0] == 0 and grid_sta_c[gid][i][0] == 0:
-                dif_list.append(-1)
-            else:
-                temp_dif = abs(grid_sta[gid][i][0]-grid_sta_c[gid][i][0])
-                dif_list.append(temp_dif)
-                dif.append(temp_dif)
-
-            if grid_sta[gid][i][1] == 0 and grid_sta_c[gid][i][1] == 0:
-                dif_list.append(-1)
-            else:
-                temp_dif = abs(grid_sta[gid][i][1] - grid_sta_c[gid][i][1])
-                dif_list.append(temp_dif)
-                dif.append(temp_dif)
-
-            if grid_sta[gid][i][2] == 0 and grid_sta_c[gid][i][2] == 0:
-                dif_list.append(-1)
-            else:
-                temp_dif = abs(grid_sta[gid][i][2] - grid_sta_c[gid][i][2])
-                dif_list.append(temp_dif)
-                dif.append(temp_dif)
-
-            grid_dif[gid].append(dif_list)
-
-        if grids[gid].round_flow_num == 0 and grids_c[gid].round_flow_num == 0:
-            grid_dif[gid].append([-1])
-        else:
-            round_dif = abs(grids[gid].round_flow_num - grids_c[gid].round_flow_num)
-            grid_dif[gid].append([round_dif])
-            dif.append(round_dif)
-    fk, fl = fisher_jenks(dif, ia['dif_class_num'])
-
-    # 设置颜色
-    rgrids = {}
-    for gid in grid_dif:
-        rgrids[gid] = []
-        for j, dif in enumerate(grid_dif[gid]):
-            rgrids[gid].append([])
-            for value in dif:
-                if value == -1:
-                    tem_color = None
-                else:
-                    x = np.where(value <= fk)[0]
-                    i = x.min() if x.size > 0 else len(dk) - 1
-                    tem_color = ia['c_dif'][i]
-                rgrids[gid][j].append(tem_color)
-
-    return rgrids
 
 def statistic_class(data_file, dis_class_num, mag_class_num, dnum, radius):
     grids, flows = readData_Inside(data_file, dnum)
@@ -320,6 +233,7 @@ def statistic_class(data_file, dis_class_num, mag_class_num, dnum, radius):
 
     return rgrids, max(mag), max(dis)
 
+
 def drawDiagramMap_AJ1(data_file, ia, save_file, dnum=6):
     grid_sta, round_flow, maxmag = statistic_kmeans(data_file, ia['class_num'], dnum)
 
@@ -340,6 +254,7 @@ def drawDiagramMap_AJ1(data_file, ia, save_file, dnum=6):
 
     image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
 
+
 def readZones(file_name):
     zones = {}
     with open(file_name, 'r') as f:
@@ -348,6 +263,7 @@ def readZones(file_name):
             sl = line.strip().split(',')
             zones[int(sl[0])] = (float(sl[1]), float(sl[2]))
     return zones
+
 
 def drawRingRoad(draw, file_name, xoff, yoff):
     with open(file_name, 'r') as f:
@@ -367,12 +283,14 @@ def drawRingRoad(draw, file_name, xoff, yoff):
                 pts = [(x, y)]
         draw.line(pts, fill='#000000', width=2)
 
+
 def drawRoundTrip(draw, cenx, ceny, r):
     a = np.arange(0, 360, 10) * 2 * np.pi / 360
     xs = cenx + r * np.cos(a)
     ys = ceny + r * np.sin(a)
     for x, y in zip(xs, ys):
         draw.ellipse([x-1,y-1,x+1,y+1], fill='#323232')
+
 
 # 按比例连续设置扇形半径
 def drawDiagramMap_RO1_proportion(data_file, zone_file, save_file, ia):
@@ -440,6 +358,7 @@ def drawDiagramMap_RO1_proportion(data_file, zone_file, save_file, ia):
 
     image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
 
+
 # 按分级等间隔设置半径
 def drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia):
     grid_sta, max_mag, max_dis = statistic_class(data_file, ia['dis_class_num'], ia['mag_class_num'], ia['dnum'], ia['radius'])
@@ -494,43 +413,6 @@ def drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia):
 
     image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
 
-def drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia):
-    zones = readZones(zone_file)
-    grid_sta = statistic_dif(data_file, data_file_c, zones, ia)
-
-    image = Image.new('RGB', (ia['width'], ia['height']), '#ffffff')
-    draw = ImageDraw.Draw(image)
-    if ia['dnum'] == 6:
-        angle = [(300, 0), (240, 300), (180, 240), (120, 180), (60, 120), (0, 60)]
-    radii = ia['radii']
-    xoff = 431500
-    yoff = 4400700
-
-    drawRingRoad(draw, './data/ringroad_pt.csv', xoff, yoff)
-
-    for gid in grid_sta:
-        cenx, ceny = zones[gid]
-        cenx = (cenx - xoff) / 10
-        ceny = ia['height'] - (ceny - yoff) / 10
-        for i in range(ia['dnum']):
-            for j in range(ia['dis_class_num'] - 1, -1, -1):
-                draw.pieslice([cenx - radii[j], ceny - radii[j], cenx + radii[j], ceny + radii[j]], angle[i][0], angle[i][1],
-                              fill=grid_sta[gid][i][j], outline='#fe0000')
-        draw.ellipse([cenx-ia['round_radius'],ceny-ia['round_radius'],cenx+ia['round_radius'],ceny+ia['round_radius']],
-                     fill=grid_sta[gid][ia['dnum']][0], outline='#fe0000')
-
-    # draw legend
-    x = ia['width'] - 600
-    y = ia['height'] - 200
-    for i in range(ia['dif_class_num']):
-        draw.rectangle([x + i * ia['legend_width'], y - ia['legend_height'], x + (i + 1) * ia['legend_width'], y],
-                       fill=ia['c_dif'][i])
-    imagescalefont = ImageFont.truetype('./font/times.ttf', 64)
-    draw.text((x - 70, y + 20), 'Small', font=imagescalefont, fill=(0, 0, 0))
-    draw.text((x + ia['dif_class_num']*ia['legend_width']-50, y + 20), 'Large', font=imagescalefont, fill=(0, 0, 0))
-
-    image.save(save_file, quality=ia['quality'], dpi=ia['dpi'])
-
 
 if __name__ == '__main__':
     mode = 'dm'
@@ -540,6 +422,3 @@ if __name__ == '__main__':
     ia = style.readDrawingSetting(mode)
 
     drawDiagramMap_RO1_class(data_file, zone_file, save_file, ia)
-
-    #data_file_c = './data/sj_051316_0509_5rr.csv'
-    #drawDifferenceMap_CJ(data_file, zone_file, data_file_c, save_file, ia)

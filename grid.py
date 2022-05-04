@@ -4,9 +4,9 @@ import numpy as np
 
 class Glyph(object):
     def __init__(self, gid, dnum):
-        # 格网ID
+        # grid ID
         self.gid = gid
-        # 关联的流集合
+        # associated flows
         self.outFlow = []
         self.inFlow = []
 

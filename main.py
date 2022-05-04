@@ -7,7 +7,7 @@ from style import readDrawingSetting
 from func import readGids
 
 
-# 读取数据
+# Load data
 def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
@@ -44,7 +44,7 @@ def readData(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
 
     return grids, flows
 
-# 读取五环内的交互
+# Load data within the 5th ring road
 def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     flows = {}
     grids = {}
@@ -83,7 +83,7 @@ def readData_Inside(filename, dgids, dnum, minSpeed = 2, maxSpeed = 150):
     return grids, flows
 
 
-# 交互模式可视化
+# Visualize
 def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
     if inside:
         grids, flows = readData_Inside(dataFileName+'.csv', dgids, ia['dnum'])
@@ -98,12 +98,12 @@ def SIPatterns(dataFileName, dgids, ia, scale, mode, inside=False):
         drawPattern_bc(grids, flows, ia, saveFileName)
 
 
-def SIPatterns_sp(fileName, dgids, ia, mode='bs'):
+def SIPatterns_highlight(fileName, dgids, ia, mode='bs'):
     grids, flows = readData(fileName + '.csv', dgids, ia['dnum'])
     saveFileName = './figure/p_' + fileName[-15:] + '_' + mode + '.jpg'
 
     if mode == 'pm_bs':
-        drawPattern_bs_sp(grids, flows, ia, saveFileName)
+        drawPattern_bs_highlight(grids, flows, ia, saveFileName)
 
 
 def singlePattern(gid, fileName, dgids, ia, mode='bs'):
@@ -114,52 +114,25 @@ def singlePattern(gid, fileName, dgids, ia, mode='bs'):
         drawSinglePattern_bs(gid, grids, flows, ia, saveFileName)
 
 
-# 模式差异可视化
-def patternDifference(fileName1, fileName2, dgids, ia, alpha, inside=False):
-    if inside:
-        grids1, flows1 = readData_Inside(fileName1 + '.csv', dgids, ia['dnum'])
-        grids2, flows2 = readData_Inside(fileName2 + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/d_' + fileName1[-15:-4] + '-' + fileName2[-8:] + '_' + str(alpha) + '_in.jpg'
-    else:
-        grids1, flows1 = readData(fileName1 + '.csv', dgids, ia['dnum'])
-        grids2, flows2 = readData(fileName2 + '.csv', dgids, ia['dnum'])
-        saveFileName = './figure/d_' + fileName1[-15:-4] + '-' + fileName2[-8:] + '_' + str(alpha) + '.jpg'
-
-    drawDif_fj(grids1, grids2, flows1, flows2, alpha, ia, saveFileName)
-
-# 差异时变
-def difVar(fs, dgids, gids, labels, colors, alpha, dnum):
-    grids = []
-    flows = []
-    for fn in fs:
-        g, f = readData(fn + '.csv', dgids, dnum)
-        grids.append(g)
-        flows.append(f)
-    gdif = cdif_multi(grids, flows, alpha)
-    drawCdifDistribution(gids, gdif, colors, labels)
-
-
 if __name__ == '__main__':
     # -----------------------------data----------------------------------
     fileNames = ['./data/sj_051316_0105','./data/sj_051316_0509', './data/sj_051316_0913',
                  './data/sj_051316_1317', './data/sj_051316_1721', './data/sj_051316_2101']
 
-    scale = '1km' #'1km' or '500m'
+    scale = '1km' # '1km' or '500m'
     mode = 'pm_bs'
     dgids = readGids('./data/5th_rr_hexagon_'+scale+'.csv')
     ia = readDrawingSetting(mode, scale)
 
     # -----------------------------drawing--------------------------------
     #drawGlyph_bs(ia)
-    #SIPatterns(fileNames[4]+'_'+scale, dgids, ia, scale, mode, True) #True 表示只显示五环内的数据
+    SIPatterns(fileNames[4]+'_'+scale, dgids, ia, scale, mode, True) # True means visualizing data with the 5th ring road.
     #SIPatterns_sp(fileNames[0]+'_'+scale, dgids, ia, mode)
     #singlePattern(392, fileNames[0]+'_'+scale, dgids, ia, mode)
 
-    #patternDifference(fileNames[1]+'_'+scale, fileNames[4]+'_'+scale, dgids, ia, 0.7, True)
-
-    if False:
-        labels = ['T', 'S', 'C', 'R']
-        #gids = [124, 150, 437, 356]    #scale = 1km
-        gids = [124, 150, 437, 165]    # scale = 1km
-        colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
-        difVar([fileNames[i]+'_'+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, 6)
+    # if False:
+    #     labels = ['T', 'S', 'C', 'R']
+    #     #gids = [124, 150, 437, 356]    #scale = 1km
+    #     gids = [124, 150, 437, 165]    # scale = 1km
+    #     colors = ['#eaff56', '#44cef6', '#ff461f', '#bddd22']
+    #     difVar([fileNames[i]+'_'+scale for i in [1,0,2,3,4,5]], dgids, gids, labels, colors, 0.7, 6)

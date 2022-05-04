@@ -7,9 +7,9 @@ import numpy as np
 
 class Grid(object):
     def __init__(self, gid, dnum):
-        # 格网ID
+        # grid ID
         self.gid = gid
-        #东北、北、西北、西南、南、东南五个方向magnitude, 和distance
+        # magnitude/distance/num. of flows in NE, N, NW, SW, S, SE
         self.m = [0]*dnum
         self.d = [0]*dnum
         self.num = [0]*dnum

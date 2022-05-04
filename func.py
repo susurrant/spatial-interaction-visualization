@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-：
 
-
 from sklearn.cluster import KMeans
 import operator
 import numpy as np
@@ -16,6 +15,7 @@ def kmeans(dn, cNum):
             labels.append(l)
     return k, labels
 
+# natural break classifier
 def fisher_jenks(d, cNum):
     X = np.array(d).reshape((-1, 1))
     fj = ps.esda.mapclassify.Fisher_Jenks(X, cNum)
@@ -23,6 +23,7 @@ def fisher_jenks(d, cNum):
     for i in range(cNum):
         meanV.append(np.mean(X[np.where(i == fj.yb)]))
     return fj.bins, meanV
+
 
 # compute row and column indexes
 def computeRC(gid, hexParm):
@@ -77,103 +78,6 @@ def computeCo(gridWidth, n):
     xs.append(xs[0])
     ys.append(ys[0])
     return xs, ys
-
-
-# magnitude difference
-def mdif(m1, m2):
-    if operator.eq(m1, m2):
-        return 0
-    n = 0
-    for n1, n2 in zip(m1, m2):
-        n += abs(n2-n1)
-    return n
-
-
-# distance difference
-def ddif(d1, d2, m1, m2):
-    if operator.eq(d1, d2):
-        return 0
-    n = []
-    w = []
-    for i in range(len(d1)):
-        w.append(abs(m2[i]-m1[i]))
-        n.append(abs(d2[i]-d1[i]))
-    if sum(w)==0:
-        return sum(n)
-    else:
-        s = 0
-        for i, tw in enumerate(w):
-            s += tw*n[i]
-        return float(s)/sum(w)
-
-
-# comprehensive difference between two patterns
-def cdif(grids1, grids2, flows1, flows2, alpha):
-    d_difN = {}
-    d_difD = {}
-    gid_nodata = set()
-    maxD = 0
-    maxN = 0
-    minD = float('inf')
-    minN = float('inf')
-
-    for gid in grids1:
-        grids1[gid].calcOutAggregation(flows1)
-        grids2[gid].calcOutAggregation(flows2)
-        if sum(grids1[gid].wm) ==0 and sum(grids2[gid].wm)==0:
-            gid_nodata.add(gid)
-            continue
-        difN = mdif(grids1[gid].wm, grids2[gid].wm)
-        difD = ddif(grids1[gid].wd, grids2[gid].wd, grids1[gid].wm, grids2[gid].wm)
-        d_difN[gid] = difN
-        d_difD[gid] = difD
-        minN = min(minN, difN)
-        maxN = max(maxN, difN)
-        minD = min(minD, difD)
-        maxD = max(maxD, difD)
-
-    dif = {}
-    for gid in d_difN:
-        dif[gid] = alpha*(d_difN[gid]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid]-minD)/(maxD-minD)
-
-    return dif, gid_nodata
-
-
-# comprehensive difference between several patterns and a specific pattern
-def cdif_multi(lgrids, lflows, alpha):
-    d_difN = {}
-    d_difD = {}
-    tNum = (len(lgrids) - 1)
-    for gid in lgrids[0]:
-        d_difN[gid] = [0] * tNum
-        d_difD[gid] = [0] * tNum
-    maxD = 0
-    maxN = 0
-    minD = float('inf')
-    minN = float('inf')
-
-    for i in range(tNum+1):
-        for g in lgrids[i]:
-            lgrids[i][g].calcOutAggregation(lflows[i])
-
-    for gid in lgrids[0]:
-        for i in range(1, tNum+1):
-            difN = mdif(lgrids[0][gid].wm, lgrids[i][gid].wm)
-            difD = ddif(lgrids[0][gid].wd, lgrids[i][gid].wd, lgrids[0][gid].wm, lgrids[i][gid].wm)
-            d_difN[gid][i-1] = difN
-            d_difD[gid][i-1] = difD
-            minN = min(minN, difN)
-            maxN = max(maxN, difN)
-            minD = min(minD, difD)
-            maxD = max(maxD, difD)
-
-    dif = {}
-    for gid in lgrids[0]:
-        dif[gid] = [0] * tNum
-        for i in range(tNum):
-            dif[gid][i] = alpha*(d_difN[gid][i]-minN)/(maxN-minN) + (1-alpha)*(d_difD[gid][i]-minD)/(maxD-minD)
-
-    return dif
 
 
 # read grid id list
